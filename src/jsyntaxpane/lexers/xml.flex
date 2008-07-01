@@ -63,15 +63,17 @@ Tag = {TagStart} | {TagEnd}
 
 /* attribute */
 Attribute = {LetterDigit}+ "="
-
+lcase = [a-z]
 
 /* string and character literals */
-StringCharacter = [^\r\n\"\\]
+DQuoteStringChar = [^\r\n\"]
+SQuoteStringChar = [^\r\n\']
 
 %%
 
 <YYINITIAL> {
-  \"{StringCharacter}+\"         { return token(TokenType.STRING); }
+  \"{DQuoteStringChar}+\"        { return token(TokenType.STRING); }
+  \'{SQuoteStringChar}+\'        { return token(TokenType.STRING); }
   
   {Comment}                      { return token(TokenType.COMMENT); }
 
@@ -80,6 +82,9 @@ StringCharacter = [^\r\n\"\\]
   {Attribute}                    { return token(TokenType.IDENT); }
 
   {DocType}                      { return token(TokenType.KEYWORD); }
+
+  "&"  {lcase}+ ";"              { return token(TokenType.OPER); }
+  "&#" [:digit:]+ ";"            { return token(TokenType.OPER); }
 
   {LetterDigit}+                 { return token(TokenType.IDENT); }
 
