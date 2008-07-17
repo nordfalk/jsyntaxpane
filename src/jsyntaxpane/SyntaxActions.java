@@ -25,7 +25,7 @@ public class SyntaxActions {
     public static PairAction LPARAN = new PairAction("LPARAN", "(", ")");
     public static PairAction LSQUARE = new PairAction("LSQUARE", "[", "]");
     public static PairAction DQUOTE = new PairAction("DQUOTE", "\"", "\"");
-    public static PairAction SQUOTE = new PairAction("SQUOTE", "\"", "\"");
+    public static PairAction SQUOTE = new PairAction("SQUOTE", "'", "'");
     public static SmartIndent SMART_INDENT = new SmartIndent();
     public static JavaIndent JAVA_INDENT = new JavaIndent();
     public static IndentAction INDENT = new IndentAction();
