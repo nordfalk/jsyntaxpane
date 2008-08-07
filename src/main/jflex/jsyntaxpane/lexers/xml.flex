@@ -57,8 +57,8 @@ Tag = [<>/]
 DocType = "<?xml" [^?]* "?>"
 
 /* Tag Delimiters */
-TagStart = "<" {LetterDigit}+
-TagEnd = ("</" {LetterDigit}+ ">") | "/>" | ">"
+TagStart = "<" {LetterDigit}+ (":" | "-" | {LetterDigit} )*
+TagEnd = ("</" {LetterDigit}+ (":" | "-" | {LetterDigit} )* ">") | "/>" | ">"
 Tag = {TagStart} | {TagEnd}
 
 /* attribute */
