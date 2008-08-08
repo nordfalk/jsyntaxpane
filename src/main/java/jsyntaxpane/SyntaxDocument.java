@@ -108,6 +108,13 @@ public class SyntaxDocument extends PlainDocument {
         super.remove(offs, len);
         parse();
     }
+    
+    @Override
+    public void replace(int offset, int length, String text, AttributeSet attrs) 
+            throws BadLocationException {
+        super.replace(offset, length, text, attrs);
+        parse();
+    }
 
     /**
      * This class is used to iterate over tokens between two positions
