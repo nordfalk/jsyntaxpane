@@ -4,10 +4,23 @@
   <groupId>jsyntaxpane</groupId>
   <artifactId>jsyntaxpane</artifactId>
   <packaging>jar</packaging>
-  <version>080717</version>
+  <version>0.9.0</version>
   <name>jsyntaxpane</name>
-  <url>http://maven.apache.org</url>
-  
+  <description>A very simple to use and extend JEditorKit that supports few languages. The main goal is to make it easy to have nice looking Java Swing Editors with support for Syntax Highlighting.</description>
+  <url>http://jsyntaxpane.googlecode.com/</url>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>http://jsyntaxpane.googlecode.com/svn/</url>
+  </scm>
+
   <pluginRepositories>
     <pluginRepository>
       <id>jflex</id>
@@ -15,15 +28,6 @@
       <url>http://jflex.sourceforge.net/repo/</url>
     </pluginRepository>
   </pluginRepositories>
-  
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
   
   <build>
     <plugins>
@@ -38,7 +42,7 @@
       <plugin>
         <groupId>de.jflex.maven.plugin</groupId>
         <artifactId>maven-jflex-plugin</artifactId>
-        <version>0.2</version>
+        <!--version>0.2</version-->
         <executions>
           <execution>
             <goals>
@@ -51,3 +55,4 @@
   </build>
 
 </project>
+
