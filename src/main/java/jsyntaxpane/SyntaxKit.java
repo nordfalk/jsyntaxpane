@@ -13,16 +13,10 @@
  */
 package jsyntaxpane;
 
-import jsyntaxpane.lexers.TALLexer;
-import jsyntaxpane.lexers.JavaLexer;
-import jsyntaxpane.lexers.GroovyLexer;
-import jsyntaxpane.lexers.XmlLexer;
-import jsyntaxpane.lexers.JavaScriptLexer;
-import jsyntaxpane.lexers.PropertiesLexer;
-import jsyntaxpane.lexers.SqlLexer;
 import java.awt.Font;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JEditorPane;
@@ -31,6 +25,7 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
+import sun.misc.Service;
 
 public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
 
@@ -133,13 +128,12 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      */
     public static void initKit() {
         LEXERS_MAP = new HashMap<String, Class<? extends Lexer>>();
-        registerLexer(JavaLexer.class, JavaLexer.LANGS);
-        registerLexer(GroovyLexer.class, GroovyLexer.LANGS);
-        registerLexer(JavaScriptLexer.class, JavaScriptLexer.LANGS);
-        registerLexer(XmlLexer.class, XmlLexer.LANGS);
-        registerLexer(TALLexer.class, TALLexer.LANGS);
-        registerLexer(PropertiesLexer.class, PropertiesLexer.LANGS);
-        registerLexer(SqlLexer.class, SqlLexer.LANGS);
+        Iterator ps = Service.providers(ILexerProvider.class);
+        while (ps.hasNext()) {
+            ILexerProvider provider = (ILexerProvider)ps.next();
+            Logger.getLogger(SyntaxKit.class.getName()).finest(provider.getNames()[0]);
+            registerLexer(provider.getLexerClass(), provider.getNames());
+        }
     }
 
     /**
