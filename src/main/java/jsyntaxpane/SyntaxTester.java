@@ -14,6 +14,7 @@
 package jsyntaxpane;
 
 import java.awt.event.ItemEvent;
+import java.awt.Rectangle;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.BadLocationException;
 
@@ -125,9 +126,21 @@ private void jEdtTestCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:
 private void jCmbLangsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCmbLangsItemStateChanged
     if (evt.getStateChange() == ItemEvent.SELECTED) {
         String lang = jCmbLangs.getSelectedItem().toString();
+
+        // save the state of the current JEditorPane, as it's Document is about
+        // to be replaced.
         String t = jEdtTest.getText();
+        int caretPosition = jEdtTest.getCaretPosition();
+        Rectangle visibleRectangle = jEdtTest.getVisibleRect();
+
+        // install a new SyntaxKit on the JEditorPane for the requested language.
         jEdtTest.setEditorKit(new SyntaxKit(lang));
+
+        // restore the state of the JEditorPane - note that installing a new
+        // EditorKit causes the Document to be recreated.
         jEdtTest.setText(t);
+        jEdtTest.setCaretPosition(caretPosition);
+        jEdtTest.scrollRectToVisible(visibleRectangle);
     }
 }//GEN-LAST:event_jCmbLangsItemStateChanged
 
