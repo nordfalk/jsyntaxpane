@@ -138,6 +138,7 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
             }
         }
         catch(IOException ex){
+            Logger.getLogger(SyntaxKit.class.getName()).log(Level.SEVERE, null, ex);
             assert true: ex;
         }
     }
