@@ -14,9 +14,10 @@
 package jsyntaxpane;
 
 import java.awt.Font;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JEditorPane;
@@ -25,7 +26,7 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
-import sun.misc.Service;
+import jsyntaxpane.util.JarServiceProvider;
 
 public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
 
@@ -128,11 +129,16 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      */
     public static void initKit() {
         LEXERS_MAP = new HashMap<String, Class<? extends Lexer>>();
-        Iterator ps = Service.providers(ILexerProvider.class);
-        while (ps.hasNext()) {
-            ILexerProvider provider = (ILexerProvider)ps.next();
-            Logger.getLogger(SyntaxKit.class.getName()).finest(provider.getNames()[0]);
-            registerLexer(provider.getLexerClass(), provider.getNames());
+        try{
+            List<Object> sp = JarServiceProvider.getServiceProviders(ILexerProvider.class);
+            for (Object o: sp) {
+                ILexerProvider provider = (ILexerProvider)o;
+                Logger.getLogger(SyntaxKit.class.getName()).finest(provider.getNames()[0]);
+                registerLexer(provider.getLexerClass(), provider.getNames());
+            }
+        }
+        catch(IOException ex){
+            assert true: ex;
         }
     }
 
