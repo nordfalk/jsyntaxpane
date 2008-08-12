@@ -30,7 +30,7 @@ import jsyntaxpane.util.JarServiceProvider;
 
 public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
 
-    private static Font DEFAULT_FONT = new Font("Courier New", Font.PLAIN, 12);
+    public static Font DEFAULT_FONT = new Font("Courier New", Font.PLAIN, 12);
     private String lang;
     private static HashMap<String, Class<? extends Lexer>> LEXERS_MAP = null;
     private static String[] LANGS;
@@ -68,8 +68,8 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
     @Override
     public void install(JEditorPane editorPane) {
         // clear the bindings and action so we can start fresh
-        editorPane.getActionMap().clear();
-        editorPane.getKeymap().removeBindings();
+        // editorPane.getActionMap().clear();
+        // editorPane.getKeymap().removeBindings();
         // now use the defaults
         super.install(editorPane);
         editorPane.setFont(DEFAULT_FONT);
@@ -133,8 +133,8 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
             List<Object> sp = JarServiceProvider.getServiceProviders(Lexer.class);
             for (Object o: sp) {
                 Lexer lexer = (Lexer)o;
-                Logger.getLogger(SyntaxKit.class.getName()).finest(lexer.getNames()[0]);
-                registerLexer(lexer.getClass(), lexer.getNames());
+                Logger.getLogger(SyntaxKit.class.getName()).finest(lexer.getContentTypes()[0]);
+                registerLexer(lexer.getClass(), lexer.getContentTypes());
             }
         }
         catch(IOException ex){

@@ -47,7 +47,7 @@ public class SyntaxTester extends javax.swing.JFrame {
 
         jEdtTest.setContentType("text/java");
         jEdtTest.setEditorKit(new SyntaxKit("java"));
-        jEdtTest.setFont(new java.awt.Font("Courier New", 0, 12));
+        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
         jEdtTest.setText("\n/**\n * @param args the command line arguments\n */\n// Line comment\npublic static void main(String args[]) {\n    int number = 1234;\n    String s = \"abcdef\";\n    Regex r = /12334.*/;\n    java.awt.EventQueue.invokeLater(new Runnable() {\n\n        @Override\n        public void run() {\n            new SyntaxTester().setVisible(true);\n        }\n    });\n}\n");
         jEdtTest.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {

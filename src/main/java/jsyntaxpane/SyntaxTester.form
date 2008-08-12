@@ -74,7 +74,7 @@
               <Connection code="new SyntaxKit(&quot;java&quot;)" type="code"/>
             </Property>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Courier New" size="12" style="0"/>
+              <Font name="Monospaced" size="13" style="0"/>
             </Property>
             <Property name="text" type="java.lang.String" value="&#xa;/**&#xa; * @param args the command line arguments&#xa; */&#xa;// Line comment&#xa;public static void main(String args[]) {&#xa;    int number = 1234;&#xa;    String s = &quot;abcdef&quot;;&#xa;    Regex r = /12334.*/;&#xa;    java.awt.EventQueue.invokeLater(new Runnable() {&#xa;&#xa;        @Override&#xa;        public void run() {&#xa;            new SyntaxTester().setVisible(true);&#xa;        }&#xa;    });&#xa;}&#xa;"/>
           </Properties>

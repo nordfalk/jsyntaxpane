@@ -53,7 +53,8 @@ public class SyntaxView extends PlainView {
                 // should be starting (spaces not returned in tokens), then draw
                 // it in the default type
                 if (start < t.start) {
-                    graphics.setColor(Color.BLACK);
+                    SyntaxStyles.getInstance().setGraphicsStyle(graphics,
+                            TokenType.DEFAULT);
                     doc.getText(start, t.start - start, segment);
                     x = Utilities.drawTabbedText(segment, x, y, graphics, this, start);
                 }
