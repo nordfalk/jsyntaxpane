@@ -1,8 +1,0 @@
-jsyntaxpane.lexers.GroovyLexerProvider
-jsyntaxpane.lexers.JavaLexerProvider
-jsyntaxpane.lexers.JavaScriptLexerProvider
-jsyntaxpane.lexers.PropertiesLexerProvider
-jsyntaxpane.lexers.SqlLexerProvider
-jsyntaxpane.lexers.TALLexerProvider
-jsyntaxpane.lexers.XmlLexerProvider
-

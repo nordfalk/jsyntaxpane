@@ -130,11 +130,11 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
     public static void initKit() {
         LEXERS_MAP = new HashMap<String, Class<? extends Lexer>>();
         try{
-            List<Object> sp = JarServiceProvider.getServiceProviders(ILexerProvider.class);
+            List<Object> sp = JarServiceProvider.getServiceProviders(Lexer.class);
             for (Object o: sp) {
-                ILexerProvider provider = (ILexerProvider)o;
-                Logger.getLogger(SyntaxKit.class.getName()).finest(provider.getNames()[0]);
-                registerLexer(provider.getLexerClass(), provider.getNames());
+                Lexer lexer = (Lexer)o;
+                Logger.getLogger(SyntaxKit.class.getName()).finest(lexer.getNames()[0]);
+                registerLexer(lexer.getClass(), lexer.getNames());
             }
         }
         catch(IOException ex){

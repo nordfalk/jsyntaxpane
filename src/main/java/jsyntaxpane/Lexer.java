@@ -36,4 +36,6 @@ public interface Lexer {
      */
     public Token yylex() throws java.io.IOException;
     
+    public String[] getNames();
+    
 }

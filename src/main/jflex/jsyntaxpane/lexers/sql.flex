@@ -42,6 +42,10 @@ import jsyntaxpane.TokenType;
 
     public static String[] LANGS = new String[] {"sql"};
 
+    public String[] getNames(){
+      return LANGS;
+    }
+
 %}
 
 /* main character classes */

@@ -44,6 +44,10 @@ import jsyntaxpane.TokenType;
 
     public static String[] LANGS = new String[] {"groovy"};
 
+    public String[] getNames(){
+      return LANGS;
+    }
+
 %}
 
 /* main character classes */
