@@ -40,7 +40,7 @@ import jsyntaxpane.TokenType;
 
     public static String[] LANGS = new String[] {"javascript", "js", "rhino"};
 
-    public String[] getNames(){
+    public String[] getContentTypes(){
       return LANGS;
     }
 

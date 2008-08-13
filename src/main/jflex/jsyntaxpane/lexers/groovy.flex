@@ -44,7 +44,7 @@ import jsyntaxpane.TokenType;
 
     public static String[] LANGS = new String[] {"groovy"};
 
-    public String[] getNames(){
+    public String[] getContentTypes(){
       return LANGS;
     }
 

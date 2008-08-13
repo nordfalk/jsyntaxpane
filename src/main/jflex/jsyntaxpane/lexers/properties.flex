@@ -34,7 +34,7 @@ import jsyntaxpane.TokenType;
 
     public static String[] LANGS = new String[] {"properties"};
 
-    public String[] getNames(){
+    public String[] getContentTypes(){
       return LANGS;
     }
 

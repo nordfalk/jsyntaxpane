@@ -42,7 +42,7 @@ import jsyntaxpane.TokenType;
 
     public static String[] LANGS = new String[] {"sql"};
 
-    public String[] getNames(){
+    public String[] getContentTypes(){
       return LANGS;
     }
 

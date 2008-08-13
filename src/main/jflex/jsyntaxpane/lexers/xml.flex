@@ -33,7 +33,7 @@ import jsyntaxpane.TokenType;
 
     public static String[] LANGS = new String[] {"xml"};
 
-    public String[] getNames(){
+    public String[] getContentTypes(){
       return LANGS;
     }
 
