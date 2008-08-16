@@ -10,14 +10,14 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
 import jsyntaxpane.KeymapUtil;
 import jsyntaxpane.Lexer;
-import jsyntaxpane.SyntaxLang;
+import jsyntaxpane.SyntaxLanguage;
 import jsyntaxpane.lexers.PropertiesLexer;
 
 /**
  *
  * @author subwiz
  */
-public class PropertiesSyntaxLang implements SyntaxLang {
+public class PropertiesSyntaxLang implements SyntaxLanguage {
 
     private static final String[] LANGS = new String[] {"properties"};
 

@@ -11,7 +11,7 @@ import javax.swing.JEditorPane;
  *
  * @author subwiz
  */
-public interface SyntaxLang {
+public interface SyntaxLanguage {
     public String[] getLanguageNames();
     public void install(JEditorPane editorPane);
     public Lexer getLexer();

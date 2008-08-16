@@ -10,14 +10,14 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
 import jsyntaxpane.KeymapUtil;
 import jsyntaxpane.Lexer;
-import jsyntaxpane.SyntaxLang;
+import jsyntaxpane.SyntaxLanguage;
 import jsyntaxpane.lexers.SqlLexer;
 
 /**
  *
  * @author subwiz
  */
-public class SQLSyntaxLang implements SyntaxLang {
+public class SQLSyntaxLang implements SyntaxLanguage {
 
     private static final String[] LANGS = new String[] {"sql"};
 

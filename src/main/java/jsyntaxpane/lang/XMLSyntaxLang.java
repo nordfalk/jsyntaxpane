@@ -10,14 +10,14 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
 import jsyntaxpane.KeymapUtil;
 import jsyntaxpane.Lexer;
-import jsyntaxpane.SyntaxLang;
+import jsyntaxpane.SyntaxLanguage;
 import jsyntaxpane.lexers.XmlLexer;
 
 /**
  *
  * @author subwiz
  */
-public class XMLSyntaxLang implements SyntaxLang{
+public class XMLSyntaxLang implements SyntaxLanguage{
 
     private static final String[] LANGS = new String[] {"xml"};
 

@@ -32,7 +32,7 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
 
     public static Font DEFAULT_FONT = new Font("Courier New", Font.PLAIN, 12);
     private String lang;
-    private static HashMap<String, SyntaxLang> SYNTAX_LANG_MAP = null;
+    private static HashMap<String, SyntaxLanguage> SYNTAX_LANG_MAP = null;
     private static String[] LANGS;
     
     static {
@@ -74,7 +74,7 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
         super.install(editorPane);
         editorPane.setFont(DEFAULT_FONT);
 
-        SyntaxLang synLang = SYNTAX_LANG_MAP.get(lang);
+        SyntaxLanguage synLang = SYNTAX_LANG_MAP.get(lang);
         synLang.install(editorPane);
     }
 
@@ -103,11 +103,11 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      * this at initialization, or it will be called when needed.
      */
     public static void initKit() {
-        SYNTAX_LANG_MAP = new HashMap<String, SyntaxLang>();
+        SYNTAX_LANG_MAP = new HashMap<String, SyntaxLanguage>();
         try{
-            List<Object> sp = JarServiceProvider.getServiceProviders(SyntaxLang.class);
+            List<Object> sp = JarServiceProvider.getServiceProviders(SyntaxLanguage.class);
             for (Object o: sp) {
-                SyntaxLang synLang = (SyntaxLang)o;
+                SyntaxLanguage synLang = (SyntaxLanguage)o;
                 Logger.getLogger(SyntaxKit.class.getName()).finest(synLang.getLanguageNames()[0]);
                 registerLang(synLang, synLang.getLanguageNames());
             }
@@ -123,7 +123,7 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      * @param lexer Lexer to add
      * @param langs supported array of languages
      */
-    public static void registerLang(SyntaxLang synLang, String[] langs) {
+    public static void registerLang(SyntaxLanguage synLang, String[] langs) {
         for (String lang : langs) {
             SYNTAX_LANG_MAP.put(lang, synLang);
         }
