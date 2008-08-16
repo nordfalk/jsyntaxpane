@@ -75,19 +75,19 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
         editorPane.setFont(DEFAULT_FONT);
 
         // and now add our own actions and key bindings
-        SyntaxActions.addAction(editorPane, "TAB", SyntaxActions.INDENT);
-        SyntaxActions.addAction(editorPane, "shift TAB", SyntaxActions.UNINDENT);
-        SyntaxActions.addAction(editorPane, "control Z", SyntaxActions.UNDO);
-        SyntaxActions.addAction(editorPane, "control Y", SyntaxActions.REDO);
+        SyntaxActions.addAction(lang, editorPane, "TAB", SyntaxActions.INDENT);
+        SyntaxActions.addAction(lang, editorPane, "shift TAB", SyntaxActions.UNINDENT);
+        SyntaxActions.addAction(lang, editorPane, "control Z", SyntaxActions.UNDO);
+        SyntaxActions.addAction(lang, editorPane, "control Y", SyntaxActions.REDO);
 
         if ("groovy".equals(lang) || "java".equals(lang)) {
-            SyntaxActions.addAction(editorPane, '(', SyntaxActions.LPARAN);
-            SyntaxActions.addAction(editorPane, '[', SyntaxActions.LSQUARE);
-            SyntaxActions.addAction(editorPane, '"', SyntaxActions.DQUOTE);
-            SyntaxActions.addAction(editorPane, '\'', SyntaxActions.SQUOTE);
-            SyntaxActions.addAction(editorPane, "ENTER", SyntaxActions.JAVA_INDENT);
+            SyntaxActions.addAction(lang, editorPane, '(', SyntaxActions.LPARAN);
+            SyntaxActions.addAction(lang, editorPane, '[', SyntaxActions.LSQUARE);
+            SyntaxActions.addAction(lang, editorPane, '"', SyntaxActions.DQUOTE);
+            SyntaxActions.addAction(lang, editorPane, '\'', SyntaxActions.SQUOTE);
+            SyntaxActions.addAction(lang, editorPane, "ENTER", SyntaxActions.JAVA_INDENT);
         } else if (lang.equalsIgnoreCase("xml")) {
-            SyntaxActions.addAction(editorPane, "ENTER", SyntaxActions.SMART_INDENT);
+            SyntaxActions.addAction(lang, editorPane, "ENTER", SyntaxActions.SMART_INDENT);
         }
     }
 

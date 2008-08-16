@@ -5,6 +5,8 @@
 package jsyntaxpane;
 
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.KeyStroke;
@@ -301,6 +303,18 @@ public class SyntaxActions {
         }
         return line;
     }
+    
+    private static final Map<String, Keymap> KEYMAP_MAP = new HashMap<String, Keymap>();
+
+    private static Keymap getKeymap(final String lang){
+        Keymap km = KEYMAP_MAP.get(lang);
+        if(km == null){
+            km = JTextComponent.addKeymap(null,
+                    JTextComponent.getKeymap(JTextComponent.DEFAULT_KEYMAP));
+            KEYMAP_MAP.put(lang, km);
+        }
+        return km;
+    }
 
     /**
      * Helper method to add an action to a component
@@ -308,10 +322,14 @@ public class SyntaxActions {
      * @param key
      * @param action
      */
-    public static void addAction(JTextComponent control, Character key,
+    public static void addAction(String lang, JTextComponent control, Character key,
             TextAction action) {
-        control.getKeymap().addActionForKeyStroke(KeyStroke.getKeyStroke(key),
+        Keymap km = getKeymap(lang);
+        km.addActionForKeyStroke(KeyStroke.getKeyStroke(key),
                 action);
+        if(control.getKeymap() != km){
+            control.setKeymap(km);
+        }
     }
 
     /**
@@ -325,8 +343,6 @@ public class SyntaxActions {
         control.getKeymap().addActionForKeyStroke(stroke, action);
     }
 
-    private static final Keymap JSYNTAXPANE_KEYMAP = JTextComponent.addKeymap(null,
-            JTextComponent.getKeymap(JTextComponent.DEFAULT_KEYMAP));
 
     /**
      * Add the given Action which is activated by KeyStroke to the control
@@ -335,7 +351,7 @@ public class SyntaxActions {
      * @param action
      * @throws IllegalArgumentException if stroke is invalid
      */
-    public static void addAction(JTextComponent control, String stroke,
+    public static void addAction(final String lang, JTextComponent control, String stroke,
             TextAction action) {
         KeyStroke ks = KeyStroke.getKeyStroke(stroke);
         if (ks == null) {
@@ -343,9 +359,10 @@ public class SyntaxActions {
         }
         // TODO: should this be in synchronized block?
         // Not a problem if it will be called by EDT
-        JSYNTAXPANE_KEYMAP.addActionForKeyStroke(ks, action);
-        if(JSYNTAXPANE_KEYMAP != control.getKeymap()){
-            control.setKeymap(JSYNTAXPANE_KEYMAP);
+        Keymap km = getKeymap(lang);
+        km.addActionForKeyStroke(ks, action);
+        if(km != control.getKeymap()){
+            control.setKeymap(km);
         }
     }
     // This is used internally to avoid NPE if we have no Strings
