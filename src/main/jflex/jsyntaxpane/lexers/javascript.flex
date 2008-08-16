@@ -38,12 +38,6 @@ import jsyntaxpane.TokenType;
     int tokenStart;
     int tokenLength;
 
-    public static String[] LANGS = new String[] {"javascript", "js", "rhino"};
-
-    public String[] getContentTypes(){
-      return LANGS;
-    }
-
 %}
 
 /* main character classes */

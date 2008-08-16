@@ -32,7 +32,7 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
 
     public static Font DEFAULT_FONT = new Font("Courier New", Font.PLAIN, 12);
     private String lang;
-    private static HashMap<String, Class<? extends Lexer>> LEXERS_MAP = null;
+    private static HashMap<String, SyntaxLang> SYNTAX_LANG_MAP = null;
     private static String[] LANGS;
     
     static {
@@ -74,21 +74,8 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
         super.install(editorPane);
         editorPane.setFont(DEFAULT_FONT);
 
-        // and now add our own actions and key bindings
-        SyntaxActions.addAction(lang, editorPane, "TAB", SyntaxActions.INDENT);
-        SyntaxActions.addAction(lang, editorPane, "shift TAB", SyntaxActions.UNINDENT);
-        SyntaxActions.addAction(lang, editorPane, "control Z", SyntaxActions.UNDO);
-        SyntaxActions.addAction(lang, editorPane, "control Y", SyntaxActions.REDO);
-
-        if ("groovy".equals(lang) || "java".equals(lang)) {
-            SyntaxActions.addAction(lang, editorPane, '(', SyntaxActions.LPARAN);
-            SyntaxActions.addAction(lang, editorPane, '[', SyntaxActions.LSQUARE);
-            SyntaxActions.addAction(lang, editorPane, '"', SyntaxActions.DQUOTE);
-            SyntaxActions.addAction(lang, editorPane, '\'', SyntaxActions.SQUOTE);
-            SyntaxActions.addAction(lang, editorPane, "ENTER", SyntaxActions.JAVA_INDENT);
-        } else if (lang.equalsIgnoreCase("xml")) {
-            SyntaxActions.addAction(lang, editorPane, "ENTER", SyntaxActions.SMART_INDENT);
-        }
+        SyntaxLang synLang = SYNTAX_LANG_MAP.get(lang);
+        synLang.install(editorPane);
     }
 
     /**
@@ -101,22 +88,10 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
     @Override
     public Document createDefaultDocument() {
         Lexer lexer = null;
-        if (LEXERS_MAP.containsKey(lang)) {
-            try {
-                lexer = LEXERS_MAP.get(lang).newInstance();
-            } catch (InstantiationException ex) {
-                Logger.getLogger(SyntaxKit.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalAccessException ex) {
-                Logger.getLogger(SyntaxKit.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else if (LEXERS_MAP.containsKey("text/" + lang)) {
-            try {
-                lexer = LEXERS_MAP.get("text/" + lang).newInstance();
-            } catch (InstantiationException ex) {
-                Logger.getLogger(SyntaxKit.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalAccessException ex) {
-                Logger.getLogger(SyntaxKit.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        if (SYNTAX_LANG_MAP.containsKey(lang)) {
+            lexer = SYNTAX_LANG_MAP.get(lang).getLexer();
+        } else if (SYNTAX_LANG_MAP.containsKey("text/" + lang)) {
+            lexer = SYNTAX_LANG_MAP.get("text/" + lang).getLexer();
         } else {
             Logger.getLogger(SyntaxKit.class.getName()).warning("Unable to find lexer for: " + lang);
         }
@@ -128,13 +103,13 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      * this at initialization, or it will be called when needed.
      */
     public static void initKit() {
-        LEXERS_MAP = new HashMap<String, Class<? extends Lexer>>();
+        SYNTAX_LANG_MAP = new HashMap<String, SyntaxLang>();
         try{
-            List<Object> sp = JarServiceProvider.getServiceProviders(Lexer.class);
+            List<Object> sp = JarServiceProvider.getServiceProviders(SyntaxLang.class);
             for (Object o: sp) {
-                Lexer lexer = (Lexer)o;
-                Logger.getLogger(SyntaxKit.class.getName()).finest(lexer.getContentTypes()[0]);
-                registerLexer(lexer.getClass(), lexer.getContentTypes());
+                SyntaxLang synLang = (SyntaxLang)o;
+                Logger.getLogger(SyntaxKit.class.getName()).finest(synLang.getLanguageNames()[0]);
+                registerLang(synLang, synLang.getLanguageNames());
             }
         }
         catch(IOException ex){
@@ -148,9 +123,9 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      * @param lexer Lexer to add
      * @param langs supported array of languages
      */
-    public static void registerLexer(Class<? extends Lexer> lexer, String[] langs) {
+    public static void registerLang(SyntaxLang synLang, String[] langs) {
         for (String lang : langs) {
-            LEXERS_MAP.put(lang, lexer);
+            SYNTAX_LANG_MAP.put(lang, synLang);
         }
         // throu away the old list, and create a new one when needed
         LANGS = null;
@@ -163,8 +138,8 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
     public static String[] getLangs() {
         if (LANGS == null) {
             int i = 0;
-            LANGS = new String[LEXERS_MAP.size()];
-            for (String l : LEXERS_MAP.keySet()) {
+            LANGS = new String[SYNTAX_LANG_MAP.size()];
+            for (String l : SYNTAX_LANG_MAP.keySet()) {
                 LANGS[i++] = l;
             }
             Arrays.sort(LANGS);

@@ -39,13 +39,6 @@ import jsyntaxpane.TokenType;
     // Tokens that need deifferent Lexer States, like STRING
     int tokenStart;
     int tokenLength;
-
-    public static String[] LANGS = new String[] {"sql"};
-
-    public String[] getContentTypes(){
-      return LANGS;
-    }
-
 %}
 
 /* main character classes */

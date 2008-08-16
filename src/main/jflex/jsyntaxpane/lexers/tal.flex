@@ -32,12 +32,6 @@ import jsyntaxpane.TokenType;
         return new Token(type, yychar, yylength());
     }
 
-    public static String[] LANGS = new String[] {"tal"};
-
-    public String[] getContentTypes(){
-      return LANGS;
-    }
-
 %}
 
 /* main character classes */

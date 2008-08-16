@@ -61,12 +61,6 @@ import jsyntaxpane.TokenType;
     int tokenStart;
     int tokenLength;
 
-    public static String[] LANGS = new String[] { "java" };
-
-    public String[] getContentTypes(){
-      return LANGS;
-    }
-
 %}
 
 /* main character classes */

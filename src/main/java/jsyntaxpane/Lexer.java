@@ -36,10 +36,4 @@ public interface Lexer {
      */
     public Token yylex() throws java.io.IOException;
     
-    /**
-     * Get an array of all content types supported by this Lexer
-     * @return array of content types supported.
-     */
-    public String[] getContentTypes();
-    
 }
