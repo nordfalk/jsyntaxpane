@@ -75,7 +75,14 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
         editorPane.setFont(DEFAULT_FONT);
 
         SyntaxLanguage synLang = SYNTAX_LANG_MAP.get(lang);
-        synLang.install(editorPane);
+        if(synLang != null){
+            synLang.install(editorPane);
+        }
+        else{
+            Logger.getLogger(
+                    SyntaxKit.class.getName()).warning(
+                    "SyntaxLanguage for language not found: " + lang);
+        }
     }
 
     /**
