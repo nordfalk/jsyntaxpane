@@ -14,6 +14,7 @@
 package jsyntaxpane;
 
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,10 +31,12 @@ import jsyntaxpane.util.JarServiceProvider;
 
 public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
 
-    public static Font DEFAULT_FONT = new Font("Courier New", Font.PLAIN, 12);
+    public static Font DEFAULT_FONT;
     private String lang;
     private static HashMap<String, SyntaxLanguage> SYNTAX_LANG_MAP = null;
     private static String[] LANGS;
+    private Lexer lexer;
+    private static Logger LOG = Logger.getLogger(SyntaxKit.class.getName());
     
     static {
         initKit();
@@ -45,6 +48,13 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      */
     public SyntaxKit(String lang) {
         super();
+        this.lang = lang;
+        createLexer(lang);
+    }
+
+    public SyntaxKit(Lexer lexer, String lang) {
+        super();
+        this.lexer = lexer;
         this.lang = lang;
     }
 
@@ -67,21 +77,14 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      */
     @Override
     public void install(JEditorPane editorPane) {
-        // clear the bindings and action so we can start fresh
-        // editorPane.getActionMap().clear();
-        // editorPane.getKeymap().removeBindings();
-        // now use the defaults
         super.install(editorPane);
         editorPane.setFont(DEFAULT_FONT);
 
         SyntaxLanguage synLang = SYNTAX_LANG_MAP.get(lang);
-        if(synLang != null){
+        if (synLang != null) {
             synLang.install(editorPane);
-        }
-        else{
-            Logger.getLogger(
-                    SyntaxKit.class.getName()).warning(
-                    "SyntaxLanguage for language not found: " + lang);
+        } else {
+            LOG.warning("SyntaxLanguage for language not found: " + lang);
         }
     }
 
@@ -94,15 +97,21 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      */
     @Override
     public Document createDefaultDocument() {
-        Lexer lexer = null;
+        return new SyntaxDocument(lexer);
+    }
+
+    /**
+     * Use the services to find a suitable lexer
+     * @param lang
+     */
+    public void createLexer(String lang) {
         if (SYNTAX_LANG_MAP.containsKey(lang)) {
             lexer = SYNTAX_LANG_MAP.get(lang).getLexer();
         } else if (SYNTAX_LANG_MAP.containsKey("text/" + lang)) {
             lexer = SYNTAX_LANG_MAP.get("text/" + lang).getLexer();
         } else {
-            Logger.getLogger(SyntaxKit.class.getName()).warning("Unable to find lexer for: " + lang);
+            LOG.warning("Unable to find lexer for language: " + lang);
         }
-        return new SyntaxDocument(lexer);
     }
 
     /**
@@ -111,17 +120,29 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      */
     public static void initKit() {
         SYNTAX_LANG_MAP = new HashMap<String, SyntaxLanguage>();
-        try{
+
+        // attempt to find a suitable default font
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        String[] fonts = ge.getAvailableFontFamilyNames();
+        Arrays.sort(fonts);
+        if (Arrays.binarySearch(fonts, "Courier new") >= 0) {
+            DEFAULT_FONT = new Font("Courier New", Font.PLAIN, 12);
+        } else if (Arrays.binarySearch(fonts, "Courier") >= 0) {
+            DEFAULT_FONT = new Font("Courier", Font.PLAIN, 12);
+        } else if (Arrays.binarySearch(fonts, "Monospaced") >= 0) {
+            DEFAULT_FONT = new Font("Monospaced", Font.PLAIN, 12);
+        }
+
+        try {
             List<Object> sp = JarServiceProvider.getServiceProviders(SyntaxLanguage.class);
-            for (Object o: sp) {
-                SyntaxLanguage synLang = (SyntaxLanguage)o;
-                Logger.getLogger(SyntaxKit.class.getName()).finest(synLang.getLanguageNames()[0]);
+            for (Object o : sp) {
+                SyntaxLanguage synLang = (SyntaxLanguage) o;
+                LOG.finest(synLang.getLanguageNames()[0]);
                 registerLang(synLang, synLang.getLanguageNames());
             }
-        }
-        catch(IOException ex){
-            Logger.getLogger(SyntaxKit.class.getName()).log(Level.SEVERE, null, ex);
-            assert true: ex;
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            assert true : ex;
         }
     }
 
@@ -134,7 +155,7 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
         for (String lang : langs) {
             SYNTAX_LANG_MAP.put(lang, synLang);
         }
-        // throu away the old list, and create a new one when needed
+        // throw away the old list, and create a new one when needed
         LANGS = null;
     }
 

@@ -31,7 +31,7 @@ public interface Lexer {
     
     /**
      * This is called to return the next Token from the Input Reader
-     * @return
+     * @return next token, or null if no more tokens.
      * @throws java.io.IOException
      */
     public Token yylex() throws java.io.IOException;

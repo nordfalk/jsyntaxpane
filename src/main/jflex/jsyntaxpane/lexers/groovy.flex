@@ -38,7 +38,7 @@ import jsyntaxpane.TokenType;
     }
 
     // These will be used to store Token Start positions and length for Complex 
-    // Tokens that need deifferent Lexer States, like STRING
+    // Tokens that need different Lexer States, like STRING
     int tokenStart;
     int tokenLength;
 
