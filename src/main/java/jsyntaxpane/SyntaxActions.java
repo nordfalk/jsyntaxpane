@@ -11,6 +11,7 @@ import javax.swing.KeyStroke;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.Keymap;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.TextAction;
 
@@ -324,6 +325,9 @@ public class SyntaxActions {
         control.getKeymap().addActionForKeyStroke(stroke, action);
     }
 
+    private static final Keymap JSYNTAXPANE_KEYMAP = JTextComponent.addKeymap(null,
+            JTextComponent.getKeymap(JTextComponent.DEFAULT_KEYMAP));
+
     /**
      * Add the given Action which is activated by KeyStroke to the control
      * @param control
@@ -337,7 +341,12 @@ public class SyntaxActions {
         if (ks == null) {
             throw new IllegalArgumentException("invalid keystroke: " + stroke);
         }
-        control.getKeymap().addActionForKeyStroke(ks, action);
+        // TODO: should this be in synchronized block?
+        // Not a problem if it will be called by EDT
+        JSYNTAXPANE_KEYMAP.addActionForKeyStroke(ks, action);
+        if(JSYNTAXPANE_KEYMAP != control.getKeymap()){
+            control.setKeymap(JSYNTAXPANE_KEYMAP);
+        }
     }
     // This is used internally to avoid NPE if we have no Strings
     private static String[] EMPTY_STRING_ARRAY = new String[0];
