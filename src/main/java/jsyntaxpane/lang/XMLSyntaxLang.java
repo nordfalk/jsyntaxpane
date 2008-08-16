@@ -26,7 +26,7 @@ public class XMLSyntaxLang implements SyntaxLang{
     }
 
     public void install(JEditorPane editorPane) {
-        Keymap km_parent = editorPane.getKeymap();
+        Keymap km_parent = JTextComponent.getKeymap(JTextComponent.DEFAULT_KEYMAP);
         Keymap km_new = JTextComponent.addKeymap(null, km_parent);
         KeymapUtil.installCommonKeymap(km_new);
         KeymapUtil.installMarkupKeymap(km_new);
