@@ -4,15 +4,18 @@
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.Lexer;
+import jsyntaxpane.DefaultLexer;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
+import javax.swing.KeyStroke;
+import javax.swing.text.Keymap;
+import jsyntaxpane.SyntaxActions;
 
 %%
 
 %public
 %class PropertiesLexer
-%implements Lexer
+%extends DefaultLexer
 %final
 %unicode
 %char
@@ -32,6 +35,17 @@ import jsyntaxpane.TokenType;
         return new Token(type, yychar, yylength());
     }
 
+    @Override
+    public void addKeyActions(Keymap map) {
+        super.addKeyActions(map);
+    }
+
+    @Override
+    public String[] getLanguages() {
+        return LANGS;
+    }
+
+    private static final String[] LANGS = { "properties" };
 %}
 
 StartComment = #

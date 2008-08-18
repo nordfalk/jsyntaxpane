@@ -13,17 +13,25 @@
  */
 package jsyntaxpane;
 
+/**
+ * These are the various token types supported by JSyntaxPane.
+ * 
+ * @author ayman
+ */
 public enum TokenType {
 
-    OPER,
-    KEYWORD,
-    IDENT,
-    NUMBER,
-    STRING,
-    STRING_ESC,
-    GSTRING_EXPR,
-    COMMENT,
-    REGEX,
-    TYPE,
-    DEFAULT
+    OPERATOR,   // Language operators
+    KEYWORD,    // language reserved keywords
+    IDENTIFIER, // identifiers, variable names, class names
+    NUMBER,     // numbers in various formats
+    STRING,     // String
+    STRING2,    // For highlighting meta chars within a String
+    COMMENT,    // comments
+    COMMENT2,   // special stuff within comments
+    REGEX,      // regular expressions
+    REGEX2,     // special chars within regular expressions
+    TYPE,       // Types, usually not keywords, but supported by the language
+    TYPE2,      // Types from standard libraries
+    TYPE3,      // Types for users
+    DEFAULT     // any other text
 }

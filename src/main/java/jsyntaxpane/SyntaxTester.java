@@ -17,12 +17,14 @@ import java.awt.event.ItemEvent;
 import java.awt.Rectangle;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.BadLocationException;
+import jsyntaxpane.lexers.GroovyLexer;
 
 public class SyntaxTester extends javax.swing.JFrame {
 
     /** Creates new form Tester */
     public SyntaxTester() {
         initComponents();
+        SyntaxKitFactory.getKitForLanguage("java");
         jCmbLangs.setSelectedItem("java");
     }
 
@@ -46,9 +48,8 @@ public class SyntaxTester extends javax.swing.JFrame {
         lblCaretPos.setText("Care Position");
 
         jEdtTest.setContentType("text/java");
-        jEdtTest.setEditorKit(new SyntaxKit("java"));
-        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
-        jEdtTest.setText("\n/**\n * @param args the command line arguments\n */\n// Line comment\npublic static void main(String args[]) {\n    int number = 1234;\n    String s = \"abcdef\";\n    Regex r = /12334.*/;\n    java.awt.EventQueue.invokeLater(new Runnable() {\n\n        @Override\n        public void run() {\n            new SyntaxTester().setVisible(true);\n        }\n    });\n}\n");
+        jEdtTest.setEditorKit(new SyntaxKit(new GroovyLexer()));
+        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13));
         jEdtTest.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 jEdtTestCaretUpdate(evt);
@@ -60,7 +61,7 @@ public class SyntaxTester extends javax.swing.JFrame {
         lblToken.setText("Token under cursor");
 
         jCmbLangs.setMaximumRowCount(20);
-        jCmbLangs.setModel(new DefaultComboBoxModel(SyntaxKit.getLangs()));
+        jCmbLangs.setModel(new DefaultComboBoxModel(SyntaxKitFactory.getLanguages()));
         jCmbLangs.setFocusable(false);
         jCmbLangs.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -80,7 +81,7 @@ public class SyntaxTester extends javax.swing.JFrame {
                         .addComponent(jCmbLangs, 0, 164, Short.MAX_VALUE)
                         .addGap(366, 366, 366)
                         .addComponent(lblCaretPos, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -134,7 +135,7 @@ private void jCmbLangsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRS
         Rectangle visibleRectangle = jEdtTest.getVisibleRect();
 
         // install a new SyntaxKit on the JEditorPane for the requested language.
-        jEdtTest.setEditorKit(new SyntaxKit(lang));
+        jEdtTest.setEditorKit(SyntaxKitFactory.getKitForLanguage(lang));
 
         // restore the state of the JEditorPane - note that installing a new
         // EditorKit causes the Document to be recreated.

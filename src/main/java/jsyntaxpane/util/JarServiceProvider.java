@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  */
-
 package jsyntaxpane.util;
 
 import java.io.BufferedReader;
@@ -30,45 +29,57 @@ import java.util.logging.Logger;
  * @author subwiz
  */
 public class JarServiceProvider {
-    
+
     private static final Logger LOG = Logger.getLogger(JarServiceProvider.class.getName());
 
-    public static List<Object> getServiceProviders(Class cls) throws IOException{
+    /**
+     * Prevent anyone from instantiating this class.  
+     * Just use the static method
+     */
+    private JarServiceProvider() {
+
+    }
+
+    /**
+     * Return an Object array from the file in META-INF/resources/{classname}
+     * @param cls
+     * @return
+     * @throws java.io.IOException
+     */
+    public static List<Object> getServiceProviders(Class cls) throws IOException {
         ArrayList<Object> l = new ArrayList<Object>();
         ClassLoader cl = JarServiceProvider.class.getClassLoader();
-        cl = cl == null? ClassLoader.getSystemClassLoader(): cl;
-        if(cl != null){
+        cl = cl == null ? ClassLoader.getSystemClassLoader() : cl;
+        if (cl != null) {
             String serviceFile = "META-INF/services/" + cls.getName();
             Enumeration<URL> e = cl.getResources(serviceFile);
-            while(e.hasMoreElements()){
+            while (e.hasMoreElements()) {
                 URL u = e.nextElement();
                 InputStream is = u.openStream();
                 BufferedReader br = null;
-                try{
+                try {
                     br = new BufferedReader(
                             new InputStreamReader(is, Charset.forName("UTF-8")));
                     String str = null;
-                    while((str = br.readLine())!=null){
+                    while ((str = br.readLine()) != null) {
                         int commentStartIdx = str.indexOf("#");
-                        if(commentStartIdx != -1){
+                        if (commentStartIdx != -1) {
                             str = str.substring(0, commentStartIdx);
                         }
                         str = str.trim();
-                        if(str.length() == 0){
+                        if (str.length() == 0) {
                             continue;
                         }
-                        try{
+                        try {
                             Object obj = cl.loadClass(str).newInstance();
                             l.add(obj);
-                        }
-                        catch(Exception ex){
+                        } catch (Exception ex) {
                             LOG.warning("Could not load: " + str);
                             LOG.warning(ex.getMessage());
                         }
                     }
-                }
-                finally{
-                    if(br != null){
+                } finally {
+                    if (br != null) {
                         br.close();
                     }
                 }

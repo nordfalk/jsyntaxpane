@@ -3,15 +3,18 @@
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.Lexer;
+import jsyntaxpane.DefaultLexer;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
+import javax.swing.KeyStroke;
+import javax.swing.text.Keymap;
+import jsyntaxpane.SyntaxActions;
 
 %%
 
 %public
 %class TALLexer
-%implements Lexer
+%extends DefaultLexer
 %final
 %unicode
 %char
@@ -32,6 +35,17 @@ import jsyntaxpane.TokenType;
         return new Token(type, yychar, yylength());
     }
 
+    @Override
+    public void addKeyActions(Keymap map) {
+        super.addKeyActions(map);
+    }
+
+    @Override
+    public String[] getLanguages() {
+        return LANGS;
+    }
+
+    private static final String[] LANGS = { "tal", "ptal" };
 %}
 
 /* main character classes */
@@ -101,32 +115,32 @@ SingleCharacter = [^\r\n\'\\]
   "filler"                       { return token(TokenType.TYPE); }
 
 
-  "("                            { return token(TokenType.OPER); }
-  ")"                            { return token(TokenType.OPER); }
-  "{"                            { return token(TokenType.OPER); } 
-  "}"                            { return token(TokenType.OPER); } 
-  "["                            { return token(TokenType.OPER); } 
-  "]"                            { return token(TokenType.OPER); } 
-  ";"                            { return token(TokenType.OPER); } 
-  ","                            { return token(TokenType.OPER); } 
-  "."                            { return token(TokenType.OPER); } 
+  "("                            { return token(TokenType.OPERATOR); }
+  ")"                            { return token(TokenType.OPERATOR); }
+  "{"                            { return token(TokenType.OPERATOR); } 
+  "}"                            { return token(TokenType.OPERATOR); } 
+  "["                            { return token(TokenType.OPERATOR); } 
+  "]"                            { return token(TokenType.OPERATOR); } 
+  ";"                            { return token(TokenType.OPERATOR); } 
+  ","                            { return token(TokenType.OPERATOR); } 
+  "."                            { return token(TokenType.OPERATOR); } 
   
-  "="                            { return token(TokenType.OPER); } 
-  ">"                            { return token(TokenType.OPER); } 
-  "<"                            { return token(TokenType.OPER); }
-  "!"                            { return token(TokenType.OPER); } 
-  "?"                            { return token(TokenType.OPER); } 
-  ":"                            { return token(TokenType.OPER); } 
-  ":="                           { return token(TokenType.OPER); } 
-  "':='"                         { return token(TokenType.OPER); } 
-  "'=:'"                         { return token(TokenType.OPER); } 
-  "<>"                           { return token(TokenType.OPER); } 
-  "+"                            { return token(TokenType.OPER); } 
-  "-"                            { return token(TokenType.OPER); } 
-  "*"                            { return token(TokenType.OPER); } 
-  "/"                            { return token(TokenType.OPER); } 
-  "<<"                           { return token(TokenType.OPER); } 
-  ">>"                           { return token(TokenType.OPER); } 
+  "="                            { return token(TokenType.OPERATOR); } 
+  ">"                            { return token(TokenType.OPERATOR); } 
+  "<"                            { return token(TokenType.OPERATOR); }
+  "!"                            { return token(TokenType.OPERATOR); } 
+  "?"                            { return token(TokenType.OPERATOR); } 
+  ":"                            { return token(TokenType.OPERATOR); } 
+  ":="                           { return token(TokenType.OPERATOR); } 
+  "':='"                         { return token(TokenType.OPERATOR); } 
+  "'=:'"                         { return token(TokenType.OPERATOR); } 
+  "<>"                           { return token(TokenType.OPERATOR); } 
+  "+"                            { return token(TokenType.OPERATOR); } 
+  "-"                            { return token(TokenType.OPERATOR); } 
+  "*"                            { return token(TokenType.OPERATOR); } 
+  "/"                            { return token(TokenType.OPERATOR); } 
+  "<<"                           { return token(TokenType.OPERATOR); } 
+  ">>"                           { return token(TokenType.OPERATOR); } 
   
   /* string literal */
   \"{StringCharacter}+\"         { return token(TokenType.STRING); }
@@ -156,7 +170,7 @@ SingleCharacter = [^\r\n\'\\]
   {WhiteSpace}                   { }
 
   /* identifiers */ 
-  {Identifier}                   { return token(TokenType.IDENT); }
+  {Identifier}                   { return token(TokenType.IDENTIFIER); }
 }
 
 

@@ -4,15 +4,18 @@
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.Lexer;
+import jsyntaxpane.DefaultLexer;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
+import javax.swing.KeyStroke;
+import javax.swing.text.Keymap;
+import jsyntaxpane.SyntaxActions;
 
 %%
 
 %public
 %class XmlLexer
-%implements Lexer
+%extends DefaultLexer
 %final
 %unicode
 %char
@@ -31,6 +34,17 @@ import jsyntaxpane.TokenType;
         return new Token(type, yychar, yylength());
     }
 
+    @Override
+    public void addKeyActions(Keymap map) {
+        super.addKeyActions(map);
+    }
+
+    @Override
+    public String[] getLanguages() {
+        return LANGS;
+    }
+
+    private static final String[] LANGS = {"xml"};
 %}
 
 /* main character classes */
@@ -75,16 +89,16 @@ SQuoteStringChar = [^\r\n\']
   
   {Comment}                      { return token(TokenType.COMMENT); }
 
-  {Tag}                          { return token(TokenType.OPER); }
+  {Tag}                          { return token(TokenType.OPERATOR); }
 
-  {Attribute}                    { return token(TokenType.IDENT); }
+  {Attribute}                    { return token(TokenType.IDENTIFIER); }
 
   {DocType}                      { return token(TokenType.KEYWORD); }
 
-  "&"  {lcase}+ ";"              { return token(TokenType.OPER); }
-  "&#" [:digit:]+ ";"            { return token(TokenType.OPER); }
+  "&"  {lcase}+ ";"              { return token(TokenType.OPERATOR); }
+  "&#" [:digit:]+ ";"            { return token(TokenType.OPERATOR); }
 
-  {LetterDigit}+                 { return token(TokenType.IDENT); }
+  {LetterDigit}+                 { return token(TokenType.IDENTIFIER); }
 
   {WhiteSpace}+                  { /* skip */ }
 }

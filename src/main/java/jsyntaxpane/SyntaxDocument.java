@@ -231,6 +231,13 @@ public class SyntaxDocument extends PlainDocument {
             parse();
         }
     }
+    
+    /**
+     * This will discard all undoable edits
+     */
+    public void clearUndos() {
+        undo.discardAllEdits();
+    }
     // our logger instance...
     private static Logger log = Logger.getLogger(SyntaxDocument.class.getName());
 }

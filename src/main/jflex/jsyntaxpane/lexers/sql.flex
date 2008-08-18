@@ -3,15 +3,18 @@
 */
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.Lexer;
+import jsyntaxpane.DefaultLexer;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
+import javax.swing.KeyStroke;
+import javax.swing.text.Keymap;
+import jsyntaxpane.SyntaxActions;
 
 %%
 
 %public
 %class SqlLexer
-%implements Lexer
+%extends DefaultLexer
 %final
 %unicode
 %char
@@ -39,6 +42,19 @@ import jsyntaxpane.TokenType;
     // Tokens that need deifferent Lexer States, like STRING
     int tokenStart;
     int tokenLength;
+
+    @Override
+    public void addKeyActions(Keymap map) {
+        super.addKeyActions(map);
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
+    }
+
+    @Override
+    public String[] getLanguages() {
+        return LANGS;
+    }
+
+    private static final String[] LANGS = { "sql" };
 %}
 
 /* main character classes */
@@ -259,24 +275,24 @@ Reserved =
   
   /* operators */
 
-  "("                            { return token(TokenType.OPER); }
-  ")"                            { return token(TokenType.OPER); }
-  "{"                            { return token(TokenType.OPER); } 
-  "}"                            { return token(TokenType.OPER); } 
-  "["                            { return token(TokenType.OPER); } 
-  "]"                            { return token(TokenType.OPER); } 
-  ";"                            { return token(TokenType.OPER); } 
-  ","                            { return token(TokenType.OPER); } 
-  "."                            { return token(TokenType.OPER); } 
-  "@"                            { return token(TokenType.OPER); } 
+  "("                            { return token(TokenType.OPERATOR); }
+  ")"                            { return token(TokenType.OPERATOR); }
+  "{"                            { return token(TokenType.OPERATOR); } 
+  "}"                            { return token(TokenType.OPERATOR); } 
+  "["                            { return token(TokenType.OPERATOR); } 
+  "]"                            { return token(TokenType.OPERATOR); } 
+  ";"                            { return token(TokenType.OPERATOR); } 
+  ","                            { return token(TokenType.OPERATOR); } 
+  "."                            { return token(TokenType.OPERATOR); } 
+  "@"                            { return token(TokenType.OPERATOR); } 
   
-  "="                            { return token(TokenType.OPER); } 
-  ">"                            { return token(TokenType.OPER); } 
-  "<"                            { return token(TokenType.OPER); }
-  "!"                            { return token(TokenType.OPER); } 
-  "~"                            { return token(TokenType.OPER); } 
-  "?"                            { return token(TokenType.OPER); } 
-  ":"                            { return token(TokenType.OPER); } 
+  "="                            { return token(TokenType.OPERATOR); } 
+  ">"                            { return token(TokenType.OPERATOR); } 
+  "<"                            { return token(TokenType.OPERATOR); }
+  "!"                            { return token(TokenType.OPERATOR); } 
+  "~"                            { return token(TokenType.OPERATOR); } 
+  "?"                            { return token(TokenType.OPERATOR); } 
+  ":"                            { return token(TokenType.OPERATOR); } 
 
   /* string literal */
   \"{StringCharacter}+\"         { return token(TokenType.STRING); } 
@@ -296,7 +312,7 @@ Reserved =
   {WhiteSpace}+                  { /* skip */ }
 
   /* identifiers */ 
-  {Identifier}                   { return token(TokenType.IDENT); }
+  {Identifier}                   { return token(TokenType.IDENTIFIER); }
 
 }
 

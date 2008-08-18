@@ -37,13 +37,13 @@ public class SyntaxStyles {
      */
     private static SyntaxStyles createInstance() {
         SyntaxStyles s = new SyntaxStyles();
-        s.add(TokenType.OPER, new SyntaxStyle(Color.BLACK, true, false));
+        s.add(TokenType.OPERATOR, new SyntaxStyle(Color.BLACK, true, false));
         s.add(TokenType.KEYWORD, new SyntaxStyle(new Color(0x333399), false, true));
         s.add(TokenType.TYPE, new SyntaxStyle(Color.BLACK, false, true));
         s.add(TokenType.STRING, new SyntaxStyle(new Color(0xcc6600), false, false));
         s.add(TokenType.NUMBER, new SyntaxStyle(new Color(0x999933), true, false));
         s.add(TokenType.REGEX, new SyntaxStyle(new Color(0xcc6600), false, false));
-        s.add(TokenType.IDENT, new SyntaxStyle(Color.BLACK, false, false));
+        s.add(TokenType.IDENTIFIER, new SyntaxStyle(Color.BLACK, false, false));
         s.add(TokenType.COMMENT, new SyntaxStyle(new Color(0x339933), false, true));
         s.add(TokenType.DEFAULT, new SyntaxStyle(Color.BLACK, false, false));
         return s;

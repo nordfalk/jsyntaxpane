@@ -29,12 +29,17 @@ import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 import jsyntaxpane.util.JarServiceProvider;
 
+/**
+ * The SyntaxKit is the main entry to SyntaxPane.  To use the package, just 
+ * set the EditorKit of the EditorPane to a new instance of this class.
+ * 
+ * You need to pass a proper lexer to the class.
+ * 
+ * @author ayman
+ */
 public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
 
     public static Font DEFAULT_FONT;
-    private String lang;
-    private static HashMap<String, SyntaxLanguage> SYNTAX_LANG_MAP = null;
-    private static String[] LANGS;
     private Lexer lexer;
     private static Logger LOG = Logger.getLogger(SyntaxKit.class.getName());
     
@@ -43,19 +48,11 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
     }
 
     /**
-     * Create a new Kit for the given language (text/tal, text/hex-dump, etc)
-     * @param lang
+     * Create a new Kit for the given language 
      */
-    public SyntaxKit(String lang) {
-        super();
-        this.lang = lang;
-        createLexer(lang);
-    }
-
-    public SyntaxKit(Lexer lexer, String lang) {
+    public SyntaxKit(Lexer lexer) {
         super();
         this.lexer = lexer;
-        this.lang = lang;
     }
 
     @Override
@@ -79,12 +76,8 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
     public void install(JEditorPane editorPane) {
         super.install(editorPane);
         editorPane.setFont(DEFAULT_FONT);
-
-        SyntaxLanguage synLang = SYNTAX_LANG_MAP.get(lang);
-        if (synLang != null) {
-            synLang.install(editorPane);
-        } else {
-            LOG.warning("SyntaxLanguage for language not found: " + lang);
+        if (lexer != null) {
+            lexer.install(editorPane);
         }
     }
 
@@ -100,27 +93,12 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
         return new SyntaxDocument(lexer);
     }
 
-    /**
-     * Use the services to find a suitable lexer
-     * @param lang
-     */
-    public void createLexer(String lang) {
-        if (SYNTAX_LANG_MAP.containsKey(lang)) {
-            lexer = SYNTAX_LANG_MAP.get(lang).getLexer();
-        } else if (SYNTAX_LANG_MAP.containsKey("text/" + lang)) {
-            lexer = SYNTAX_LANG_MAP.get("text/" + lang).getLexer();
-        } else {
-            LOG.warning("Unable to find lexer for language: " + lang);
-        }
-    }
 
     /**
      * This is called to initialize the list of lexers we have.  You can call 
      * this at initialization, or it will be called when needed.
      */
     public static void initKit() {
-        SYNTAX_LANG_MAP = new HashMap<String, SyntaxLanguage>();
-
         // attempt to find a suitable default font
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         String[] fonts = ge.getAvailableFontFamilyNames();
@@ -132,46 +110,5 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
         } else if (Arrays.binarySearch(fonts, "Monospaced") >= 0) {
             DEFAULT_FONT = new Font("Monospaced", Font.PLAIN, 12);
         }
-
-        try {
-            List<Object> sp = JarServiceProvider.getServiceProviders(SyntaxLanguage.class);
-            for (Object o : sp) {
-                SyntaxLanguage synLang = (SyntaxLanguage) o;
-                LOG.finest(synLang.getLanguageNames()[0]);
-                registerLang(synLang, synLang.getLanguageNames());
-            }
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            assert true : ex;
-        }
-    }
-
-    /**
-     * Add the given lexer, that supports the given languages to out list
-     * @param lexer Lexer to add
-     * @param langs supported array of languages
-     */
-    public static void registerLang(SyntaxLanguage synLang, String[] langs) {
-        for (String lang : langs) {
-            SYNTAX_LANG_MAP.put(lang, synLang);
-        }
-        // throw away the old list, and create a new one when needed
-        LANGS = null;
-    }
-
-    /**
-     * Get a sorted String Array of supported languages.
-     * @return
-     */
-    public static String[] getLangs() {
-        if (LANGS == null) {
-            int i = 0;
-            LANGS = new String[SYNTAX_LANG_MAP.size()];
-            for (String l : SYNTAX_LANG_MAP.keySet()) {
-                LANGS[i++] = l;
-            }
-            Arrays.sort(LANGS);
-        }
-        return LANGS;
     }
 }
