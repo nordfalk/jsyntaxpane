@@ -2,7 +2,7 @@ jsyntaxpane.lexers.GroovyLexer
 jsyntaxpane.lexers.JavaLexer
 jsyntaxpane.lexers.JavaScriptLexer
 jsyntaxpane.lexers.PropertiesLexer
-jsyntaxpane.lexers.SQLLexer
+jsyntaxpane.lexers.SqlLexer
 jsyntaxpane.lexers.TALLexer
-jsyntaxpane.lexers.XMLLexer
+jsyntaxpane.lexers.XmlLexer
 

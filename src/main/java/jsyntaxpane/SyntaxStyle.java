@@ -32,6 +32,21 @@ public final class SyntaxStyle {
         setItalic(italic);
     }
 
+    public SyntaxStyle(Color color, int fontStyle) {
+        super();
+        this.color = color;
+        this.fontStyle = fontStyle;
+    }
+
+    SyntaxStyle(String str) {
+        String[] parts = str.split("\\s*,\\s*");
+        if(parts.length != 2) {
+            throw new IllegalArgumentException("style not correct format: " + str);
+        }
+        this.color = new Color(Integer.decode(parts[0]));
+        this.fontStyle = Integer.decode(parts[1]);
+    }
+
     public boolean isBold() {
         return (fontStyle & Font.BOLD) != 0;
     }

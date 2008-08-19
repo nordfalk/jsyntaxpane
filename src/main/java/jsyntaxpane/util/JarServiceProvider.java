@@ -22,6 +22,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -37,7 +39,6 @@ public class JarServiceProvider {
      * Just use the static method
      */
     private JarServiceProvider() {
-
     }
 
     /**
@@ -86,5 +87,31 @@ public class JarServiceProvider {
             }
         }
         return l;
+    }
+
+    public static Properties getProperties(Class clazz) {
+        ClassLoader cl = JarServiceProvider.class.getClassLoader();
+        cl = cl == null ? ClassLoader.getSystemClassLoader() : cl;
+        Properties props = new Properties();
+        if (cl != null) {
+            InputStream is = null;
+            try {
+                String serviceFile = "META-INF/services/" + clazz.getName().toLowerCase() + ".properties";
+                URL loc = cl.getResource(serviceFile);
+                if (loc != null) {
+                    is = loc.openStream();
+                    props.load(is);
+                }
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            } finally {
+                try {
+                    is.close();
+                } catch (IOException ex) {
+                    LOG.log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return props;
     }
 }

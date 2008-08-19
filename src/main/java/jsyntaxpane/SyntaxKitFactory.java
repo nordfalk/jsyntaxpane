@@ -60,11 +60,9 @@ public class SyntaxKitFactory {
             for (Object o : lexers) {
                 if (o instanceof Lexer) {
                     Lexer lexer = (Lexer) o;
-                    System.out.println("Found: " + o);
                     register(lexer);
                 }
             }
-            System.out.println("Languages: " + LANG_LEXERS);
         } catch (IOException ex) {
             Logger.getLogger(SyntaxKitFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
