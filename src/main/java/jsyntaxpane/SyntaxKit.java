@@ -15,11 +15,7 @@ package jsyntaxpane;
 
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JEditorPane;
 import javax.swing.text.DefaultEditorKit;
@@ -27,7 +23,6 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
-import jsyntaxpane.util.JarServiceProvider;
 
 /**
  * The SyntaxKit is the main entry to SyntaxPane.  To use the package, just 
@@ -108,7 +103,7 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
         } else if (Arrays.binarySearch(fonts, "Courier") >= 0) {
             DEFAULT_FONT = new Font("Courier", Font.PLAIN, 12);
         } else if (Arrays.binarySearch(fonts, "Monospaced") >= 0) {
-            DEFAULT_FONT = new Font("Monospaced", Font.PLAIN, 12);
+            DEFAULT_FONT = new Font("Monospaced", Font.PLAIN, 13);
         }
     }
 }

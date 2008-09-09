@@ -1,30 +1,16 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Copyright (C) 1998-2004  Gerwin Klein <lsf@jflex.de>                    *
- * All rights reserved.                                                    *
- *                                                                         *
- * This program is free software; you can redistribute it and/or modify    *
- * it under the terms of the GNU General Public License. See the file      *
- * COPYRIGHT for more information.                                         *
- *                                                                         *
- * This program is distributed in the hope that it will be useful,         *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
- * GNU General Public License for more details.                            *
- *                                                                         *
- * You should have received a copy of the GNU General Public License along *
- * with this program; if not, write to the Free Software Foundation, Inc., *
- * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA                 *
- *                                                                         *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-/* Java 1.2 language lexer specification */
-
-/* Note that this lexer specification is not tuned for speed.
-   It is in fact quite slow on integer and floating point literals, 
-   because the input is read twice and the methods used to parse
-   the numbers are not very fast. 
-   For a production quality application (e.g. a Java compiler) 
-   this could be optimized */
+/*
+ * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License
+ *       at http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package jsyntaxpane.lexers;
 
@@ -34,6 +20,8 @@ import jsyntaxpane.TokenType;
 import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
 import jsyntaxpane.SyntaxActions;
+import java.util.Map;
+import java.util.HashMap;
  
 %% 
 
@@ -68,6 +56,8 @@ import jsyntaxpane.SyntaxActions;
     public void addKeyActions(Keymap map) {
         super.addKeyActions(map);
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control SPACE"),
+            new SyntaxActions.MapCompleteAction(COMPLETIONS));
     }
 
     @Override
@@ -76,6 +66,20 @@ import jsyntaxpane.SyntaxActions;
     }
 
     private static final String[] LANGS = { "java" };
+
+    public static Map<String, String> COMPLETIONS;
+
+    static {
+        COMPLETIONS = new HashMap<String, String>();
+        COMPLETIONS.put("pu", "public ");
+        COMPLETIONS.put("pr", "private ");
+        COMPLETIONS.put("st", "static ");
+        COMPLETIONS.put("cl", "class ");
+        COMPLETIONS.put("St", "String ");
+
+        COMPLETIONS.put("fri", "for(int i=0; i<10; i++) {|}");
+        COMPLETIONS.put("sout", "System.out.println(|)");
+    }
 %}
 
 /* main character classes */
@@ -127,121 +131,117 @@ SingleCharacter = [^\r\n\'\\]
 <YYINITIAL> {
 
   /* keywords */
-  "abstract"                     { return token(TokenType.KEYWORD); }
-  "boolean"                      { return token(TokenType.KEYWORD); }
-  "break"                        { return token(TokenType.KEYWORD); }
-  "byte"                         { return token(TokenType.KEYWORD); }
-  "case"                         { return token(TokenType.KEYWORD); }
-  "catch"                        { return token(TokenType.KEYWORD); }
-  "char"                         { return token(TokenType.KEYWORD); }
-  "class"                        { return token(TokenType.KEYWORD); }
-  "const"                        { return token(TokenType.KEYWORD); }
-  "continue"                     { return token(TokenType.KEYWORD); }
-  "do"                           { return token(TokenType.KEYWORD); }
-  "double"                       { return token(TokenType.KEYWORD); }
-  "enum"                         { return token(TokenType.KEYWORD); }
-  "else"                         { return token(TokenType.KEYWORD); }
-  "extends"                      { return token(TokenType.KEYWORD); }
-  "final"                        { return token(TokenType.KEYWORD); }
-  "finally"                      { return token(TokenType.KEYWORD); }
-  "float"                        { return token(TokenType.KEYWORD); }
-  "for"                          { return token(TokenType.KEYWORD); }
-  "default"                      { return token(TokenType.KEYWORD); }
-  "implements"                   { return token(TokenType.KEYWORD); }
-  "import"                       { return token(TokenType.KEYWORD); }
-  "instanceof"                   { return token(TokenType.KEYWORD); }
-  "int"                          { return token(TokenType.KEYWORD); }
-  "interface"                    { return token(TokenType.KEYWORD); }
-  "long"                         { return token(TokenType.KEYWORD); }
-  "native"                       { return token(TokenType.KEYWORD); }
-  "new"                          { return token(TokenType.KEYWORD); }
-  "goto"                         { return token(TokenType.KEYWORD); }
-  "if"                           { return token(TokenType.KEYWORD); }
-  "public"                       { return token(TokenType.KEYWORD); }
-  "short"                        { return token(TokenType.KEYWORD); }
-  "super"                        { return token(TokenType.KEYWORD); }
-  "switch"                       { return token(TokenType.KEYWORD); }
-  "synchronized"                 { return token(TokenType.KEYWORD); }
-  "package"                      { return token(TokenType.KEYWORD); }
-  "private"                      { return token(TokenType.KEYWORD); }
-  "protected"                    { return token(TokenType.KEYWORD); }
-  "transient"                    { return token(TokenType.KEYWORD); }
-  "return"                       { return token(TokenType.KEYWORD); }
-  "void"                         { return token(TokenType.KEYWORD); }
-  "static"                       { return token(TokenType.KEYWORD); }
-  "while"                        { return token(TokenType.KEYWORD); }
-  "this"                         { return token(TokenType.KEYWORD); }
-  "throw"                        { return token(TokenType.KEYWORD); }
-  "throws"                       { return token(TokenType.KEYWORD); }
-  "try"                          { return token(TokenType.KEYWORD); }
-  "volatile"                     { return token(TokenType.KEYWORD); }
-  "strictfp"                     { return token(TokenType.KEYWORD); }
+  "abstract"                     |
+  "boolean"                      |
+  "break"                        |
+  "byte"                         |
+  "case"                         |
+  "catch"                        |
+  "char"                         |
+  "class"                        |
+  "const"                        |
+  "continue"                     |
+  "do"                           |
+  "double"                       |
+  "enum"                         |
+  "else"                         |
+  "extends"                      |
+  "final"                        |
+  "finally"                      |
+  "float"                        |
+  "for"                          |
+  "default"                      |
+  "implements"                   |
+  "import"                       |
+  "instanceof"                   |
+  "int"                          |
+  "interface"                    |
+  "long"                         |
+  "native"                       |
+  "new"                          |
+  "goto"                         |
+  "if"                           |
+  "public"                       |
+  "short"                        |
+  "super"                        |
+  "switch"                       |
+  "synchronized"                 |
+  "package"                      |
+  "private"                      |
+  "protected"                    |
+  "transient"                    |
+  "return"                       |
+  "void"                         |
+  "static"                       |
+  "while"                        |
+  "this"                         |
+  "throw"                        |
+  "throws"                       |
+  "try"                          |
+  "volatile"                     |
+  "strictfp"                     |
   
-  /* boolean literals */
-  "true"                         { return token(TokenType.KEYWORD); }
-  "false"                        { return token(TokenType.KEYWORD); }
-  
-  /* null literal */
+  "true"                         |
+  "false"                        |
   "null"                         { return token(TokenType.KEYWORD); }
 
   /* Java Built in types and wrappers */
-  "Boolean"                      { return token(TokenType.TYPE); }
-  "Byte"                         { return token(TokenType.TYPE); }
-  "Double"                       { return token(TokenType.TYPE); }
-  "Float"                        { return token(TokenType.TYPE); }
-  "Integer"                      { return token(TokenType.TYPE); }
-  "Object"                       { return token(TokenType.TYPE); }
-  "Short"                        { return token(TokenType.TYPE); }
+  "Boolean"                      |
+  "Byte"                         |
+  "Double"                       |
+  "Float"                        |
+  "Integer"                      |
+  "Object"                       |
+  "Short"                        |
   "String"                       { return token(TokenType.TYPE); }
   
   /* operators */
 
-  "("                            { return token(TokenType.OPERATOR); }
-  ")"                            { return token(TokenType.OPERATOR); }
-  "{"                            { return token(TokenType.OPERATOR); } 
-  "}"                            { return token(TokenType.OPERATOR); } 
-  "["                            { return token(TokenType.OPERATOR); } 
-  "]"                            { return token(TokenType.OPERATOR); } 
-  ";"                            { return token(TokenType.OPERATOR); } 
-  ","                            { return token(TokenType.OPERATOR); } 
-  "."                            { return token(TokenType.OPERATOR); } 
-  
-  "="                            { return token(TokenType.OPERATOR); } 
-  ">"                            { return token(TokenType.OPERATOR); } 
-  "<"                            { return token(TokenType.OPERATOR); }
-  "!"                            { return token(TokenType.OPERATOR); } 
-  "~"                            { return token(TokenType.OPERATOR); } 
-  "?"                            { return token(TokenType.OPERATOR); } 
-  ":"                            { return token(TokenType.OPERATOR); } 
-  "=="                           { return token(TokenType.OPERATOR); } 
-  "<="                           { return token(TokenType.OPERATOR); } 
-  ">="                           { return token(TokenType.OPERATOR); } 
-  "!="                           { return token(TokenType.OPERATOR); } 
-  "&&"                           { return token(TokenType.OPERATOR); } 
-  "||"                           { return token(TokenType.OPERATOR); } 
-  "++"                           { return token(TokenType.OPERATOR); } 
-  "--"                           { return token(TokenType.OPERATOR); } 
-  "+"                            { return token(TokenType.OPERATOR); } 
-  "-"                            { return token(TokenType.OPERATOR); } 
-  "*"                            { return token(TokenType.OPERATOR); } 
-  "/"                            { return token(TokenType.OPERATOR); } 
-  "&"                            { return token(TokenType.OPERATOR); } 
-  "|"                            { return token(TokenType.OPERATOR); } 
-  "^"                            { return token(TokenType.OPERATOR); } 
-  "%"                            { return token(TokenType.OPERATOR); } 
-  "<<"                           { return token(TokenType.OPERATOR); } 
-  ">>"                           { return token(TokenType.OPERATOR); } 
-  ">>>"                          { return token(TokenType.OPERATOR); } 
-  "+="                           { return token(TokenType.OPERATOR); } 
-  "-="                           { return token(TokenType.OPERATOR); } 
-  "*="                           { return token(TokenType.OPERATOR); } 
-  "/="                           { return token(TokenType.OPERATOR); } 
-  "&="                           { return token(TokenType.OPERATOR); } 
-  "|="                           { return token(TokenType.OPERATOR); } 
-  "^="                           { return token(TokenType.OPERATOR); } 
-  "%="                           { return token(TokenType.OPERATOR); } 
-  "<<="                          { return token(TokenType.OPERATOR); } 
-  ">>="                          { return token(TokenType.OPERATOR); } 
+  "("                            |
+  ")"                            |
+  "{"                            | 
+  "}"                            | 
+  "["                            | 
+  "]"                            | 
+  ";"                            | 
+  ","                            | 
+  "."                            | 
+  "="                            | 
+  ">"                            | 
+  "<"                            |
+  "!"                            | 
+  "~"                            | 
+  "?"                            | 
+  ":"                            | 
+  "=="                           | 
+  "<="                           | 
+  ">="                           | 
+  "!="                           | 
+  "&&"                           | 
+  "||"                           | 
+  "++"                           | 
+  "--"                           | 
+  "+"                            | 
+  "-"                            | 
+  "*"                            | 
+  "/"                            | 
+  "&"                            | 
+  "|"                            | 
+  "^"                            | 
+  "%"                            | 
+  "<<"                           | 
+  ">>"                           | 
+  ">>>"                          | 
+  "+="                           | 
+  "-="                           | 
+  "*="                           | 
+  "/="                           | 
+  "&="                           | 
+  "|="                           | 
+  "^="                           | 
+  "%="                           | 
+  "<<="                          | 
+  ">>="                          | 
   ">>>="                         { return token(TokenType.OPERATOR); } 
   
   /* string literal */

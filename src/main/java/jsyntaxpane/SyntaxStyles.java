@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
+import javax.swing.text.Segment;
+import javax.swing.text.TabExpander;
 import jsyntaxpane.util.JarServiceProvider;
 
 /**
@@ -33,7 +35,9 @@ import jsyntaxpane.util.JarServiceProvider;
 public class SyntaxStyles {
 
     /**
-     * You can call the
+     * You can call the mergeStyles method with a Properties file to customize
+     * the existing styles.  Any existing styles will be overwritten by the
+     * styles you provide.
      * @param styles
      * @param s
      */
@@ -49,10 +53,11 @@ public class SyntaxStyles {
             }
         }
     }
-
     Map<TokenType, SyntaxStyle> styles;
     private static SyntaxStyles instance = createInstance();
     private static Logger LOG = Logger.getLogger(SyntaxStyles.class.getName());
+    
+    private static SyntaxStyle DEFAULT_STYLE = new SyntaxStyle(Color.BLACK, Font.PLAIN);
 
     private SyntaxStyles() {
     }
@@ -62,20 +67,10 @@ public class SyntaxStyles {
      * @return
      */
     private static SyntaxStyles createInstance() {
-        SyntaxStyles s = new SyntaxStyles();
-        s.put(TokenType.OPERATOR, new SyntaxStyle(Color.BLACK, true, false));
-        s.put(TokenType.KEYWORD, new SyntaxStyle(new Color(0x333399), false, true));
-        s.put(TokenType.TYPE, new SyntaxStyle(Color.BLACK, false, true));
-        s.put(TokenType.STRING, new SyntaxStyle(new Color(0xcc6600), false, false));
-        s.put(TokenType.NUMBER, new SyntaxStyle(new Color(0x999933), true, false));
-        s.put(TokenType.REGEX, new SyntaxStyle(new Color(0xcc6600), false, false));
-        s.put(TokenType.IDENTIFIER, new SyntaxStyle(Color.BLACK, false, false));
-        s.put(TokenType.COMMENT, new SyntaxStyle(new Color(0x339933), false, true));
-        s.put(TokenType.DEFAULT, new SyntaxStyle(Color.BLACK, false, false));
-
+        SyntaxStyles syntaxstyles = new SyntaxStyles();
         Properties styles = JarServiceProvider.getProperties(SyntaxStyles.class);
-        s.mergeStyles(styles);
-        return s;
+        syntaxstyles.mergeStyles(styles);
+        return syntaxstyles;
     }
 
     public static SyntaxStyles getInstance() {
@@ -94,6 +89,7 @@ public class SyntaxStyles {
      * @param g
      * @param type
      */
+    @Deprecated
     public void setGraphicsStyle(Graphics g, TokenType type) {
         Font c = g.getFont();
         SyntaxStyle ss = styles.get(type);
@@ -104,5 +100,36 @@ public class SyntaxStyles {
             g.setFont(g.getFont().deriveFont(Font.PLAIN));
             g.setColor(Color.BLACK);
         }
+    }
+
+    /**
+     * Return the style for the given TokenType
+     * @param type
+     * @return
+     */
+    public SyntaxStyle getStyle(TokenType type) {
+        if (styles.containsKey(type)) {
+            return styles.get(type);
+        } else {
+            return DEFAULT_STYLE;
+        }
+    }
+
+    /**
+     * Draw the given Token.  This will simply find the proper SyntaxStyle for
+     * the TokenType and then asks the proper Style to draw the text of the
+     * Token.
+     * @param segment
+     * @param x
+     * @param y
+     * @param graphics
+     * @param e
+     * @param token
+     * @return
+     */
+    public int drawText(Segment segment, int x, int y,
+            Graphics graphics, TabExpander e, Token token) {
+        SyntaxStyle s = getStyle(token.type);
+        return s.drawText(segment, x, y, graphics, e, token.start);
     }
 }

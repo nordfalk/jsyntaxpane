@@ -1,6 +1,15 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License 
+ *       at http://www.apache.org/licenses/LICENSE-2.0 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.  
  */
 package jsyntaxpane;
 
@@ -99,7 +108,7 @@ public class SyntaxActions {
                 Integer tabSize = (Integer) target.getDocument().getProperty(PlainDocument.tabSizeAttribute);
                 if (line.trim().endsWith("{")) {
                     prefix += SPACES.substring(0, tabSize);
-                } 
+                }
                 target.replaceSelection("\n" + prefix);
             }
         }
@@ -240,7 +249,7 @@ public class SyntaxActions {
     }
 
     /**
-     * Return the lines that span the election (split as an array of Strings)
+     * Return the lines that span the selection (split as an array of Strings)
      * if there is no selection then current line is returned.
      * 
      * Note that the strings returned will not contain the terminating line feeds
@@ -303,16 +312,76 @@ public class SyntaxActions {
         }
         return line;
     }
-    
+
+    /**
+     * Completion Actions
+     */
+    public static class MapCompleteAction extends TextAction {
+
+        Map<String, String> completions;
+
+        public MapCompleteAction(Map<String, String> completions) {
+            super("MAP_COMPLETION");
+            this.completions = completions;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            JTextComponent target = getTextComponent(e);
+            if (target != null && target.getDocument() instanceof SyntaxDocument) {
+                SyntaxDocument sDoc = (SyntaxDocument) target.getDocument();
+                int dot = target.getCaretPosition();
+                Token token = sDoc.getTokenAt(dot);
+                if (token != null) {
+                    String abbriv = getCaretToken(sDoc, dot);
+                    if (completions.containsKey(abbriv)) {
+                        try {
+                            String completed = completions.get(abbriv);
+                            if (completed.indexOf('|') >= 0) {
+                                // offset of where the caret should be after the
+                                // replacement.  Note that since we will remove
+                                // one char (the '|'), we need to subtract that
+                                // from the offset
+                                int ofst = completed.length() - completed.indexOf('|') - 1;
+                                // replace the token with the replacement
+                                sDoc.replace(token.start, token.length, completed.replace("|", ""), null);
+                                target.setCaretPosition(target.getCaretPosition() - ofst);
+                            } else {
+                                sDoc.replace(token.start, token.length, completed, null);
+                            }
+                        } catch (BadLocationException ex) {
+                            Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static String getCaretToken(
+            SyntaxDocument doc, int pos) {
+        String word = "";
+        Token t = doc.getTokenAt(pos);
+        if (t != null) {
+            try {
+                word = doc.getText(t.start, t.length);
+            } catch (BadLocationException ex) {
+                Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        return word;
+    }
     private static final Map<String, Keymap> KEYMAP_MAP = new HashMap<String, Keymap>();
 
-    private static Keymap getKeymap(final String lang){
+    private static Keymap getKeymap(
+            final String lang) {
         Keymap km = KEYMAP_MAP.get(lang);
-        if(km == null){
+        if (km == null) {
             km = JTextComponent.addKeymap(null,
                     JTextComponent.getKeymap(JTextComponent.DEFAULT_KEYMAP));
             KEYMAP_MAP.put(lang, km);
         }
+
         return km;
     }
 
@@ -321,15 +390,18 @@ public class SyntaxActions {
      * @param control
      * @param key
      * @param action
+     * @deprecated use the DefaultLexer addKeyActions instead
      */
+    @Deprecated
     public static void addAction(String lang, JTextComponent control, Character key,
             TextAction action) {
         Keymap km = getKeymap(lang);
         km.addActionForKeyStroke(KeyStroke.getKeyStroke(key),
                 action);
-        if(control.getKeymap() != km){
+        if (control.getKeymap() != km) {
             control.setKeymap(km);
         }
+
     }
 
     /**
@@ -337,12 +409,13 @@ public class SyntaxActions {
      * @param control
      * @param stroke
      * @param action
+     * @deprecated use the DefaultLexer addKeyActions instead
      */
+    @Deprecated
     public static void addAction(JTextComponent control, KeyStroke stroke,
             TextAction action) {
         control.getKeymap().addActionForKeyStroke(stroke, action);
     }
-
 
     /**
      * Add the given Action which is activated by KeyStroke to the control
@@ -350,20 +423,25 @@ public class SyntaxActions {
      * @param stroke As specified by KeyStroke.getKeyStroke
      * @param action
      * @throws IllegalArgumentException if stroke is invalid
+     * @deprecated use the DefaultLexer addKeyActions instead
      */
-    public static void addAction(final String lang, JTextComponent control, String stroke,
+    @Deprecated
+    public static void addAction(final String lang,
+            JTextComponent control, String stroke,
             TextAction action) {
         KeyStroke ks = KeyStroke.getKeyStroke(stroke);
         if (ks == null) {
             throw new IllegalArgumentException("invalid keystroke: " + stroke);
         }
-        // TODO: should this be in synchronized block?
-        // Not a problem if it will be called by EDT
+// TODO: should this be in synchronized block?
+// Not a problem if it will be called by EDT
+
         Keymap km = getKeymap(lang);
         km.addActionForKeyStroke(ks, action);
-        if(km != control.getKeymap()){
+        if (km != control.getKeymap()) {
             control.setKeymap(km);
         }
+
     }
     // This is used internally to avoid NPE if we have no Strings
     private static String[] EMPTY_STRING_ARRAY = new String[0];

@@ -22,6 +22,7 @@ public enum TokenType {
 
     OPERATOR,   // Language operators
     KEYWORD,    // language reserved keywords
+    KEYWORD2,   // Other language reserved keywords, like C #defines
     IDENTIFIER, // identifiers, variable names, class names
     NUMBER,     // numbers in various formats
     STRING,     // String

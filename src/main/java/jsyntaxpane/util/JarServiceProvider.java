@@ -89,6 +89,13 @@ public class JarServiceProvider {
         return l;
     }
 
+    /**
+     * Read a file in the META-INF/services location.  File name will be
+     * fully qualified classname, in all lower-case, appended with ".properties"
+     * If no file is found, then a an empty Property instance will be returned
+     * @param clazz
+     * @return Property file read.
+     */
     public static Properties getProperties(Class clazz) {
         ClassLoader cl = JarServiceProvider.class.getClassLoader();
         cl = cl == null ? ClassLoader.getSystemClassLoader() : cl;
@@ -96,7 +103,8 @@ public class JarServiceProvider {
         if (cl != null) {
             InputStream is = null;
             try {
-                String serviceFile = "META-INF/services/" + clazz.getName().toLowerCase() + ".properties";
+                String serviceFile = "META-INF/services/" +
+                        clazz.getName().toLowerCase() + ".properties";
                 URL loc = cl.getResource(serviceFile);
                 if (loc != null) {
                     is = loc.openStream();
