@@ -1,31 +1,21 @@
-/*
- * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License
- *       at http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* Note that this lexer specification is not tuned for speed.
+   It is in fact quite slow on integer and floating point literals, 
+   because the input is read twice and the methods used to parse
+   the numbers are not very fast. 
+   For a production quality application (e.g. a Java compiler) 
+   this could be optimized */
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+import jsyntaxpane.Lexer;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
-import javax.swing.KeyStroke;
-import javax.swing.text.Keymap;
-import jsyntaxpane.SyntaxActions;
 
 %%
 
 %public
 %class GroovyLexer
-%extends DefaultLexer
+%implements Lexer
 %final
 %unicode
 %char
@@ -48,22 +38,10 @@ import jsyntaxpane.SyntaxActions;
     }
 
     // These will be used to store Token Start positions and length for Complex 
-    // Tokens that need different Lexer States, like STRING
+    // Tokens that need deifferent Lexer States, like STRING
     int tokenStart;
     int tokenLength;
 
-    @Override
-    public void addKeyActions(Keymap map) {
-        super.addKeyActions(map);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
-    }
-
-    @Override
-    public String[] getLanguages() {
-        return LANGS;
-    }
-
-    private static final String[] LANGS = {"groovy"};
 %}
 
 /* main character classes */
@@ -119,135 +97,141 @@ RegexCharacter  = [^\r\n\/]
 <YYINITIAL> {
 
   /* keywords */
-  "abstract"                     |
-  "boolean"                      |
-  "break"                        |
-  "byte"                         |
-  "case"                         |
-  "catch"                        |
-  "char"                         |
-  "class"                        |
-  "const"                        |
-  "continue"                     |
-  "do"                           |
-  "double"                       |
-  "enum"                         |
-  "else"                         |
-  "extends"                      |
-  "final"                        |
-  "finally"                      |
-  "float"                        |
-  "for"                          |
-  "default"                      |
-  "implements"                   |
-  "import"                       |
-  "instanceof"                   |
-  "int"                          |
-  "interface"                    |
-  "long"                         |
-  "native"                       |
-  "new"                          |
-  "goto"                         |
-  "if"                           |
-  "public"                       |
-  "short"                        |
-  "super"                        |
-  "switch"                       |
-  "synchronized"                 |
-  "package"                      |
-  "private"                      |
-  "protected"                    |
-  "transient"                    |
-  "return"                       |
-  "void"                         |
-  "static"                       |
-  "while"                        |
-  "this"                         |
-  "throw"                        |
-  "throws"                       |
-  "try"                          |
-  "volatile"                     |
-  "strictfp"                     |
+  "abstract"                     { return token(TokenType.KEYWORD); }
+  "boolean"                      { return token(TokenType.KEYWORD); }
+  "break"                        { return token(TokenType.KEYWORD); }
+  "byte"                         { return token(TokenType.KEYWORD); }
+  "case"                         { return token(TokenType.KEYWORD); }
+  "catch"                        { return token(TokenType.KEYWORD); }
+  "char"                         { return token(TokenType.KEYWORD); }
+  "class"                        { return token(TokenType.KEYWORD); }
+  "const"                        { return token(TokenType.KEYWORD); }
+  "continue"                     { return token(TokenType.KEYWORD); }
+  "do"                           { return token(TokenType.KEYWORD); }
+  "double"                       { return token(TokenType.KEYWORD); }
+  "enum"                         { return token(TokenType.KEYWORD); }
+  "else"                         { return token(TokenType.KEYWORD); }
+  "extends"                      { return token(TokenType.KEYWORD); }
+  "final"                        { return token(TokenType.KEYWORD); }
+  "finally"                      { return token(TokenType.KEYWORD); }
+  "float"                        { return token(TokenType.KEYWORD); }
+  "for"                          { return token(TokenType.KEYWORD); }
+  "default"                      { return token(TokenType.KEYWORD); }
+  "implements"                   { return token(TokenType.KEYWORD); }
+  "import"                       { return token(TokenType.KEYWORD); }
+  "instanceof"                   { return token(TokenType.KEYWORD); }
+  "int"                          { return token(TokenType.KEYWORD); }
+  "interface"                    { return token(TokenType.KEYWORD); }
+  "long"                         { return token(TokenType.KEYWORD); }
+  "native"                       { return token(TokenType.KEYWORD); }
+  "new"                          { return token(TokenType.KEYWORD); }
+  "goto"                         { return token(TokenType.KEYWORD); }
+  "if"                           { return token(TokenType.KEYWORD); }
+  "public"                       { return token(TokenType.KEYWORD); }
+  "short"                        { return token(TokenType.KEYWORD); }
+  "super"                        { return token(TokenType.KEYWORD); }
+  "switch"                       { return token(TokenType.KEYWORD); }
+  "synchronized"                 { return token(TokenType.KEYWORD); }
+  "package"                      { return token(TokenType.KEYWORD); }
+  "private"                      { return token(TokenType.KEYWORD); }
+  "protected"                    { return token(TokenType.KEYWORD); }
+  "transient"                    { return token(TokenType.KEYWORD); }
+  "return"                       { return token(TokenType.KEYWORD); }
+  "void"                         { return token(TokenType.KEYWORD); }
+  "static"                       { return token(TokenType.KEYWORD); }
+  "while"                        { return token(TokenType.KEYWORD); }
+  "this"                         { return token(TokenType.KEYWORD); }
+  "throw"                        { return token(TokenType.KEYWORD); }
+  "throws"                       { return token(TokenType.KEYWORD); }
+  "try"                          { return token(TokenType.KEYWORD); }
+  "volatile"                     { return token(TokenType.KEYWORD); }
+  "strictfp"                     { return token(TokenType.KEYWORD); }
 
   /* Groovy reserved words not in Java */
-  "as"                           |
-  "asssert"                      | 
-  "def"                          |
-  "in"                           |
-  "threadsafe"                   |
-  /* Booleans and null */
-  "true"                         |
-  "false"                        |
-  "null"                         { return token(TokenType.KEYWORD); }
+  "as"                           { return token(TokenType.KEYWORD); }
+  "asssert"                      { return token(TokenType.KEYWORD); }
+  "def"                          { return token(TokenType.KEYWORD); }
+  "in"                           { return token(TokenType.KEYWORD); }
+  "threadsafe"                   { return token(TokenType.KEYWORD); }
+
+  
+  /* boolean literals */
+  "true"                         { return token(TokenType.KEYWORD); }
+  "false"                        { return token(TokenType.KEYWORD); }
+  
+  /* null literal */
+  "null"                         { return token(TokenType.TYPE); }
 
 
   /* Builtin Types and Object Wrappers */
-  "Boolean"                      |
-  "Byte"                         |
-  "Double"                       |
-  "Float"                        |
-  "Integer"                      |
-  "Object"                       |
-  "Short"                        |
-  "String"                       |
+  "Boolean"                      { return token(TokenType.TYPE); }
+  "Byte"                         { return token(TokenType.TYPE); }
+  "Double"                       { return token(TokenType.TYPE); }
+  "Float"                        { return token(TokenType.TYPE); }
+  "Integer"                      { return token(TokenType.TYPE); }
+  "Object"                       { return token(TokenType.TYPE); }
+  "Short"                        { return token(TokenType.TYPE); }
+  "String"                       { return token(TokenType.TYPE); }
   "Regex"                        { return token(TokenType.TYPE); }
   
   /* Groovy commonly used methods */
-  "print"                        |
-  "println"                      { return token(TokenType.KEYWORD); }
+  "print"                        { return token(TokenType.KEYWORD); }
+  "println"                        { return token(TokenType.KEYWORD); }
 
   /* operators */
 
-  "("                            |
-  ")"                            |
-  "{"                            | 
-  "}"                            | 
-  "["                            | 
-  "]"                            | 
-  ";"                            | 
-  ","                            | 
-  "."                            | 
-  "@"                            | 
-  "="                            | 
-  ">"                            | 
-  "<"                            |
-  "!"                            | 
-  "~"                            | 
-  "?"                            | 
-  ":"                            | 
-  "=="                           | 
-  "<="                           | 
-  ">="                           | 
-  "!="                           | 
-  "&&"                           | 
-  "||"                           | 
-  "++"                           | 
-  "--"                           | 
-  "+"                            | 
-  "-"                            | 
-  "*"                            | 
-  "/"                            | 
-  "&"                            | 
-  "|"                            | 
-  "^"                            | 
-  "%"                            | 
-  "<<"                           | 
-  ">>"                           | 
-  ">>>"                          | 
-  "+="                           | 
-  "-="                           | 
-  "*="                           | 
-  "/="                           | 
-  "&="                           | 
-  "|="                           | 
-  "^="                           | 
-  "%="                           | 
-  "<<="                          | 
-  ">>="                          | 
-  ">>>="                         { return token(TokenType.OPERATOR); }
+  "("                            { return token(TokenType.OPER); }
+  ")"                            { return token(TokenType.OPER); }
+  "{"                            { return token(TokenType.OPER); } 
+  "}"                            { return token(TokenType.OPER); } 
+  "["                            { return token(TokenType.OPER); } 
+  "]"                            { return token(TokenType.OPER); } 
+  ";"                            { return token(TokenType.OPER); } 
+  ","                            { return token(TokenType.OPER); } 
+  "."                            { return token(TokenType.OPER); } 
+  "@"                            { return token(TokenType.OPER); } 
+  
+  "="                            { return token(TokenType.OPER); } 
+  ">"                            { return token(TokenType.OPER); } 
+  "<"                            { return token(TokenType.OPER); }
+  "!"                            { return token(TokenType.OPER); } 
+  "~"                            { return token(TokenType.OPER); } 
+  "?"                            { return token(TokenType.OPER); } 
+  ":"                            { return token(TokenType.OPER); } 
+  "=="                           { return token(TokenType.OPER); } 
+  "<="                           { return token(TokenType.OPER); } 
+  ">="                           { return token(TokenType.OPER); } 
+  "!="                           { return token(TokenType.OPER); } 
+  "&&"                           { return token(TokenType.OPER); } 
+  "||"                           { return token(TokenType.OPER); } 
+  "++"                           { return token(TokenType.OPER); } 
+  "--"                           { return token(TokenType.OPER); } 
+  "+"                            { return token(TokenType.OPER); } 
+  "-"                            { return token(TokenType.OPER); } 
+  "*"                            { return token(TokenType.OPER); } 
+  "/"                            { return token(TokenType.OPER); } 
+  "&"                            { return token(TokenType.OPER); } 
+  "|"                            { return token(TokenType.OPER); } 
+  "^"                            { return token(TokenType.OPER); } 
+  "%"                            { return token(TokenType.OPER); } 
+  "<<"                           { return token(TokenType.OPER); } 
+  ">>"                           { return token(TokenType.OPER); } 
+  ">>>"                          { return token(TokenType.OPER); } 
+  "+="                           { return token(TokenType.OPER); } 
+  "-="                           { return token(TokenType.OPER); } 
+  "*="                           { return token(TokenType.OPER); } 
+  "/="                           { return token(TokenType.OPER); } 
+  "&="                           { return token(TokenType.OPER); } 
+  "|="                           { return token(TokenType.OPER); } 
+  "^="                           { return token(TokenType.OPER); } 
+  "%="                           { return token(TokenType.OPER); } 
+  "<<="                          { return token(TokenType.OPER); } 
+  ">>="                          { return token(TokenType.OPER); } 
+  ">>>="                         { return token(TokenType.OPER); } 
 
-  "~="                           | 
-  "?."                           { return token(TokenType.OPERATOR); } 
+  /* Groovy operators */
+  "~="                           { return token(TokenType.OPER); } 
+  "?."                           { return token(TokenType.OPER); } 
 
   /* string literal */
   \"                             {  
@@ -297,7 +281,7 @@ RegexCharacter  = [^\r\n\/]
   {WhiteSpace}+                  { /* skip */ }
 
   /* identifiers */ 
-  {Identifier}                   { return token(TokenType.IDENTIFIER); }
+  {Identifier}                   { return token(TokenType.IDENT); }
 
 }
 

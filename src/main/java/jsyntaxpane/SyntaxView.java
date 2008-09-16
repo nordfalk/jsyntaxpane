@@ -74,7 +74,8 @@ public class SyntaxView extends PlainView {
                     l = p1 - s;
                 }
                 doc.getText(s, l, segment);
-                x = SyntaxStyles.getInstance().drawText(segment, x, y, graphics, this, t);
+                SyntaxStyles.getInstance().setGraphicsStyle(graphics, t.type);
+                x = Utilities.drawTabbedText(segment, x, y, graphics, this, t.start);
                 start = t.start + t.length;
             }
             // now for any remaining text not tokenized:

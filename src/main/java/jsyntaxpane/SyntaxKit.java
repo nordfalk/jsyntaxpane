@@ -14,8 +14,11 @@
 package jsyntaxpane;
 
 import java.awt.Font;
-import java.awt.GraphicsEnvironment;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JEditorPane;
 import javax.swing.text.DefaultEditorKit;
@@ -23,31 +26,26 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
+import jsyntaxpane.util.JarServiceProvider;
 
-/**
- * The SyntaxKit is the main entry to SyntaxPane.  To use the package, just 
- * set the EditorKit of the EditorPane to a new instance of this class.
- * 
- * You need to pass a proper lexer to the class.
- * 
- * @author ayman
- */
 public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
 
-    public static Font DEFAULT_FONT;
-    private Lexer lexer;
-    private static Logger LOG = Logger.getLogger(SyntaxKit.class.getName());
+    public static Font DEFAULT_FONT = new Font("Courier New", Font.PLAIN, 12);
+    private String lang;
+    private static HashMap<String, SyntaxLanguage> SYNTAX_LANG_MAP = null;
+    private static String[] LANGS;
     
     static {
         initKit();
     }
 
     /**
-     * Create a new Kit for the given language 
+     * Create a new Kit for the given language (text/tal, text/hex-dump, etc)
+     * @param lang
      */
-    public SyntaxKit(Lexer lexer) {
+    public SyntaxKit(String lang) {
         super();
-        this.lexer = lexer;
+        this.lang = lang;
     }
 
     @Override
@@ -69,10 +67,21 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      */
     @Override
     public void install(JEditorPane editorPane) {
+        // clear the bindings and action so we can start fresh
+        // editorPane.getActionMap().clear();
+        // editorPane.getKeymap().removeBindings();
+        // now use the defaults
         super.install(editorPane);
         editorPane.setFont(DEFAULT_FONT);
-        if (lexer != null) {
-            lexer.install(editorPane);
+
+        SyntaxLanguage synLang = SYNTAX_LANG_MAP.get(lang);
+        if(synLang != null){
+            synLang.install(editorPane);
+        }
+        else{
+            Logger.getLogger(
+                    SyntaxKit.class.getName()).warning(
+                    "SyntaxLanguage for language not found: " + lang);
         }
     }
 
@@ -85,25 +94,63 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
      */
     @Override
     public Document createDefaultDocument() {
+        Lexer lexer = null;
+        if (SYNTAX_LANG_MAP.containsKey(lang)) {
+            lexer = SYNTAX_LANG_MAP.get(lang).getLexer();
+        } else if (SYNTAX_LANG_MAP.containsKey("text/" + lang)) {
+            lexer = SYNTAX_LANG_MAP.get("text/" + lang).getLexer();
+        } else {
+            Logger.getLogger(SyntaxKit.class.getName()).warning("Unable to find lexer for: " + lang);
+        }
         return new SyntaxDocument(lexer);
     }
-
 
     /**
      * This is called to initialize the list of lexers we have.  You can call 
      * this at initialization, or it will be called when needed.
      */
     public static void initKit() {
-        // attempt to find a suitable default font
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        String[] fonts = ge.getAvailableFontFamilyNames();
-        Arrays.sort(fonts);
-        if (Arrays.binarySearch(fonts, "Courier new") >= 0) {
-            DEFAULT_FONT = new Font("Courier New", Font.PLAIN, 12);
-        } else if (Arrays.binarySearch(fonts, "Courier") >= 0) {
-            DEFAULT_FONT = new Font("Courier", Font.PLAIN, 12);
-        } else if (Arrays.binarySearch(fonts, "Monospaced") >= 0) {
-            DEFAULT_FONT = new Font("Monospaced", Font.PLAIN, 13);
+        SYNTAX_LANG_MAP = new HashMap<String, SyntaxLanguage>();
+        try{
+            List<Object> sp = JarServiceProvider.getServiceProviders(SyntaxLanguage.class);
+            for (Object o: sp) {
+                SyntaxLanguage synLang = (SyntaxLanguage)o;
+                Logger.getLogger(SyntaxKit.class.getName()).finest(synLang.getLanguageNames()[0]);
+                registerLang(synLang, synLang.getLanguageNames());
+            }
         }
+        catch(IOException ex){
+            Logger.getLogger(SyntaxKit.class.getName()).log(Level.SEVERE, null, ex);
+            assert true: ex;
+        }
+    }
+
+    /**
+     * Add the given lexer, that supports the given languages to out list
+     * @param lexer Lexer to add
+     * @param langs supported array of languages
+     */
+    public static void registerLang(SyntaxLanguage synLang, String[] langs) {
+        for (String lang : langs) {
+            SYNTAX_LANG_MAP.put(lang, synLang);
+        }
+        // throu away the old list, and create a new one when needed
+        LANGS = null;
+    }
+
+    /**
+     * Get a sorted String Array of supported languages.
+     * @return
+     */
+    public static String[] getLangs() {
+        if (LANGS == null) {
+            int i = 0;
+            LANGS = new String[SYNTAX_LANG_MAP.size()];
+            for (String l : SYNTAX_LANG_MAP.keySet()) {
+                LANGS[i++] = l;
+            }
+            Arrays.sort(LANGS);
+        }
+        return LANGS;
     }
 }

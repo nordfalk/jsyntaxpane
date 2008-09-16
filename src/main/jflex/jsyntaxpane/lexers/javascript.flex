@@ -1,31 +1,19 @@
-/*
- * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License
- *       at http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+
+/* JavaScript language lexer specification 
+   Modified from Java Lexer Specs by Ayman Al-Sairafi
+*/
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+import jsyntaxpane.Lexer;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
-import javax.swing.KeyStroke;
-import javax.swing.text.Keymap;
-import jsyntaxpane.SyntaxActions;
 
 %%
 
 %public
 %class JavaScriptLexer
-%extends DefaultLexer
+%implements Lexer
 %final
 %unicode
 %char
@@ -50,18 +38,6 @@ import jsyntaxpane.SyntaxActions;
     int tokenStart;
     int tokenLength;
 
-    @Override
-    public void addKeyActions(Keymap map) {
-        super.addKeyActions(map);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
-    }
-
-    @Override
-    public String[] getLanguages() {
-        return LANGS;
-    }
-
-    private static final String[] LANGS = { "javascript", "js", "rhino" };
 %}
 
 /* main character classes */
@@ -110,92 +86,93 @@ StringCharacter = [^\r\n\"\\]
 <YYINITIAL> {
 
   /* keywords */
-  "break"                        |
-  "case"                         |
-  "catch"                        |
-  "continue"                     |
-  "do"                           |
-  "else"                         |
-  "finally"                      |
-  "for"                          |
-  "default"                      |
-  "delete"                       |
-  "new"                          |
-  "goto"                         |
-  "if"                           |
-  "switch"                       |
-  "return"                       |
-  "while"                        |
-  "this"                         |
-  "try"                          |
-  "var"                          |
-  "function"                     |
-  "with"                         |
-  "in"                           |
+  "break"                        { return token(TokenType.KEYWORD); }
+  "case"                         { return token(TokenType.KEYWORD); }
+  "catch"                        { return token(TokenType.KEYWORD); }
+  "continue"                     { return token(TokenType.KEYWORD); }
+  "do"                           { return token(TokenType.KEYWORD); }
+  "else"                         { return token(TokenType.KEYWORD); }
+  "finally"                      { return token(TokenType.KEYWORD); }
+  "for"                          { return token(TokenType.KEYWORD); }
+  "default"                      { return token(TokenType.KEYWORD); }
+  "delete"                       { return token(TokenType.KEYWORD); }
+  "new"                          { return token(TokenType.KEYWORD); }
+  "goto"                         { return token(TokenType.KEYWORD); }
+  "if"                           { return token(TokenType.KEYWORD); }
+  "switch"                       { return token(TokenType.KEYWORD); }
+  "return"                       { return token(TokenType.KEYWORD); }
+  "while"                        { return token(TokenType.KEYWORD); }
+  "this"                         { return token(TokenType.KEYWORD); }
+  "try"                          { return token(TokenType.KEYWORD); }
+  "var"                          { return token(TokenType.KEYWORD); }
+  "function"                     { return token(TokenType.KEYWORD); }
+  "with"                         { return token(TokenType.KEYWORD); }
+  "in"                           { return token(TokenType.KEYWORD); }
   
   /* boolean literals */
-  "true"                         |
-  "false"                        |
+  "true"                         { return token(TokenType.KEYWORD); }
+  "false"                        { return token(TokenType.KEYWORD); }
   
   /* null literal */
   "null"                         { return token(TokenType.KEYWORD); }
 
   /* Built-in Types*/
-  "Array"                        |
-  "Boolean"                      |
-  "RegExp"                       |
-  "String"                       |
+  "Array"                        { return token(TokenType.TYPE); }
+  "Boolean"                      { return token(TokenType.TYPE); }
+  "RegExp"                       { return token(TokenType.TYPE); }
+  "String"                       { return token(TokenType.TYPE); }
   {Identifier} ":"               { return token(TokenType.TYPE); }
 
   
   /* operators */
 
-  "("                            |
-  ")"                            |
-  "{"                            | 
-  "}"                            | 
-  "["                            | 
-  "]"                            | 
-  ";"                            | 
-  ","                            | 
-  "."                            | 
-  "="                            | 
-  ">"                            | 
-  "<"                            |
-  "!"                            | 
-  "~"                            | 
-  "?"                            | 
-  ":"                            | 
-  "=="                           | 
-  "<="                           | 
-  ">="                           | 
-  "!="                           | 
-  "&&"                           | 
-  "||"                           | 
-  "++"                           | 
-  "--"                           | 
-  "+"                            | 
-  "-"                            | 
-  "*"                            | 
-  "/"                            | 
-  "&"                            | 
-  "|"                            | 
-  "^"                            | 
-  "%"                            | 
-  "<<"                           | 
-  ">>"                           | 
-  ">>>"                          | 
-  "+="                           | 
-  "-="                           | 
-  "*="                           | 
-  "/="                           | 
-  "&="                           | 
-  "|="                           | 
-  "^="                           | 
-  "%="                           | 
-  "<<="                          | 
-  ">>="                          { return token(TokenType.OPERATOR); } 
-  ">>>="                         { return token(TokenType.OPERATOR); } 
+  "("                            { return token(TokenType.OPER); }
+  ")"                            { return token(TokenType.OPER); }
+  "{"                            { return token(TokenType.OPER); } 
+  "}"                            { return token(TokenType.OPER); } 
+  "["                            { return token(TokenType.OPER); } 
+  "]"                            { return token(TokenType.OPER); } 
+  ";"                            { return token(TokenType.OPER); } 
+  ","                            { return token(TokenType.OPER); } 
+  "."                            { return token(TokenType.OPER); } 
+  
+  "="                            { return token(TokenType.OPER); } 
+  ">"                            { return token(TokenType.OPER); } 
+  "<"                            { return token(TokenType.OPER); }
+  "!"                            { return token(TokenType.OPER); } 
+  "~"                            { return token(TokenType.OPER); } 
+  "?"                            { return token(TokenType.OPER); } 
+  ":"                            { return token(TokenType.OPER); } 
+  "=="                           { return token(TokenType.OPER); } 
+  "<="                           { return token(TokenType.OPER); } 
+  ">="                           { return token(TokenType.OPER); } 
+  "!="                           { return token(TokenType.OPER); } 
+  "&&"                           { return token(TokenType.OPER); } 
+  "||"                           { return token(TokenType.OPER); } 
+  "++"                           { return token(TokenType.OPER); } 
+  "--"                           { return token(TokenType.OPER); } 
+  "+"                            { return token(TokenType.OPER); } 
+  "-"                            { return token(TokenType.OPER); } 
+  "*"                            { return token(TokenType.OPER); } 
+  "/"                            { return token(TokenType.OPER); } 
+  "&"                            { return token(TokenType.OPER); } 
+  "|"                            { return token(TokenType.OPER); } 
+  "^"                            { return token(TokenType.OPER); } 
+  "%"                            { return token(TokenType.OPER); } 
+  "<<"                           { return token(TokenType.OPER); } 
+  ">>"                           { return token(TokenType.OPER); } 
+  ">>>"                          { return token(TokenType.OPER); } 
+  "+="                           { return token(TokenType.OPER); } 
+  "-="                           { return token(TokenType.OPER); } 
+  "*="                           { return token(TokenType.OPER); } 
+  "/="                           { return token(TokenType.OPER); } 
+  "&="                           { return token(TokenType.OPER); } 
+  "|="                           { return token(TokenType.OPER); } 
+  "^="                           { return token(TokenType.OPER); } 
+  "%="                           { return token(TokenType.OPER); } 
+  "<<="                          { return token(TokenType.OPER); } 
+  ">>="                          { return token(TokenType.OPER); } 
+  ">>>="                         { return token(TokenType.OPER); } 
   
   /* string literal */
   \"                             {  
@@ -226,7 +203,7 @@ StringCharacter = [^\r\n\"\\]
   {WhiteSpace}                   { }
 
   /* identifiers */ 
-  {Identifier}                   { return token(TokenType.IDENTIFIER); }
+  {Identifier}                   { return token(TokenType.IDENT); }
 }
 
 <STRING> {

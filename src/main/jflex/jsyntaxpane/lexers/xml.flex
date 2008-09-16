@@ -1,31 +1,18 @@
-/*
- * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License
- *       at http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/**
+ * XML Simple Syntax by Ayman Al-Sairafi
  */
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+import jsyntaxpane.Lexer;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
-import javax.swing.KeyStroke;
-import javax.swing.text.Keymap;
-import jsyntaxpane.SyntaxActions;
 
 %%
 
 %public
 %class XmlLexer
-%extends DefaultLexer
+%implements Lexer
 %final
 %unicode
 %char
@@ -44,17 +31,6 @@ import jsyntaxpane.SyntaxActions;
         return new Token(type, yychar, yylength());
     }
 
-    @Override
-    public void addKeyActions(Keymap map) {
-        super.addKeyActions(map);
-    }
-
-    @Override
-    public String[] getLanguages() {
-        return LANGS;
-    }
-
-    private static final String[] LANGS = {"xml"};
 %}
 
 /* main character classes */
@@ -99,16 +75,16 @@ SQuoteStringChar = [^\r\n\']
   
   {Comment}                      { return token(TokenType.COMMENT); }
 
-  {Tag}                          { return token(TokenType.OPERATOR); }
+  {Tag}                          { return token(TokenType.OPER); }
 
-  {Attribute}                    { return token(TokenType.IDENTIFIER); }
+  {Attribute}                    { return token(TokenType.IDENT); }
 
   {DocType}                      { return token(TokenType.KEYWORD); }
 
-  "&"  {lcase}+ ";"              { return token(TokenType.OPERATOR); }
-  "&#" [:digit:]+ ";"            { return token(TokenType.OPERATOR); }
+  "&"  {lcase}+ ";"              { return token(TokenType.OPER); }
+  "&#" [:digit:]+ ";"            { return token(TokenType.OPER); }
 
-  {LetterDigit}+                 { return token(TokenType.IDENTIFIER); }
+  {LetterDigit}+                 { return token(TokenType.IDENT); }
 
   {WhiteSpace}+                  { /* skip */ }
 }

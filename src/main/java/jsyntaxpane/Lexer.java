@@ -15,13 +15,9 @@
 package jsyntaxpane;
 
 import java.io.Reader;
-import javax.swing.JEditorPane;
 
 /**
  * Lexers must implement these methods.  These are used in the Tokenizer 
- * 
- * A Lexer should be tied to one document.
- * 
  * @author Ayman Al-Sairafi
  */
 public interface Lexer {
@@ -35,21 +31,9 @@ public interface Lexer {
     
     /**
      * This is called to return the next Token from the Input Reader
-     * @return next token, or null if no more tokens.
+     * @return
      * @throws java.io.IOException
      */
     public Token yylex() throws java.io.IOException;
     
-    /**
-     * This method should return an array of the languages that this Lexer
-     * supports
-     * @return
-     */
-    public String[] getLanguages();
-    
-    /**
-     * This will be called when the Lexer is attached to a control.  Here, the
-     * default keymap operations can be installed on the pane.
-     */
-    public void install(JEditorPane pane);
 }
