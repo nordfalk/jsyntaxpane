@@ -52,15 +52,12 @@ public abstract class DefaultLexer implements Lexer {
     }
 
     /**
-     * Trickey thing since the token has no idea what is the char stream it 
-     * came from!
-     * 
-     * @param token
+     * Return the current matched token as a string.  This is <b>expensive</b>
+     * as it creates a new String object for the token.  Use with care.
+     *
      * @return
      */
-    protected CharSequence getCharSequenceForToken(Token token) {
-        CharSequence chars = null;
-
-        return chars = null;
+    protected CharSequence getTokenSrring() {
+        return yytext();
     }
 }

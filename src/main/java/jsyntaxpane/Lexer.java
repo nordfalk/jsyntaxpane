@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  */
-
 package jsyntaxpane;
 
 import java.io.Reader;
@@ -32,21 +31,44 @@ public interface Lexer {
      * @param reader
      */
     public void yyreset(Reader reader);
-    
+
     /**
      * This is called to return the next Token from the Input Reader
      * @return next token, or null if no more tokens.
      * @throws java.io.IOException
      */
     public Token yylex() throws java.io.IOException;
-    
+
+    /**
+     * Returns the character at position <tt>pos</tt> from the
+     * matched text.
+     *
+     * It is equivalent to yytext().charAt(pos), but faster
+     *
+     * @param pos the position of the character to fetch.
+     *            A value from 0 to yylength()-1.
+     *
+     * @return the character at position pos
+     */
+    public char yycharat(int pos);
+
+    /**
+     * Returns the length of the matched text region.
+     */
+    public int yylength();
+
+    /**
+     * Returns the text matched by the current regular expression.
+     */
+    public String yytext();
+
     /**
      * This method should return an array of the languages that this Lexer
      * supports
      * @return
      */
     public String[] getLanguages();
-    
+
     /**
      * This will be called when the Lexer is attached to a control.  Here, the
      * default keymap operations can be installed on the pane.

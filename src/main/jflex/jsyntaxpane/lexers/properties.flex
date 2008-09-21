@@ -68,11 +68,10 @@ KeyCharacter = [a-zA-Z0-9._ ]
 
 <YYINITIAL> 
 {
-	{KeyCharacter}*=                          { return token(TokenType.KEYWORD); }
+	{KeyCharacter}+{WhiteSpace}*=    { return token(TokenType.KEYWORD); }
         {StartComment} {InputCharacter}* {LineTerminator}?         
-                                                  { return token(TokenType.COMMENT); }
-        . | {LineTerminator}                      { /* skip */ }
+                                         { return token(TokenType.COMMENT); }
+        . | {LineTerminator}             { /* skip */ }
 }
 
 <<EOF>>                   { return null; }
-

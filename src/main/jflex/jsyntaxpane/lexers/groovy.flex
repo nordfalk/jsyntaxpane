@@ -303,6 +303,7 @@ RegexCharacter  = [^\r\n\/]
 
 
 <STRING> {
+
   \"                             { 
                                      yybegin(YYINITIAL); 
                                      // length also includes the trailing quote
@@ -315,8 +316,10 @@ RegexCharacter  = [^\r\n\/]
   
   /* escape sequences */
 
+
   \\.                            { tokenLength += 2; }
   {LineTerminator}               { yybegin(YYINITIAL);  }
+
 }
 
 <CHARLITERAL> {

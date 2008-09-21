@@ -63,7 +63,7 @@ import jsyntaxpane.SyntaxActions;
 Comment = "<!--" [^--] ~"-->" | "<!--" "-"+ "->"
 
 LineTerminator = \r|\n|\r\n
-InputCharacter = [^\r\n]
+// InputCharacter = [^\r\n]
 WhiteSpace = {LineTerminator} | [ \t\f]+
 
 

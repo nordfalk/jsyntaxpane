@@ -15,6 +15,7 @@
 package jsyntaxpane.lexers;
 
 import jsyntaxpane.DefaultLexer;
+import jsyntaxpane.util.JarServiceProvider;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 import javax.swing.KeyStroke;
@@ -70,15 +71,7 @@ import java.util.HashMap;
     public static Map<String, String> COMPLETIONS;
 
     static {
-        COMPLETIONS = new HashMap<String, String>();
-        COMPLETIONS.put("pu", "public ");
-        COMPLETIONS.put("pr", "private ");
-        COMPLETIONS.put("st", "static ");
-        COMPLETIONS.put("cl", "class ");
-        COMPLETIONS.put("St", "String ");
-
-        COMPLETIONS.put("fri", "for(int i=0; i<10; i++) {|}");
-        COMPLETIONS.put("sout", "System.out.println(|)");
+        COMPLETIONS = JarServiceProvider.readStringsMap("jsyntaxpane.javasyntaxkit.completions");
     }
 %}
 

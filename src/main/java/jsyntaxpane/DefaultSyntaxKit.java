@@ -16,6 +16,7 @@ package jsyntaxpane;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.Arrays;
+import java.util.Properties;
 import java.util.logging.Logger;
 import javax.swing.JEditorPane;
 import javax.swing.text.DefaultEditorKit;
@@ -23,20 +24,21 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
+import jsyntaxpane.util.JarServiceProvider;
 
 /**
- * The SyntaxKit is the main entry to SyntaxPane.  To use the package, just 
+ * The DefaultSyntaxKit is the main entry to SyntaxPane.  To use the package, just 
  * set the EditorKit of the EditorPane to a new instance of this class.
  * 
  * You need to pass a proper lexer to the class.
  * 
  * @author ayman
  */
-public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
+public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 
     public static Font DEFAULT_FONT;
     private Lexer lexer;
-    private static Logger LOG = Logger.getLogger(SyntaxKit.class.getName());
+    private static Logger LOG = Logger.getLogger(DefaultSyntaxKit.class.getName());
     
     static {
         initKit();
@@ -45,7 +47,7 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
     /**
      * Create a new Kit for the given language 
      */
-    public SyntaxKit(Lexer lexer) {
+    public DefaultSyntaxKit(Lexer lexer) {
         super();
         this.lexer = lexer;
     }
@@ -92,6 +94,11 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
     /**
      * This is called to initialize the list of lexers we have.  You can call 
      * this at initialization, or it will be called when needed.
+     * 
+     * The method will also add the appropriate EditorKit classes to the
+     * corresponding ContentType of the JEditorPane.  After this is called,
+     * you can simply call the editor.setCOntentType("text/java") on the 
+     * control and you will be done.
      */
     public static void initKit() {
         // attempt to find a suitable default font
@@ -104,6 +111,13 @@ public class SyntaxKit extends DefaultEditorKit implements ViewFactory {
             DEFAULT_FONT = new Font("Courier", Font.PLAIN, 12);
         } else if (Arrays.binarySearch(fonts, "Monospaced") >= 0) {
             DEFAULT_FONT = new Font("Monospaced", Font.PLAIN, 13);
+        }
+        
+        // read the Default Kits and their associated types
+        Properties kitsForTypes = JarServiceProvider.readProperties("jsyntaxpane.kitsfortypes");
+        for(String type:kitsForTypes.stringPropertyNames()) {
+            String kitForType = kitsForTypes.getProperty(type);
+            JEditorPane.registerEditorKitForContentType(type, kitForType);
         }
     }
 }

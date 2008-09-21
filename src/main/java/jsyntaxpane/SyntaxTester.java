@@ -15,17 +15,15 @@ package jsyntaxpane;
 
 import java.awt.event.ItemEvent;
 import java.awt.Rectangle;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.BadLocationException;
-import jsyntaxpane.lexers.GroovyLexer;
 
 public class SyntaxTester extends javax.swing.JFrame {
 
     /** Creates new form Tester */
     public SyntaxTester() {
         initComponents();
-        SyntaxKitFactory.getKitForLanguage("java");
-        jCmbLangs.setSelectedItem("java");
+        DefaultSyntaxKit.initKit();
+        jEdtTest.setContentType(jCmbLangs.getItemAt(0).toString());
     }
 
     /** This method is called from within the constructor to
@@ -48,8 +46,7 @@ public class SyntaxTester extends javax.swing.JFrame {
         lblCaretPos.setText("Caret Position");
 
         jEdtTest.setContentType("text/java");
-        jEdtTest.setEditorKit(new SyntaxKit(new GroovyLexer()));
-        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13));
+        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
         jEdtTest.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 jEdtTestCaretUpdate(evt);
@@ -61,7 +58,7 @@ public class SyntaxTester extends javax.swing.JFrame {
         lblToken.setText("Token under cursor");
 
         jCmbLangs.setMaximumRowCount(20);
-        jCmbLangs.setModel(new DefaultComboBoxModel(SyntaxKitFactory.getLanguages()));
+        jCmbLangs.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "text/java", "text/javascript", "text/groovy", "text/sql", "text/xml", "text/properties", "text/tal" }));
         jCmbLangs.setFocusable(false);
         jCmbLangs.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -134,8 +131,8 @@ private void jCmbLangsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRS
         int caretPosition = jEdtTest.getCaretPosition();
         Rectangle visibleRectangle = jEdtTest.getVisibleRect();
 
-        // install a new SyntaxKit on the JEditorPane for the requested language.
-        jEdtTest.setEditorKit(SyntaxKitFactory.getKitForLanguage(lang));
+        // install a new DefaultSyntaxKit on the JEditorPane for the requested language.
+        jEdtTest.setContentType(lang);
 
         // restore the state of the JEditorPane - note that installing a new
         // EditorKit causes the Document to be recreated.

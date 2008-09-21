@@ -21,7 +21,9 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,7 +98,18 @@ public class JarServiceProvider {
      * @param clazz
      * @return Property file read.
      */
-    public static Properties getProperties(Class clazz) {
+    public static Properties readProperties(Class clazz) {
+        return readProperties(clazz.getName());
+    }
+    
+    /**
+     * Read a file in the META-INF/services named name appended with 
+     * ".properties"
+     * If no file is found, then a an empty Property instance will be returned
+     * @param name name of file (use dots to separate subfolders).
+     * @return Property file read.
+     */
+    public static Properties readProperties(String name) {
         ClassLoader cl = JarServiceProvider.class.getClassLoader();
         cl = cl == null ? ClassLoader.getSystemClassLoader() : cl;
         Properties props = new Properties();
@@ -104,7 +117,7 @@ public class JarServiceProvider {
             InputStream is = null;
             try {
                 String serviceFile = "META-INF/services/" +
-                        clazz.getName().toLowerCase() + ".properties";
+                        name.toLowerCase() + ".properties";
                 URL loc = cl.getResource(serviceFile);
                 if (loc != null) {
                     is = loc.openStream();
@@ -121,5 +134,21 @@ public class JarServiceProvider {
             }
         }
         return props;
+    }
+    
+    /**
+     * Read a file in the META-INF/services named name appended with 
+     * ".properties", and returns it as a <code>Map<String, String></code>
+     * If no file is found, then a an empty Property instance will be returned
+     * @param name name of file (use dots to separate subfolders).
+     * @return Map of keys and values
+     */
+    public static Map<String, String> readStringsMap(String name) {
+        Properties props = readProperties(name);
+        HashMap<String, String> map = new HashMap<String, String>();
+        for(Map.Entry e:props.entrySet()) {
+            map.put(e.getKey().toString(), e.getValue().toString());
+        }
+        return map;
     }
 }

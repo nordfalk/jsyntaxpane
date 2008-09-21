@@ -68,7 +68,7 @@ public class SyntaxStyles {
      */
     private static SyntaxStyles createInstance() {
         SyntaxStyles syntaxstyles = new SyntaxStyles();
-        Properties styles = JarServiceProvider.getProperties(SyntaxStyles.class);
+        Properties styles = JarServiceProvider.readProperties(SyntaxStyles.class);
         syntaxstyles.mergeStyles(styles);
         return syntaxstyles;
     }
