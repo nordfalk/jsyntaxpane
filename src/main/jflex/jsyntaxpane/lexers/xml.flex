@@ -62,19 +62,7 @@ import jsyntaxpane.SyntaxActions;
 /* comments */
 Comment = "<!--" [^--] ~"-->" | "<!--" "-"+ "->"
 
-LineTerminator = \r|\n|\r\n
-// InputCharacter = [^\r\n]
-WhiteSpace = {LineTerminator} | [ \t\f]+
-
-
 LetterDigit = [a-zA-Z0-9_]
-
-/*
-TagStart = [<>] 
-TagEnd = "</" | ">" | "/>"
-Tag = {TagStart} | {TagEnd}
-Tag = [<>/]
-*/
 
 DocType = "<?xml" [^?]* "?>"
 
@@ -84,8 +72,7 @@ TagEnd = ("</" {LetterDigit}+ (":" | "-" | {LetterDigit} )* ">") | "/>" | ">"
 Tag = {TagStart} | {TagEnd}
 
 /* attribute */
-Attribute = {LetterDigit}+ "="
-lcase = [a-z]
+Attribute = {LetterDigit}+ (":" | "-" | {LetterDigit} )* "="
 
 /* string and character literals */
 DQuoteStringChar = [^\r\n\"]
@@ -94,23 +81,20 @@ SQuoteStringChar = [^\r\n\']
 %%
 
 <YYINITIAL> {
-  \"{DQuoteStringChar}+\"        { return token(TokenType.STRING); }
-  \'{SQuoteStringChar}+\'        { return token(TokenType.STRING); }
+  \"{DQuoteStringChar}*\"        |
+  \'{SQuoteStringChar}*\'        { return token(TokenType.STRING); }
   
   {Comment}                      { return token(TokenType.COMMENT); }
 
-  {Tag}                          { return token(TokenType.OPERATOR); }
+  "&"  [a-z]+ ";"            |
+  "&#" [:digit:]+ ";"            { return token(TokenType.KEYWORD2); }
+
+  {Tag}                          { return token(TokenType.TYPE); }
 
   {Attribute}                    { return token(TokenType.IDENTIFIER); }
 
   {DocType}                      { return token(TokenType.KEYWORD); }
 
-  "&"  {lcase}+ ";"              { return token(TokenType.OPERATOR); }
-  "&#" [:digit:]+ ";"            { return token(TokenType.OPERATOR); }
-
-  {LetterDigit}+                 { return token(TokenType.IDENTIFIER); }
-
-  {WhiteSpace}+                  { /* skip */ }
 }
 
 

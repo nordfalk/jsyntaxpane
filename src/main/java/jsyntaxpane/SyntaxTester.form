@@ -28,8 +28,8 @@
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="lblToken" alignment="0" pref="612" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="jCmbLangs" pref="164" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" pref="329" max="-2" attributes="0"/>
+                      <Component id="jCmbLangs" pref="186" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="307" max="-2" attributes="0"/>
                       <Component id="lblCaretPos" min="-2" pref="119" max="-2" attributes="0"/>
                   </Group>
                   <Component id="jScrollPane1" alignment="0" pref="612" max="32767" attributes="0"/>

@@ -82,12 +82,10 @@ InputCharacter = [^\r\n]
 WhiteSpace = {LineTerminator} | [ \t\f]+
 
 /* comments */
-Comment = {TraditionalComment} | {EndOfLineComment} | 
-          {DocumentationComment}
+Comment = {TraditionalComment} | {EndOfLineComment} 
 
 TraditionalComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
 EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
-DocumentationComment = "/*" "*"+ [^/*] ~"*/"
 
 /* identifiers */
 Identifier = [:jletter:][:jletterdigit:]*
@@ -117,7 +115,7 @@ Exponent = [eE] [+-]? [0-9]+
 StringCharacter = [^\r\n\"\\]
 SingleCharacter = [^\r\n\'\\]
 
-%state STRING, CHARLITERAL
+%state STRING, CHARLITERAL, JDOC, JDOC_TAG
 
 %%
 
@@ -266,6 +264,13 @@ SingleCharacter = [^\r\n\'\\]
   {DoubleLiteral}                { return token(TokenType.NUMBER); }
   {DoubleLiteral}[dD]            { return token(TokenType.NUMBER); }
   
+  // JavaDoc comments need a state so that we can highlight the @ controls
+  "/**"                          {  
+                                    yybegin(JDOC); 
+                                    tokenStart = yychar; 
+                                    tokenLength = 3; 
+                                 }
+
   /* comments */
   {Comment}                      { return token(TokenType.COMMENT); }
 
@@ -307,6 +312,44 @@ SingleCharacter = [^\r\n\'\\]
 
   \\.                            { tokenLength += 2; }
   {LineTerminator}               { yybegin(YYINITIAL);  }
+}
+
+<JDOC> {
+  "*/"                           { 
+                                     yybegin(YYINITIAL); 
+                                     return new Token(TokenType.COMMENT, tokenStart, tokenLength + 2);
+                                 }
+
+  "@"                            {   
+                                     yybegin(JDOC_TAG); 
+                                     int start = tokenStart;
+                                     tokenStart = yychar;
+                                     int len = tokenLength;
+                                     tokenLength = 1;
+                                     return new Token(TokenType.COMMENT, start, len);
+                                 }
+
+  .|\n                           { tokenLength ++; }
+
+}
+
+<JDOC_TAG> {
+  ([:letter:])+ ":"?             { tokenLength += yylength(); }
+
+  "*/"                           { 
+                                     yybegin(YYINITIAL); 
+                                     return new Token(TokenType.COMMENT, tokenStart, tokenLength + 2);
+                                 }
+
+  .|\n                           {   
+                                     yybegin(JDOC); 
+                                     // length also includes the trailing quote
+                                     int start = tokenStart;
+                                     tokenStart = yychar;
+                                     int len = tokenLength;
+                                     tokenLength = 1;
+                                     return new Token(TokenType.COMMENT2, start, len);
+                                 }
 }
 
 

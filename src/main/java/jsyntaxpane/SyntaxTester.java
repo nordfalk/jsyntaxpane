@@ -46,7 +46,7 @@ public class SyntaxTester extends javax.swing.JFrame {
         lblCaretPos.setText("Caret Position");
 
         jEdtTest.setContentType("text/java");
-        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
+        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13));
         jEdtTest.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 jEdtTestCaretUpdate(evt);
@@ -75,8 +75,8 @@ public class SyntaxTester extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lblToken, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jCmbLangs, 0, 164, Short.MAX_VALUE)
-                        .addGap(329, 329, 329)
+                        .addComponent(jCmbLangs, 0, 186, Short.MAX_VALUE)
+                        .addGap(307, 307, 307)
                         .addComponent(lblCaretPos, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE))
                 .addContainerGap())
