@@ -25,6 +25,19 @@ import javax.swing.text.Keymap;
  * @author ayman
  */
 public abstract class DefaultLexer implements Lexer {
+    
+    protected int tokenStart;
+    protected int tokenLength;
+
+    /**
+     * Helper method to create and return a new Token from of TokenType
+     */
+    protected Token token(TokenType type, int tStart, int tLength,
+            int newStart, int newLength) {
+        tokenStart = newStart;
+        tokenLength = newLength;
+        return new Token(type, tStart, tLength);
+    }
 
     /**
      * This method is called by the SyntaxKit whenever this language is set on

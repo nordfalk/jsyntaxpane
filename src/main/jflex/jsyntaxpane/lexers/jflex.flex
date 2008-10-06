@@ -15,16 +15,19 @@
 package jsyntaxpane.lexers;
 
 import jsyntaxpane.DefaultLexer;
+import jsyntaxpane.util.JarServiceProvider;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
 import jsyntaxpane.SyntaxActions;
-
-%%
+import java.util.Map;
+import java.util.HashMap;
+ 
+%% 
 
 %public
-%class GroovyLexer
+%class JFlexLexer
 %extends DefaultLexer
 %final
 %unicode
@@ -34,18 +37,21 @@ import jsyntaxpane.SyntaxActions;
 
 %{
     /**
-     * Default constructor is needed as we will always call the yyreset
+     * Create an empty lexer, yyrset will be called later to reset and assign
+     * the reader
      */
-    public GroovyLexer() {
+    public JFlexLexer() {
         super();
     }
 
-    /**
-     * Helper method to create and return a new Token of TokenType
-     */
     private Token token(TokenType type) {
         return new Token(type, yychar, yylength());
     }
+
+    // These will be used to store Token Start positions and length for Complex 
+    // Tokens that need deifferent Lexer States, like STRING
+    int tokenStart;
+    int tokenLength;
 
     @Override
     public void addKeyActions(Keymap map) {
@@ -59,21 +65,16 @@ import jsyntaxpane.SyntaxActions;
 LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 
-WhiteSpace = {LineTerminator} | [ \t\f]
+WhiteSpace = {LineTerminator} | [ \t\f]+
 
 /* comments */
-Comment = {TraditionalComment} | {EndOfLineComment} | 
-          {DocumentationComment}
+Comment = {TraditionalComment} | {EndOfLineComment} 
 
 TraditionalComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
 EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
-DocumentationComment = "/*" "*"+ [^/*] ~"*/"
 
 /* identifiers */
 Identifier = [:jletter:][:jletterdigit:]*
-
-/* Groovy and generally Java types have first UpperCase Letter */
-// Type = [:uppercase:][:jletterdigit:]*
 
 /* integer literals */
 DecIntegerLiteral = 0 | [1-9][0-9]*
@@ -97,11 +98,10 @@ FLit3    = [0-9]+
 Exponent = [eE] [+-]? [0-9]+
 
 /* string and character literals */
-StringCharacter = [^\r\n\"\\\$]
+StringCharacter = [^\r\n\"\\]
 SingleCharacter = [^\r\n\'\\]
-RegexCharacter  = [^\r\n\/]
 
-%state STRING, CHARLITERAL, REGEX, GSTRING_EXPR
+%state STRING, CHARLITERAL, JDOC, JDOC_TAG
 
 %%
 
@@ -157,21 +157,84 @@ RegexCharacter  = [^\r\n\/]
   "try"                          |
   "volatile"                     |
   "strictfp"                     |
-
-  /* Groovy reserved words not in Java */
-  "as"                           |
-  "asssert"                      | 
-  "def"                          |
-  "in"                           |
-  "threadsafe"                   |
-
-/* Booleans and null */
   "true"                         |
   "false"                        |
   "null"                         { return token(TokenType.KEYWORD); }
 
+  /* JFlex special types */
+  "<<EOF>>"                      |
+  "[:jletter:]"                  |
+  "[:jletterdigit:]"             |
+  "[:letter:]"                   |
+  "[:digit:]"                    |
+  "[:uppercase:]"                |
+  "[:lowercase:]"                |
+  "<" [a-zA-Z][a-zA-Z0-9_]* ">"  { return token(TokenType.TYPE2); }
 
-  /* Builtin Types and Object Wrappers */
+  /* JFlex Specials */
+  "%%"                           |
+  "%{"                           |
+  "%}"                           |
+  "%class"                       |
+  "%implements"                  |
+  "%extends"                     |
+  "%public"                      |
+  "%final"                       |
+  "%abstract"                    |
+  "%apiprivate"                  |
+  "%init{"                       |
+  "%init}"                       |
+  "%initthrow{"                  |
+  "%initthrow}"                  |
+  "%initthrow"                   |
+  "%ctorarg"                     |
+  "%scanerror"                   |
+  "%buffer"                      |
+  "%include"                     |
+  "%function"                    |
+  "%integer"                     |
+  "%int"                         |
+  "%intwrap"                     |
+  "%yylexthrow{"                 |
+  "%yylexthrow}"                 |
+  "%yylexthrow"                  |
+  "%eofval{"                     |
+  "%eofval}"                     |
+  "%eof{"                        |
+  "%eof}"                        |
+  "%eofthrow{"                   |
+  "%eofthrow}"                   |
+  "%eofthrow"                    |
+  "%eofclose"                    |
+  "%debug"                       |
+  "%standalone"                  |
+  "%cup"                         |
+  "%cupsym"                      |
+  "%cupdebug"                    |
+  "%byacc"                       |
+  "%switch"                      |
+  "%table"                       |
+  "%pack"                        |
+  "%7bit"                        |
+  "%8bit"                        |
+  "%full"                        |
+  "%unicode"                     |
+  "%16bit"                       |
+  "%caseless"                    |
+  "%ignorecase"                  |
+  "%char"                        |
+  "%line"                        |
+  "%column"                      |
+  "%notunix"                     |
+  "%yyeof"                       |
+  "%s"                           |
+  "%state"                       |
+  "%x"                           |
+  "%xstate"                      |
+  "%type"                        { return token(TokenType.KEYWORD2); }
+
+
+  /* Java Built in types and wrappers */
   "Boolean"                      |
   "Byte"                         |
   "Double"                       |
@@ -179,13 +242,8 @@ RegexCharacter  = [^\r\n\/]
   "Integer"                      |
   "Object"                       |
   "Short"                        |
-  "String"                       |
-  "Regex"                        { return token(TokenType.TYPE); }
+  "String"                       { return token(TokenType.TYPE); }
   
-  /* Groovy commonly used methods */
-  "print"                        |
-  "println"                      { return token(TokenType.KEYWORD); }
-
   /* operators */
 
   "("                            |
@@ -197,7 +255,6 @@ RegexCharacter  = [^\r\n\/]
   ";"                            | 
   ","                            | 
   "."                            | 
-  "@"                            | 
   "="                            | 
   ">"                            | 
   "<"                            |
@@ -234,11 +291,8 @@ RegexCharacter  = [^\r\n\/]
   "%="                           | 
   "<<="                          | 
   ">>="                          | 
-  ">>>="                         { return token(TokenType.OPERATOR); }
-
-  "~="                           | 
-  "?."                           { return token(TokenType.OPERATOR); } 
-
+  ">>>="                         { return token(TokenType.OPERATOR); } 
+  
   /* string literal */
   \"                             {  
                                     yybegin(STRING); 
@@ -252,15 +306,6 @@ RegexCharacter  = [^\r\n\/]
                                     tokenStart = yychar; 
                                     tokenLength = 1; 
                                  }
-
-  /* 
-     Groovy Regex -- state cannot be easily used here due to / by itself being 
-     a valid operator.  So if we flip into the REGEX state, we cannot distinguish
-     a regular / 
-  */
-  "/" {RegexCharacter}+ "/"      { return token(TokenType.REGEX); }
-
-
 
   /* numeric literals */
 
@@ -277,37 +322,29 @@ RegexCharacter  = [^\r\n\/]
   {DoubleLiteral}                |
   {DoubleLiteral}[dD]            { return token(TokenType.NUMBER); }
   
-  /* Types in Java and Groovy */ 
-  // {Type}                         { return token(TokenType.TYPE); }
+  // JavaDoc comments need a state so that we can highlight the @ controls
+  "/**"                          {  
+                                    yybegin(JDOC); 
+                                    tokenStart = yychar; 
+                                    tokenLength = 3; 
+                                 }
 
   /* comments */
   {Comment}                      { return token(TokenType.COMMENT); }
 
   /* whitespace */
-  {WhiteSpace}+                  { /* skip */ }
+  {WhiteSpace}                   { }
 
   /* identifiers */ 
   {Identifier}                   { return token(TokenType.IDENTIFIER); }
-
 }
 
 
 <STRING> {
-
   \"                             { 
                                      yybegin(YYINITIAL); 
                                      // length also includes the trailing quote
                                      return new Token(TokenType.STRING, tokenStart, tokenLength + 1);
-                                 }
-
-  "${"                           { 
-                                     yybegin(GSTRING_EXPR); 
-                                     // length also includes the trailing quote
-				     int s = tokenStart;
-				     int l = tokenLength;
-				     tokenStart = yychar;
-				     tokenLength = 2;
-                                     return new Token(TokenType.STRING, s, l);
                                  }
   
   {StringCharacter}+             { tokenLength += yylength(); }
@@ -316,25 +353,8 @@ RegexCharacter  = [^\r\n\/]
   
   /* escape sequences */
 
-
   \\.                            { tokenLength += 2; }
   {LineTerminator}               { yybegin(YYINITIAL);  }
-
-}
-
-<GSTRING_EXPR> {
-    "}"                          { 
-                                     yybegin(STRING); 
-                                     // length also includes the trailing quote
-				     int s = tokenStart;
-				     int l = tokenLength + 1;
-				     tokenStart = yychar + 1;
-				     tokenLength = 0;
-                                     return new Token(TokenType.STRING2, s, l);
-                                 }
-
-  {StringCharacter}              { tokenLength ++; }
-
 }
 
 <CHARLITERAL> {
@@ -352,20 +372,44 @@ RegexCharacter  = [^\r\n\/]
   {LineTerminator}               { yybegin(YYINITIAL);  }
 }
 
-<REGEX> {
-  "/"                            { 
+<JDOC> {
+  "*/"                           { 
                                      yybegin(YYINITIAL); 
-                                     // length also includes the trailing quote
-                                     return new Token(TokenType.REGEX, tokenStart, tokenLength + 1);
+                                     return new Token(TokenType.COMMENT, tokenStart, tokenLength + 2);
                                  }
-  
-  {RegexCharacter}+             { tokenLength += yylength(); }
-  
-  /* escape sequences */
 
-  \\.                            { tokenLength += 2; }
-  {LineTerminator}               { yybegin(YYINITIAL);  }
+  "@"                            {   
+                                     yybegin(JDOC_TAG); 
+                                     int start = tokenStart;
+                                     tokenStart = yychar;
+                                     int len = tokenLength;
+                                     tokenLength = 1;
+                                     return new Token(TokenType.COMMENT, start, len);
+                                 }
+
+  .|\n                           { tokenLength ++; }
+
 }
+
+<JDOC_TAG> {
+  ([:letter:])+ ":"?             { tokenLength += yylength(); }
+
+  "*/"                           { 
+                                     yybegin(YYINITIAL); 
+                                     return new Token(TokenType.COMMENT, tokenStart, tokenLength + 2);
+                                 }
+
+  .|\n                           {   
+                                     yybegin(JDOC); 
+                                     // length also includes the trailing quote
+                                     int start = tokenStart;
+                                     tokenStart = yychar;
+                                     int len = tokenLength;
+                                     tokenLength = 1;
+                                     return new Token(TokenType.COMMENT2, start, len);
+                                 }
+}
+
 
 /* error fallback */
 .|\n                             {  }

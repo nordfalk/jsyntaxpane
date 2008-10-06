@@ -61,13 +61,6 @@ import java.util.HashMap;
             new SyntaxActions.MapCompleteAction(COMPLETIONS));
     }
 
-    @Override
-    public String[] getLanguages() {
-        return LANGS;
-    }
-
-    private static final String[] LANGS = { "java" };
-
     public static Map<String, String> COMPLETIONS;
 
     static {
@@ -179,13 +172,56 @@ SingleCharacter = [^\r\n\'\\]
   /* Java Built in types and wrappers */
   "Boolean"                      |
   "Byte"                         |
+  "Character"                    |
   "Double"                       |
   "Float"                        |
   "Integer"                      |
   "Object"                       |
   "Short"                        |
+  "Void"                         |
+  "Class"                        |
+  "Number"                       |
+  "Package"                      |
+  "StringBuffer"                 |
+  "StringBuilder"                |
+  "CharSequence"                 |
+  "Thread"                       |
   "String"                       { return token(TokenType.TYPE); }
-  
+
+  /* Some Java standard Library Types */
+  "Throwable"                    |
+  "Cloneable"                    |
+  "Comparable"                   |
+  "Serializable"                 |
+  "Runnable"                     { return token(TokenType.TYPE); }
+
+  "WARNING"                      { return token(TokenType.WARNING); }
+  "ERROR"                        { return token(TokenType.ERROR); }
+
+  /* Frequently used Standard Exceptions */
+  "ArithmeticException"              |
+  "ArrayIndexOutOfBoundsException"   |
+  "ClassCastException"               |
+  "ClassNotFoundException"           |
+  "CloneNotSupportedException"       |
+  "Exception"                        |
+  "IllegalAccessException"           |
+  "IllegalArgumentException"         |
+  "IllegalStateException"            |
+  "IllegalThreadStateException"      |
+  "IndexOutOfBoundsException"        |
+  "InstantiationException"           |
+  "InterruptedException"             |
+  "NegativeArraySizeException"       |
+  "NoSuchFieldException"             |
+  "NoSuchMethodException"            |
+  "NullPointerException"             |
+  "NumberFormatException"            |
+  "RuntimeException"                 |
+  "SecurityException"                |
+  "StringIndexOutOfBoundsException"  |
+  "UnsupportedOperationException"    { return token(TokenType.TYPE2); }
+
   /* operators */
 
   "("                            |
@@ -251,17 +287,17 @@ SingleCharacter = [^\r\n\'\\]
 
   /* numeric literals */
 
-  {DecIntegerLiteral}            { return token(TokenType.NUMBER); }
-  {DecLongLiteral}               { return token(TokenType.NUMBER); }
+  {DecIntegerLiteral}            |
+  {DecLongLiteral}               |
   
-  {HexIntegerLiteral}            { return token(TokenType.NUMBER); }
-  {HexLongLiteral}               { return token(TokenType.NUMBER); }
+  {HexIntegerLiteral}            |
+  {HexLongLiteral}               |
  
-  {OctIntegerLiteral}            { return token(TokenType.NUMBER); }
-  {OctLongLiteral}               { return token(TokenType.NUMBER); }
+  {OctIntegerLiteral}            |
+  {OctLongLiteral}               |
   
-  {FloatLiteral}                 { return token(TokenType.NUMBER); }
-  {DoubleLiteral}                { return token(TokenType.NUMBER); }
+  {FloatLiteral}                 |
+  {DoubleLiteral}                |
   {DoubleLiteral}[dD]            { return token(TokenType.NUMBER); }
   
   // JavaDoc comments need a state so that we can highlight the @ controls

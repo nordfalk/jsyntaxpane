@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import javax.swing.KeyStroke;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
 import javax.swing.text.PlainDocument;
@@ -94,6 +95,14 @@ public class SyntaxActions {
         }
     };
 
+    /**
+     * This action performs Java Indentation each time VK_ENTER is pressed
+     * Java Indentation is inserting the same amount of spaces as
+     * the line above.  
+     * If the current line ends with a '{' character, then an additional virtual
+     * tab is inserted.
+     * If the trimmed current line ends with '}', then the line is unindented
+     */
     public static class JavaIndent extends TextAction {
 
         public JavaIndent() {
@@ -109,7 +118,24 @@ public class SyntaxActions {
                 if (line.trim().endsWith("{")) {
                     prefix += SPACES.substring(0, tabSize);
                 }
-                target.replaceSelection("\n" + prefix);
+                SyntaxDocument sDoc = getSyntaxDocument(target);
+                if (sDoc != null && line.trim().equals("}")) {
+                    int pos = target.getCaretPosition();
+                    int start = sDoc.getParagraphElement(pos).getStartOffset();
+                    int end = sDoc.getParagraphElement(pos).getEndOffset();
+                    if (end >= sDoc.getLength()) {
+                        end--;
+                    }
+                    if (line.startsWith(SPACES.substring(0, tabSize))) {
+                        try {
+                            sDoc.replace(start, end - start, line.substring(tabSize) + "\n", null);
+                        } catch (BadLocationException ex) {
+                            Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        }
+                    }
+                } else {
+                    target.replaceSelection("\n" + prefix);
+                }
             }
         }
     }
@@ -237,7 +263,7 @@ public class SyntaxActions {
      * @param target
      * @param pos
      */
-    private static String getIndent(String line) {
+    public static String getIndent(String line) {
         if (line == null || line.length() == 0) {
             return "";
         }
@@ -258,7 +284,7 @@ public class SyntaxActions {
      * @param target
      * @return String[] of lines spanning selection / or Dot
      */
-    private static String[] getSelectedLines(JTextComponent target) {
+    public static String[] getSelectedLines(JTextComponent target) {
         String[] lines = null;
         try {
             PlainDocument pDoc = (PlainDocument) target.getDocument();
@@ -286,7 +312,7 @@ public class SyntaxActions {
      * @param target
      * @return
      */
-    private static String getLine(JTextComponent target) {
+    public static String getLine(JTextComponent target) {
         PlainDocument pDoc = (PlainDocument) target.getDocument();
         return getLineAt(pDoc, target.getCaretPosition());
     }
@@ -298,7 +324,7 @@ public class SyntaxActions {
      * @param pos
      * @return
      */
-    private static String getLineAt(PlainDocument doc, int pos) {
+    public static String getLineAt(PlainDocument doc, int pos) {
         String line = null;
         int start = doc.getParagraphElement(pos).getStartOffset();
         int end = doc.getParagraphElement(pos).getEndOffset();
@@ -332,24 +358,20 @@ public class SyntaxActions {
                 int dot = target.getCaretPosition();
                 Token token = sDoc.getTokenAt(dot);
                 if (token != null) {
-                    String abbriv = getCaretToken(sDoc, dot);
+                    String abbriv = getTokenStringAt(sDoc, dot);
                     if (completions.containsKey(abbriv)) {
-                        try {
-                            String completed = completions.get(abbriv);
-                            if (completed.indexOf('|') >= 0) {
-                                // offset of where the caret should be after the
-                                // replacement.  Note that since we will remove
-                                // one char (the '|'), we need to subtract that
-                                // from the offset
-                                int ofst = completed.length() - completed.indexOf('|') - 1;
-                                // replace the token with the replacement
-                                sDoc.replace(token.start, token.length, completed.replace("|", ""), null);
-                                target.setCaretPosition(target.getCaretPosition() - ofst);
-                            } else {
-                                sDoc.replace(token.start, token.length, completed, null);
-                            }
-                        } catch (BadLocationException ex) {
-                            Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
+                        String completed = completions.get(abbriv);
+                        if (completed.indexOf('|') >= 0) {
+                            // offset of where the caret should be after the
+                            // replacement.  Note that since we will remove
+                            // one char (the '|'), we need to subtract that
+                            // from the offset
+                            int ofst = completed.length() - completed.indexOf('|') - 1;
+                            // replace the token with the replacement
+                            sDoc.replaceToken(token, completed.replace("|", ""));
+                            target.setCaretPosition(target.getCaretPosition() - ofst);
+                        } else {
+                            sDoc.replaceToken(token, completed);
                         }
                     }
                 }
@@ -357,7 +379,13 @@ public class SyntaxActions {
         }
     }
 
-    private static String getCaretToken(
+    /**
+     * Returns the the Token at pos as a String
+     * @param doc
+     * @param pos
+     * @return
+     */
+    public static String getTokenStringAt(
             SyntaxDocument doc, int pos) {
         String word = "";
         Token t = doc.getTokenAt(pos);
@@ -368,11 +396,11 @@ public class SyntaxActions {
                 Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
         return word;
     }
     private static final Map<String, Keymap> KEYMAP_MAP = new HashMap<String, Keymap>();
 
+    @Deprecated
     private static Keymap getKeymap(
             final String lang) {
         Keymap km = KEYMAP_MAP.get(lang);
@@ -442,6 +470,25 @@ public class SyntaxActions {
             control.setKeymap(km);
         }
 
+    }
+
+    /**
+     * A helper function that will return the SyntaxDocument attached to the
+     * given text component.  Return null if the document is not a 
+     * SyntaxDocument, or if the text component is null
+     * @param component
+     * @return
+     */
+    public static SyntaxDocument getSyntaxDocument(JTextComponent component) {
+        if (component == null) {
+            return null;
+        }
+        Document doc = component.getDocument();
+        if (doc instanceof SyntaxDocument) {
+            return (SyntaxDocument) doc;
+        } else {
+            return null;
+        }
     }
     // This is used internally to avoid NPE if we have no Strings
     private static String[] EMPTY_STRING_ARRAY = new String[0];

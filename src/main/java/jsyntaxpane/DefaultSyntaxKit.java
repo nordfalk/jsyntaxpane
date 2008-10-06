@@ -16,9 +16,12 @@ package jsyntaxpane;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.swing.JEditorPane;
+import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
@@ -37,9 +40,11 @@ import jsyntaxpane.util.JarServiceProvider;
 public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 
     public static Font DEFAULT_FONT;
+    private static Set<String> CONTENTS = new HashSet<String>();
     private Lexer lexer;
     private static Logger LOG = Logger.getLogger(DefaultSyntaxKit.class.getName());
     
+
     static {
         initKit();
     }
@@ -90,7 +95,6 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
         return new SyntaxDocument(lexer);
     }
 
-
     /**
      * This is called to initialize the list of lexers we have.  You can call 
      * this at initialization, or it will be called when needed.
@@ -112,12 +116,36 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
         } else if (Arrays.binarySearch(fonts, "Monospaced") >= 0) {
             DEFAULT_FONT = new Font("Monospaced", Font.PLAIN, 13);
         }
-        
+
         // read the Default Kits and their associated types
         Properties kitsForTypes = JarServiceProvider.readProperties("jsyntaxpane.kitsfortypes");
-        for(String type:kitsForTypes.stringPropertyNames()) {
-            String kitForType = kitsForTypes.getProperty(type);
-            JEditorPane.registerEditorKitForContentType(type, kitForType);
+        for (String type : kitsForTypes.stringPropertyNames()) {
+            String classname = kitsForTypes.getProperty(type);
+            registerContentType(type, classname);
         }
+    }
+
+    /**
+     * Register the given content type to use the given classsname as its kit
+     * When this is called, an entry is added into the private HashMap of the
+     * registered editorskits.  This is needed so that the SyntaxPane library
+     * has it's own registeration of all the EditorKits
+     * @param type
+     * @param classname
+     */
+    public static void registerContentType(String type, String classname) {
+        JEditorPane.registerEditorKitForContentType(type, classname);
+        CONTENTS.add(type);
+    }
+
+    /**
+     * Return all the content types supported by this library.  This will be the
+     * content types in the file WEB-INF/services/resources/jsyntaxpane.kitsfortypes
+     * @return sorted array of all registered content types
+     */
+    public static String[] getContentTypes() {
+        String[] types = CONTENTS.toArray(new String[0]);
+        Arrays.sort(types);
+        return types;
     }
 }

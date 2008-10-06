@@ -25,12 +25,12 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.PlainView;
 import javax.swing.text.Segment;
-import javax.swing.text.Utilities;
 import javax.swing.text.ViewFactory;
 
 public class SyntaxView extends PlainView {
 
     private static final Logger log = Logger.getLogger(SyntaxView.class.getName());
+    private SyntaxStyle DEFAULT_STYLE = SyntaxStyles.getInstance().getStyle(TokenType.DEFAULT);;
 
     public SyntaxView(Element element) {
         super(element);
@@ -53,10 +53,8 @@ public class SyntaxView extends PlainView {
                 // should be starting (spaces not returned in tokens), then draw
                 // it in the default type
                 if (start < t.start) {
-                    SyntaxStyles.getInstance().setGraphicsStyle(graphics,
-                            TokenType.DEFAULT);
                     doc.getText(start, t.start - start, segment);
-                    x = Utilities.drawTabbedText(segment, x, y, graphics, this, start);
+                    x = DEFAULT_STYLE.drawText(segment, x, y, graphics, this, start);
                 }
                 // t and s are the actual start and length of what we should
                 // put on the screen.  assume these are the whole token....
@@ -79,9 +77,8 @@ public class SyntaxView extends PlainView {
             }
             // now for any remaining text not tokenized:
             if (start < p1) {
-                SyntaxStyles.getInstance().setGraphicsStyle(graphics, TokenType.DEFAULT);
                 doc.getText(start, p1 - start, segment);
-                x = Utilities.drawTabbedText(segment, x, y, graphics, this, start);
+                x = DEFAULT_STYLE.drawText(segment, x, y, graphics, this, start);
             }
         } catch (BadLocationException ex) {
             System.err.println("Requested: " + ex.offsetRequested());

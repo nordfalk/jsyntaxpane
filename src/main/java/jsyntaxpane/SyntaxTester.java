@@ -15,6 +15,7 @@ package jsyntaxpane;
 
 import java.awt.event.ItemEvent;
 import java.awt.Rectangle;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.BadLocationException;
 
 public class SyntaxTester extends javax.swing.JFrame {
@@ -23,6 +24,7 @@ public class SyntaxTester extends javax.swing.JFrame {
     public SyntaxTester() {
         initComponents();
         DefaultSyntaxKit.initKit();
+        jCmbLangs.setModel(new DefaultComboBoxModel(DefaultSyntaxKit.getContentTypes()));
         jEdtTest.setContentType(jCmbLangs.getItemAt(0).toString());
     }
 
@@ -58,7 +60,6 @@ public class SyntaxTester extends javax.swing.JFrame {
         lblToken.setText("Token under cursor");
 
         jCmbLangs.setMaximumRowCount(20);
-        jCmbLangs.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "text/java", "text/javascript", "text/groovy", "text/sql", "text/xml", "text/properties", "text/tal" }));
         jCmbLangs.setFocusable(false);
         jCmbLangs.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -136,7 +137,9 @@ private void jCmbLangsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRS
 
         // restore the state of the JEditorPane - note that installing a new
         // EditorKit causes the Document to be recreated.
+        SyntaxDocument sDoc = (SyntaxDocument) jEdtTest.getDocument();
         jEdtTest.setText(t);
+        sDoc.clearUndos();
         jEdtTest.setCaretPosition(caretPosition);
         jEdtTest.scrollRectToVisible(visibleRectangle);
     }

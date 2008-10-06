@@ -93,15 +93,7 @@
       <Properties>
         <Property name="maximumRowCount" type="int" value="20"/>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="7">
-            <StringItem index="0" value="text/java"/>
-            <StringItem index="1" value="text/javascript"/>
-            <StringItem index="2" value="text/groovy"/>
-            <StringItem index="3" value="text/sql"/>
-            <StringItem index="4" value="text/xml"/>
-            <StringItem index="5" value="text/properties"/>
-            <StringItem index="6" value="text/tal"/>
-          </StringArray>
+          <StringArray count="0"/>
         </Property>
         <Property name="focusable" type="boolean" value="false"/>
       </Properties>

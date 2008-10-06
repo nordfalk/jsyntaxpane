@@ -34,5 +34,7 @@ public enum TokenType {
     TYPE,       // Types, usually not keywords, but supported by the language
     TYPE2,      // Types from standard libraries
     TYPE3,      // Types for users
-    DEFAULT     // any other text
+    DEFAULT,    // any other text
+    WARNING,    // Text that should be highlighted as a warning
+    ERROR       // Text that signals an error 
 }

@@ -56,12 +56,6 @@ import jsyntaxpane.SyntaxActions;
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
     }
 
-    @Override
-    public String[] getLanguages() {
-        return LANGS;
-    }
-
-    private static final String[] LANGS = { "javascript", "js", "rhino" };
 %}
 
 /* main character classes */
@@ -194,7 +188,7 @@ StringCharacter = [^\r\n\"\\]
   "^="                           | 
   "%="                           | 
   "<<="                          | 
-  ">>="                          { return token(TokenType.OPERATOR); } 
+  ">>="                          | 
   ">>>="                         { return token(TokenType.OPERATOR); } 
   
   /* string literal */
@@ -206,17 +200,17 @@ StringCharacter = [^\r\n\"\\]
 
   /* numeric literals */
 
-  {DecIntegerLiteral}            { return token(TokenType.NUMBER); }
-  {DecLongLiteral}               { return token(TokenType.NUMBER); }
+  {DecIntegerLiteral}            |
+  {DecLongLiteral}               |
   
-  {HexIntegerLiteral}            { return token(TokenType.NUMBER); }
-  {HexLongLiteral}               { return token(TokenType.NUMBER); }
+  {HexIntegerLiteral}            |
+  {HexLongLiteral}               |
  
-  {OctIntegerLiteral}            { return token(TokenType.NUMBER); }
-  {OctLongLiteral}               { return token(TokenType.NUMBER); }
+  {OctIntegerLiteral}            |
+  {OctLongLiteral}               |
   
-  {FloatLiteral}                 { return token(TokenType.NUMBER); }
-  {DoubleLiteral}                { return token(TokenType.NUMBER); }
+  {FloatLiteral}                 |
+  {DoubleLiteral}                |
   {DoubleLiteral}[dD]            { return token(TokenType.NUMBER); }
   
   /* comments */

@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.event.DocumentEvent;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.AttributeSet;
@@ -98,22 +99,40 @@ public class SyntaxDocument extends PlainDocument {
     }
 
     @Override
-    public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-        super.insertString(offs, str, a);
+    protected void fireChangedUpdate(DocumentEvent e) {
         parse();
+        super.fireChangedUpdate(e);
     }
 
     @Override
-    public void remove(int offs, int len) throws BadLocationException {
-        super.remove(offs, len);
+    protected void fireInsertUpdate(DocumentEvent e) {
         parse();
+        super.fireInsertUpdate(e);
+    }
+
+    @Override
+    protected void fireRemoveUpdate(DocumentEvent e) {
+        parse();
+        super.fireRemoveUpdate(e);
+    }
+
+    @Override
+    protected void fireUndoableEditUpdate(UndoableEditEvent e) {
+        parse();
+        super.fireUndoableEditUpdate(e);
     }
     
-    @Override
-    public void replace(int offset, int length, String text, AttributeSet attrs) 
-            throws BadLocationException {
-        super.replace(offset, length, text, attrs);
-        parse();
+    /**
+     * Replace the token with the replacement string
+     * @param token
+     * @param replacement
+     */
+    public void replaceToken(Token token, String replacement) {
+        try {
+            replace(token.start, token.length, replacement, null);
+        } catch (BadLocationException ex) {
+            log.log(Level.WARNING, "unable to replace token: " + token, ex);
+        }
     }
 
     /**
@@ -231,7 +250,7 @@ public class SyntaxDocument extends PlainDocument {
             parse();
         }
     }
-    
+
     /**
      * This will discard all undoable edits
      */

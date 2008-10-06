@@ -50,12 +50,6 @@ import jsyntaxpane.SyntaxActions;
         super.addKeyActions(map);
     }
 
-    @Override
-    public String[] getLanguages() {
-        return LANGS;
-    }
-
-    private static final String[] LANGS = { "tal", "ptal" };
 %}
 
 /* main character classes */
@@ -152,15 +146,15 @@ SingleCharacter = [^\r\n\'\\]
 
   /* numeric literals */
 
-  {DecIntegerLiteral}            { return token(TokenType.NUMBER); }
+  {DecIntegerLiteral}            |
   
-  {HexIntegerLiteral}            { return token(TokenType.NUMBER); }
-  {HexLongLiteral}               { return token(TokenType.NUMBER); }
+  {HexIntegerLiteral}            |
+  {HexLongLiteral}               |
  
-  {OctIntegerLiteral}            { return token(TokenType.NUMBER); }
-  {OctLongLiteral}               { return token(TokenType.NUMBER); }
+  {OctIntegerLiteral}            |
+  {OctLongLiteral}               |
   
-  {FixedLiteral}                 { return token(TokenType.NUMBER); }
+  {FixedLiteral}                 |
   {DoubleLiteral}                { return token(TokenType.NUMBER); }
   
   /* comments */

@@ -50,12 +50,6 @@ import jsyntaxpane.SyntaxActions;
         super.addKeyActions(map);
     }
 
-    @Override
-    public String[] getLanguages() {
-        return LANGS;
-    }
-
-    private static final String[] LANGS = { "properties" };
 %}
 
 StartComment = #

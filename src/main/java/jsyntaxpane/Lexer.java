@@ -63,13 +63,6 @@ public interface Lexer {
     public String yytext();
 
     /**
-     * This method should return an array of the languages that this Lexer
-     * supports
-     * @return
-     */
-    public String[] getLanguages();
-
-    /**
      * This will be called when the Lexer is attached to a control.  Here, the
      * default keymap operations can be installed on the pane.
      */

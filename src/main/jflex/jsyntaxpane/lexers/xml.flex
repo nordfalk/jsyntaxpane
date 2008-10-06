@@ -48,13 +48,6 @@ import jsyntaxpane.SyntaxActions;
     public void addKeyActions(Keymap map) {
         super.addKeyActions(map);
     }
-
-    @Override
-    public String[] getLanguages() {
-        return LANGS;
-    }
-
-    private static final String[] LANGS = {"xml"};
 %}
 
 /* main character classes */

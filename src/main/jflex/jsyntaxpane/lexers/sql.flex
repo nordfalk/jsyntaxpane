@@ -59,12 +59,6 @@ import jsyntaxpane.SyntaxActions;
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
     }
 
-    @Override
-    public String[] getLanguages() {
-        return LANGS;
-    }
-
-    private static final String[] LANGS = { "sql" };
 %}
 
 /* main character classes */
@@ -284,33 +278,32 @@ Reserved =
   
   /* operators */
 
-  "("                            { return token(TokenType.OPERATOR); }
-  ")"                            { return token(TokenType.OPERATOR); }
-  "{"                            { return token(TokenType.OPERATOR); } 
-  "}"                            { return token(TokenType.OPERATOR); } 
-  "["                            { return token(TokenType.OPERATOR); } 
-  "]"                            { return token(TokenType.OPERATOR); } 
-  ";"                            { return token(TokenType.OPERATOR); } 
-  ","                            { return token(TokenType.OPERATOR); } 
-  "."                            { return token(TokenType.OPERATOR); } 
-  "@"                            { return token(TokenType.OPERATOR); } 
-  
-  "="                            { return token(TokenType.OPERATOR); } 
-  ">"                            { return token(TokenType.OPERATOR); } 
-  "<"                            { return token(TokenType.OPERATOR); }
-  "!"                            { return token(TokenType.OPERATOR); } 
-  "~"                            { return token(TokenType.OPERATOR); } 
-  "?"                            { return token(TokenType.OPERATOR); } 
+  "("                            |
+  ")"                            |
+  "{"                            | 
+  "}"                            | 
+  "["                            | 
+  "]"                            | 
+  ";"                            | 
+  ","                            | 
+  "."                            | 
+  "@"                            | 
+  "="                            | 
+  ">"                            | 
+  "<"                            |
+  "!"                            | 
+  "~"                            | 
+  "?"                            | 
   ":"                            { return token(TokenType.OPERATOR); } 
 
   /* string literal */
-  \"{StringCharacter}+\"         { return token(TokenType.STRING); } 
+  \"{StringCharacter}+\"         | 
 
   \'{SingleCharacter}+\          { return token(TokenType.STRING); } 
 
   /* numeric literals */
 
-  {DecIntegerLiteral}            { return token(TokenType.NUMBER); }
+  {DecIntegerLiteral}            |
  
   {FloatLiteral}                 { return token(TokenType.NUMBER); }
   
