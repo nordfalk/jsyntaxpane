@@ -21,10 +21,12 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 import javax.swing.JEditorPane;
-import javax.swing.SwingUtilities;
+import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.Keymap;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 import jsyntaxpane.util.JarServiceProvider;
@@ -78,9 +80,22 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
     public void install(JEditorPane editorPane) {
         super.install(editorPane);
         editorPane.setFont(DEFAULT_FONT);
-        if (lexer != null) {
-            lexer.install(editorPane);
-        }
+        Keymap km_parent = JTextComponent.getKeymap(JTextComponent.DEFAULT_KEYMAP);
+        Keymap km_new = JTextComponent.addKeymap(null, km_parent);
+        addKeyActions(km_new);
+        editorPane.setKeymap(km_new);
+    }
+
+
+    /**
+     * Add keyboard actions to this control.  
+     * @param map
+     */
+    public void addKeyActions(Keymap map) {
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control Z"), SyntaxActions.UNDO);
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control Y"), SyntaxActions.REDO);
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("TAB"), SyntaxActions.INDENT);
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("shift TAB"), SyntaxActions.UNINDENT);
     }
 
     /**

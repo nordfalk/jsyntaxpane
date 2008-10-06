@@ -13,6 +13,8 @@ Version 0.9.2 alpha (no binary release):
       This fixes issue 24.
     * Added Groovy GString expression highlights
     * Removed getLanguages method from Lexer interface and implementations.
+    * Added WARNING and ERROR TokenTypes and added their default styles.
+    * Moved Keymaps and install methods to SyntaxKits instead of the Lexers
 Version 0.9.1
     * Fixed empty strings in XML syntax  Issue 29
     * Fixed TAL lexer using incorrect package name

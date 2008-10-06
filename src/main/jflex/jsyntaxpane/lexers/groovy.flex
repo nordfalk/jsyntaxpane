@@ -17,9 +17,6 @@ package jsyntaxpane.lexers;
 import jsyntaxpane.DefaultLexer;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
-import javax.swing.KeyStroke;
-import javax.swing.text.Keymap;
-import jsyntaxpane.SyntaxActions;
 
 %%
 
@@ -45,12 +42,6 @@ import jsyntaxpane.SyntaxActions;
      */
     private Token token(TokenType type) {
         return new Token(type, yychar, yylength());
-    }
-
-    @Override
-    public void addKeyActions(Keymap map) {
-        super.addKeyActions(map);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
     }
 
 %}

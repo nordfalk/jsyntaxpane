@@ -61,10 +61,4 @@ public interface Lexer {
      * Returns the text matched by the current regular expression.
      */
     public String yytext();
-
-    /**
-     * This will be called when the Lexer is attached to a control.  Here, the
-     * default keymap operations can be installed on the pane.
-     */
-    public void install(JEditorPane pane);
 }
