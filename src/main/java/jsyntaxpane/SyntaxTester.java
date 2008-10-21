@@ -25,7 +25,8 @@ public class SyntaxTester extends javax.swing.JFrame {
         initComponents();
         DefaultSyntaxKit.initKit();
         jCmbLangs.setModel(new DefaultComboBoxModel(DefaultSyntaxKit.getContentTypes()));
-        jEdtTest.setContentType(jCmbLangs.getItemAt(0).toString());
+        // jEdtTest.setContentType(jCmbLangs.getItemAt(0).toString());
+        jCmbLangs.setSelectedItem("text/java");
     }
 
     /** This method is called from within the constructor to

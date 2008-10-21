@@ -13,8 +13,11 @@
  */
 package jsyntaxpane;
 
+import jsyntaxpane.actions.SyntaxActions;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
@@ -45,7 +48,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
     private static Set<String> CONTENTS = new HashSet<String>();
     private Lexer lexer;
     private static Logger LOG = Logger.getLogger(DefaultSyntaxKit.class.getName());
-    
+
 
     static {
         initKit();
@@ -86,16 +89,24 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
         editorPane.setKeymap(km_new);
     }
 
-
     /**
      * Add keyboard actions to this control.  
      * @param map
      */
     public void addKeyActions(Keymap map) {
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control Z"), SyntaxActions.UNDO);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control Y"), SyntaxActions.REDO);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("TAB"), SyntaxActions.INDENT);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("shift TAB"), SyntaxActions.UNINDENT);
+        int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke(
+                KeyEvent.VK_Z, menuShortcutMask),
+                SyntaxActions.UNDO);
+        map.addActionForKeyStroke(
+                KeyStroke.getKeyStroke(KeyEvent.VK_Y, menuShortcutMask),
+                SyntaxActions.REDO);
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("TAB"),
+                SyntaxActions.INDENT);
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("TAB"),
+                SyntaxActions.INDENT);
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("shift TAB"),
+                SyntaxActions.UNINDENT);
     }
 
     /**

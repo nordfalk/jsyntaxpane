@@ -19,12 +19,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.Segment;
@@ -121,7 +123,7 @@ public class SyntaxDocument extends PlainDocument {
         parse();
         super.fireUndoableEditUpdate(e);
     }
-    
+
     /**
      * Replace the token with the replacement string
      * @param token
@@ -139,7 +141,7 @@ public class SyntaxDocument extends PlainDocument {
      * This class is used to iterate over tokens between two positions
      * 
      */
-    class TokenIterator implements Iterator<Token> {
+    class TokenIterator implements ListIterator<Token> {
 
         int start;
         int end;
@@ -159,7 +161,7 @@ public class SyntaxDocument extends PlainDocument {
                     ndx = (-ndx - 1 - 1 < 0) ? 0 : (-ndx - 1 - 1);
                     Token t = tokens.get(ndx);
                     // if the prev token does not overlap, then advance one
-                    if (t.start + t.length <= start) {
+                    if (t.end() <= start) {
                         ndx++;
                     }
 
@@ -189,17 +191,56 @@ public class SyntaxDocument extends PlainDocument {
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw new UnsupportedOperationException();
+        }
+
+        public boolean hasPrevious() {
+            if (tokens == null) {
+                return false;
+            }
+            if (ndx <= 0) {
+                return false;
+            }
+            Token t = tokens.get(ndx);
+            if (t.end() <= start) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public Token previous() {
+            return tokens.get(ndx--);
+        }
+
+        @Override
+        public int nextIndex() {
+            return ndx + 1;
+        }
+
+        @Override
+        public int previousIndex() {
+            return ndx - 1;
+        }
+
+        @Override
+        public void set(Token e) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void add(Token e) {
+            throw new UnsupportedOperationException();
         }
     }
 
     /**
      * Return an iterator of tokens between p0 and p1.
-     * @param start
-     * @param end
-     * @return
+     * @param start start position for getting tokens
+     * @param end position for last token
+     * @return Iterator for tokens that overal with range from start to end
      */
-    protected Iterator<Token> getTokens(int start, int end) {
+    public Iterator<Token> getTokens(int start, int end) {
         return new TokenIterator(start, end);
     }
 
@@ -222,13 +263,53 @@ public class SyntaxDocument extends PlainDocument {
             // -1 to get the location, and another -1 to go back..
             ndx = (-ndx - 1 - 1 < 0) ? 0 : (-ndx - 1 - 1);
             Token t = tokens.get(ndx);
-            if ((t.start <= pos) && (pos <= (t.start + t.length))) {
+            if ((t.start <= pos) && (pos <= t.end())) {
                 tok = t;
             }
         } else {
             tok = tokens.get(ndx);
         }
         return tok;
+    }
+
+    /**
+     * This is used to return the other part of a paired token in the document.
+     * A paired part has token.pairValue <> 0, and the paired token will
+     * have the negative of t.pairValue.
+     * This method properly handles nestings of same pairValues, but overlaps
+     * are not checked.
+     * if The document does not contain a paired
+     * @param t
+     * @return the other pair's token, or null if nothing is found.
+     */
+    public Token getPairFor(Token t) {
+        if (t == null || t.pairValue == 0) {
+            return null;
+        }
+        Token p = null;
+        int ndx = tokens.indexOf(t);
+        // w will be similar to a stack. The openners weght is added to it
+        // and the closers are subtracted from it (closers are already negative)
+        int w = t.pairValue;
+        int direction = (t.pairValue > 0) ? 1 : -1;
+        boolean done = false;
+        int v = Math.abs(t.pairValue);
+        while (!done) {
+            ndx += direction;
+            if (ndx < 0 || ndx >= tokens.size()) {
+                break;
+            }
+            Token current = tokens.get(ndx);
+            if (Math.abs(current.pairValue) == v) {
+                w += current.pairValue;
+                if (w == 0) {
+                    p = current;
+                    done = true;
+                }
+            }
+        }
+
+        return p;
     }
 
     /**
@@ -251,6 +332,94 @@ public class SyntaxDocument extends PlainDocument {
         }
     }
 
+    /**
+     * Find the location of the given String in the document.  returns -1
+     * if the search string is not found starting at position <code>start</code>
+     * @param search The String to search for
+     * @param start The beginning index of search
+     * @return
+     */
+    public int getIndexOf(String search, int start) {
+        int flag = Pattern.LITERAL;
+        Pattern pattern = Pattern.compile(search, flag);
+        return getIndexOf(pattern, start);
+    }
+
+    /**
+     * Find the next position that matches <code>pattern</code> in the document.
+     * returns -1 if the pattern is not found.
+     * @param pattern the regex pattern to find
+     * @param start The beginning index of search
+     * @return
+     */
+    public int getIndexOf(Pattern pattern, int start) {
+        int ndx = -1;
+        if (pattern == null || getLength() == 0) {
+            return -1;
+        }
+        try {
+            Segment segment = new Segment();
+            getText(start, getLength() - start, segment);
+            Matcher m = pattern.matcher(segment);
+            if (m.find()) {
+                // remember that the index is relative to the document, so
+                // always add the start position to it
+                ndx = m.start() + start;
+            }
+        } catch (BadLocationException ex) {
+            log.log(Level.SEVERE, null, ex);
+        }
+        return ndx;
+    }
+
+    /**
+     * Return a matcher that matches the given pattern on the entire document
+     * @param pattern
+     * @return matcher object
+     */
+    public Matcher getMatcher(Pattern pattern) {
+        return getMatcher(pattern, 0, getLength());
+    }
+
+    /**
+     * Return a matcher that matches the given pattern in the part of the
+     * document starting at offset start.  Note that the matcher will have
+     * offset starting from <code>start</code>
+     *
+     * @param pattern
+     * @param start
+     * @return matcher that <b>MUST</b> be offset by start to get the proper
+     * location within the document
+     */
+    public Matcher getMatcher(Pattern pattern, int start) {
+        return getMatcher(pattern, start, getLength() - start);
+    }
+
+    /**
+     * Return a matcher that matches the given pattern in the part of the
+     * document starting at offset start and ending at start + length.
+     * Note that the matcher will have
+     * offset starting from <code>start</code>
+     *
+     * @param pattern
+     * @param start
+     * @return matcher that <b>MUST</b> be offset by start to get the proper
+     * location within the document
+     */
+    public Matcher getMatcher(Pattern pattern, int start, int length) {
+        Matcher matcher = null;
+        if(getLength() == 0) {
+            return null;
+        }
+        try {
+            Segment seg = new Segment();
+            getText(start, length, seg);
+            matcher = pattern.matcher(seg);
+        } catch (BadLocationException ex) {
+            log.log(Level.SEVERE, "Requested offset: " + ex.offsetRequested(), ex);
+        }
+        return matcher;
+    }
     /**
      * This will discard all undoable edits
      */

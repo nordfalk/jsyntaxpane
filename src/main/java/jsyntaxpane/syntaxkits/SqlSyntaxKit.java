@@ -16,7 +16,7 @@ package jsyntaxpane.syntaxkits;
 import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
 import jsyntaxpane.DefaultSyntaxKit;
-import jsyntaxpane.SyntaxActions;
+import jsyntaxpane.actions.SyntaxActions;
 import jsyntaxpane.lexers.SqlLexer;
 
 /**

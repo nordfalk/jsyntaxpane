@@ -42,6 +42,14 @@ import jsyntaxpane.TokenType;
         return new Token(type, yychar, yylength());
     }
 
+    private Token token(TokenType type, int pairValue) {
+        return new Token(type, yychar, yylength(), (byte)pairValue);
+    }
+
+    private static final byte PARAN     = 1;
+    private static final byte BRACKET   = 2;
+    private static final byte CURLY     = 3;
+
 %}
 
 /* main character classes */
@@ -200,12 +208,12 @@ SingleCharacter = [^\r\n\'\\]
 
   /* operators */
 
-  "("                            |
-  ")"                            |
-  "{"                            | 
-  "}"                            | 
-  "["                            | 
-  "]"                            | 
+  "("                            { return token(TokenType.OPERATOR,  PARAN); }
+  ")"                            { return token(TokenType.OPERATOR, -PARAN); }
+  "{"                            { return token(TokenType.OPERATOR,  CURLY); }
+  "}"                            { return token(TokenType.OPERATOR, -CURLY); }
+  "["                            { return token(TokenType.OPERATOR,  BRACKET); }
+  "]"                            { return token(TokenType.OPERATOR, -BRACKET); }
   ";"                            | 
   ","                            | 
   "."                            | 

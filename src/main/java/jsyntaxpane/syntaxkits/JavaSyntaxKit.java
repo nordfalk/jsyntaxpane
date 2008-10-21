@@ -13,11 +13,21 @@
  */
 package jsyntaxpane.syntaxkits;
 
+import java.awt.Color;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import javax.swing.JEditorPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
 import jsyntaxpane.DefaultSyntaxKit;
-import jsyntaxpane.SyntaxActions;
+import jsyntaxpane.TokenType;
+import jsyntaxpane.actions.FindReplaceActions;
+import jsyntaxpane.actions.Markers;
+import jsyntaxpane.actions.MapCompletion;
+import jsyntaxpane.actions.PairsMarker;
+import jsyntaxpane.actions.SyntaxActions;
+import jsyntaxpane.actions.TokenMarker;
 import jsyntaxpane.lexers.JavaLexer;
 import jsyntaxpane.util.JarServiceProvider;
 
@@ -36,12 +46,43 @@ public class JavaSyntaxKit extends DefaultSyntaxKit {
         super.addKeyActions(map);
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("control SPACE"),
-            new SyntaxActions.MapCompleteAction(COMPLETIONS));
+            new MapCompletion(COMPLETIONS));
+        FindReplaceActions finder = new FindReplaceActions();
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control F"), finder.getFindDialogAction());
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control H"), finder.getReplaceDialogAction());
+        map.addActionForKeyStroke(KeyStroke.getKeyStroke("F3"), finder.getFindNextAction());
     }
 
+    @Override
+    public void install(JEditorPane editorPane) {
+        super.install(editorPane);
+        tokenMarker = new TokenMarker(editorPane, new Color(0xffffbb),
+                HIGHLITED_TOKENTYPES);
+        pairMarker = new PairsMarker(editorPane, Color.ORANGE);
+        
+        editorPane.addCaretListener(tokenMarker);
+        editorPane.addCaretListener(pairMarker);
+    }
+
+    @Override
+    public void deinstall(JEditorPane editorPane) {
+        super.deinstall(editorPane);
+        editorPane.removeCaretListener(pairMarker);
+        editorPane.removeCaretListener(tokenMarker);
+        Markers.removeHighlights(editorPane);
+    }
+    
+    private TokenMarker tokenMarker;
+    private PairsMarker pairMarker;
+
     public static Map<String, String> COMPLETIONS;
+    public static Set<TokenType> HIGHLITED_TOKENTYPES = new HashSet<TokenType>();
 
     static {
         COMPLETIONS = JarServiceProvider.readStringsMap("jsyntaxpane.javasyntaxkit.completions");
+        HIGHLITED_TOKENTYPES.add(TokenType.IDENTIFIER);
+        HIGHLITED_TOKENTYPES.add(TokenType.TYPE);
+        HIGHLITED_TOKENTYPES.add(TokenType.TYPE2);
+        HIGHLITED_TOKENTYPES.add(TokenType.TYPE3);
     }
 }

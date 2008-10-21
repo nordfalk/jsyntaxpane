@@ -14,17 +14,52 @@
 package jsyntaxpane;
 
 import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 
 public class Token implements Serializable, Comparable {
 
-    public TokenType type;
-    public int start;
-    public int length;
+    public final TokenType type;
+    public final int start;
+    public final int length;
+    /**
+     * the pair value to use if this token is one of a pair:
+     * This is how it is used:
+     * The openning part will have a positive number X
+     * The closing part will have a negative number X
+     * X should be unique for a pair:
+     *   e.g. for [ pairValue = +1
+     *        for ] pairValue = -1
+     */
+    public final byte pairValue;
 
+    /**
+     * Constructs a new token
+     * @param type
+     * @param start
+     * @param length
+     */
     public Token(TokenType type, int start, int length) {
         this.type = type;
         this.start = start;
         this.length = length;
+        this.pairValue = 0;
+    }
+
+    /**
+     * Construct a new part of pair token
+     * @param type
+     * @param start
+     * @param length
+     * @param pairValue
+     */
+    public Token(TokenType type, int start, int length, byte pairValue) {
+        this.type = type;
+        this.start = start;
+        this.length = length;
+        this.pairValue = pairValue;
     }
 
     @Override
@@ -46,7 +81,7 @@ public class Token implements Serializable, Comparable {
 
     @Override
     public String toString() {
-        return String.format("%s (%d, %d)", type, start, length);
+        return String.format("%s (%d, %d) (%d)", type, start, length, pairValue);
     }
 
     @Override
@@ -60,5 +95,27 @@ public class Token implements Serializable, Comparable {
             return this.type.compareTo(t.type);
         }
     }
-}
 
+    /**
+     * return the end position of the token.
+     * @return start + length
+     */
+    public int end() {
+        return start + length;
+    }
+    
+    /**
+     * Get the text of the token from this document
+     * @param doc
+     * @return
+     */
+    public String getText(Document doc) {
+        String text = null;
+        try {
+            text = doc.getText(start, length);
+        } catch (BadLocationException ex) {
+            Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return text;
+    }
+}

@@ -20,7 +20,6 @@ import java.awt.Shape;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.PlainView;
@@ -73,7 +72,7 @@ public class SyntaxView extends PlainView {
                 }
                 doc.getText(s, l, segment);
                 x = SyntaxStyles.getInstance().drawText(segment, x, y, graphics, this, t);
-                start = t.start + t.length;
+                start = t.end();
             }
             // now for any remaining text not tokenized:
             if (start < p1) {
