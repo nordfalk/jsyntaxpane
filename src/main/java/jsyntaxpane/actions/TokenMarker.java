@@ -42,17 +42,25 @@ public class TokenMarker implements CaretListener {
     public TokenMarker(JEditorPane pane, Color markerColor, Set<TokenType> types) {
         this.pane = pane;
         this.tokenTypes = types;
+        this.marker = new Markers.SimpleMarker(markerColor);
     }
 
     @Override
     public void caretUpdate(CaretEvent e) {
         int pos = e.getDot();
-        Markers.removeMarkers(pane, TOKEN_MARKER);
+        removeMarkers();
         SyntaxDocument doc = SyntaxActions.getSyntaxDocument(pane);
         Token token = doc.getTokenAt(pos);
         if (token != null && tokenTypes.contains(token.type)) {
             addMarkers(token);
         }
+    }
+
+    /**
+     * removes all markers from the pane.
+     */
+    public void removeMarkers() {
+        Markers.removeMarkers(pane, marker);
     }
 
     /**
@@ -67,12 +75,19 @@ public class TokenMarker implements CaretListener {
         while (it.hasNext()) {
             Token nextToken = it.next();
             if (nextToken.length == tok.length && text.equals(nextToken.getText(sDoc))) {
-                Markers.markToken(pane, nextToken, TOKEN_MARKER);
+                Markers.markToken(pane, nextToken, marker);
             }
         }
         sDoc.readUnlock();
     }
-    
-    public static final Markers.SimpleMarker TOKEN_MARKER = new Markers.SimpleMarker(new Color(0xffffbb));
+
+    @Override
+    protected void finalize() throws Throwable {
+        removeMarkers();
+        super.finalize();
+    }
+
+
+    private Markers.SimpleMarker marker;
     
 }

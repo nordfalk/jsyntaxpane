@@ -32,7 +32,7 @@ public class FindDialog extends javax.swing.JDialog {
     private SyntaxDocument document;
     private JTextComponent textComponent;
     private FindReplaceActions finder;
-    private static Markers.SimpleMarker SEARCH_MARKER = new Markers.SimpleMarker(Color.GREEN);
+    private static Markers.SimpleMarker SEARCH_MARKER = new Markers.SimpleMarker(new Color(0xbbeeff));
 
     /** Creates new form FindDialog */
     public FindDialog(Frame parent, SyntaxDocument doc, JTextComponent text,
@@ -42,6 +42,23 @@ public class FindDialog extends javax.swing.JDialog {
         textComponent = text;
         finder = finderActions;
         initComponents();
+    }
+
+    /**
+     * update the finder object with data from our UI
+     */
+    private void updateFinder() {
+        int flag = 0;
+        if (!jChkRegex.isSelected()) {
+            flag |= Pattern.LITERAL;
+        }
+        flag |= (jChkIgnoreCase.isSelected()) ? Pattern.CASE_INSENSITIVE : 0;
+        if (jChkIgnoreCase.isSelected()) {
+            flag |= Pattern.CASE_INSENSITIVE;
+        }
+        Pattern pattern = Pattern.compile(jTxtFindText.getText(), flag);
+        finder.setWrap(jChkWrap.isSelected());
+        finder.setPattern(pattern);
     }
 
     // Creates highlights around all occurrences of pattern in textComp
@@ -79,10 +96,10 @@ public class FindDialog extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         jBtnNext = new javax.swing.JButton();
         jLblStatus = new javax.swing.JLabel();
-        jBtnHilight = new javax.swing.JButton();
         jChkWrap = new javax.swing.JCheckBox();
         jChkRegex = new javax.swing.JCheckBox();
         jChkIgnoreCase = new javax.swing.JCheckBox();
+        jTglHighlight = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Find");
@@ -98,14 +115,6 @@ public class FindDialog extends javax.swing.JDialog {
             }
         });
 
-        jBtnHilight.setMnemonic('H');
-        jBtnHilight.setText("Highlight");
-        jBtnHilight.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jBtnHilightActionPerformed(evt);
-            }
-        });
-
         jChkWrap.setMnemonic('W');
         jChkWrap.setText("Wrap around");
         jChkWrap.setToolTipText("Wrap to beginning when end is reached");
@@ -115,6 +124,13 @@ public class FindDialog extends javax.swing.JDialog {
 
         jChkIgnoreCase.setMnemonic('I');
         jChkIgnoreCase.setText("Ignore Case");
+
+        jTglHighlight.setText("Highlight");
+        jTglHighlight.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTglHighlightActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -126,22 +142,21 @@ public class FindDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jChkIgnoreCase)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jChkRegex)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jChkIgnoreCase)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jChkRegex)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLblStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 59, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jChkWrap, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addComponent(jTxtFindText, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jLblStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jChkWrap, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(jTxtFindText, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)))
                 .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jBtnNext, javax.swing.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE)
-                    .addComponent(jBtnHilight, javax.swing.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTglHighlight, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jBtnNext, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -162,7 +177,7 @@ public class FindDialog extends javax.swing.JDialog {
                             .addComponent(jChkRegex)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jChkWrap)
-                                .addComponent(jBtnHilight, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                                .addComponent(jTglHighlight)))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jChkIgnoreCase)
                 .addContainerGap())
@@ -172,18 +187,8 @@ public class FindDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jBtnNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnNextActionPerformed
-        int flag = 0;
-        if(!jChkRegex.isSelected()) {
-            flag |= Pattern.LITERAL;
-        }
-        flag |= (jChkIgnoreCase.isSelected()) ?  Pattern.CASE_INSENSITIVE : 0;
-        if(jChkIgnoreCase.isSelected()) {
-            flag |= Pattern.CASE_INSENSITIVE;
-        }
         try {
-            Pattern pattern = Pattern.compile(jTxtFindText.getText(), flag);
-            finder.setWrap(jChkWrap.isSelected());
-            finder.setPattern(pattern);
+            updateFinder();
             finder.doFindNext(textComponent);
             textComponent.requestFocusInWindow();
         } catch (PatternSyntaxException ex) {
@@ -193,18 +198,23 @@ public class FindDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_jBtnNextActionPerformed
 
-    private void jBtnHilightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnHilightActionPerformed
-        markString(textComponent, jTxtFindText.getText());
-    }//GEN-LAST:event_jBtnHilightActionPerformed
+    private void jTglHighlightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTglHighlightActionPerformed
+        if(jTglHighlight.isSelected()) {
+            updateFinder();
+            Markers.markAll(textComponent, finder.getPattern(), SEARCH_MARKER);
+        } else {
+            Markers.removeMarkers(textComponent, SEARCH_MARKER);
+        }
+    }//GEN-LAST:event_jTglHighlightActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jBtnHilight;
     private javax.swing.JButton jBtnNext;
     private javax.swing.JCheckBox jChkIgnoreCase;
     private javax.swing.JCheckBox jChkRegex;
     private javax.swing.JCheckBox jChkWrap;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLblStatus;
+    private javax.swing.JToggleButton jTglHighlight;
     private javax.swing.JTextField jTxtFindText;
     // End of variables declaration//GEN-END:variables
 }

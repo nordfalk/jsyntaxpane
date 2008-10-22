@@ -16,10 +16,13 @@ package jsyntaxpane.actions;
 import java.awt.Color;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
+import jsyntaxpane.SyntaxDocument;
 import jsyntaxpane.Token;
 
 /**
@@ -62,7 +65,7 @@ public class Markers {
      * Remove all the markers from an editorpane
      * @param editorPane
      */
-    public static void removeHighlights(JTextComponent editorPane) {
+    public static void removeMarkers(JTextComponent editorPane) {
         removeMarkers(editorPane, null);
     }
 
@@ -77,7 +80,7 @@ public class Markers {
     }
 
     /**
-     * add highlights for the given Token on the given pane
+     * add highlights for the given region on the given pane
      * @param pane
      * @param start
      * @param end
@@ -86,10 +89,42 @@ public class Markers {
     public static void markText(JTextComponent pane, int start, int end, SimpleMarker marker) {
         try {
             Highlighter hiliter = pane.getHighlighter();
-            hiliter.addHighlight(start, end, marker);
+            int selStart = pane.getSelectionStart();
+            int selEnd = pane.getSelectionEnd();
+            // if there is no selection or selection does not overlap
+            if(selStart == selEnd || end < selStart || start > selStart) {
+                hiliter.addHighlight(start, end, marker);
+                return;
+            }
+            // selection starts within the highlight, highlight before slection
+            if(selStart > start && selStart < end ) {
+                hiliter.addHighlight(start, selStart, marker);
+            }
+            // selection ends within the highlight, highlight remaining
+            if(selEnd > start && selEnd < end ) {
+                hiliter.addHighlight(selEnd, end, marker);
+            }
+
         } catch (BadLocationException ex) {
             // nothing we can do if the request is out of bound
             LOG.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Mark all text in the document that matches the given pattern
+     * @param pane control to use
+     * @param pattern pattern to match
+     * @param marker marker to use for highlighting
+     */
+    public static void markAll(JTextComponent pane, Pattern pattern, SimpleMarker marker) {
+        SyntaxDocument sDoc = SyntaxActions.getSyntaxDocument(pane);
+        if(sDoc  == null) {
+            return;
+        }
+        Matcher matcher = sDoc.getMatcher(pattern);
+        while(matcher.find()) {
+            markText(pane, matcher.start(), matcher.end(), marker);
         }
     }
     

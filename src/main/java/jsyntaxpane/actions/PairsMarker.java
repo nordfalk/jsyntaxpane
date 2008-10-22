@@ -29,28 +29,43 @@ import jsyntaxpane.Token;
  */
 public class PairsMarker implements CaretListener {
 
-    JTextComponent pane;
+    private JTextComponent pane;
+    private Markers.SimpleMarker marker;
+
+
 
     public PairsMarker(JEditorPane pane, Color markerColor) {
         this.pane = pane;
+        this.marker = new Markers.SimpleMarker(markerColor);
     }
 
 
     @Override
     public void caretUpdate(CaretEvent e) {
-        Markers.removeMarkers(pane, PAIRS_MARKER);
+        removeMarkers();
         int pos = e.getDot();
         SyntaxDocument doc = SyntaxActions.getSyntaxDocument(pane);
         Token token = doc.getTokenAt(pos);
         if (token != null && token.pairValue != 0) {
-            Markers.markToken(pane, token, PAIRS_MARKER);
+            Markers.markToken(pane, token, marker);
             Token other = doc.getPairFor(token);
             if (other != null) {
-                Markers.markToken(pane, other, PAIRS_MARKER);
+                Markers.markToken(pane, other, marker);
             }
         }
     }
-    
-    public static final Markers.SimpleMarker PAIRS_MARKER = new Markers.SimpleMarker(new Color(0xffcc33));
-    
+
+    /**
+     * Remove all the highlights from the editor pane.  This should be called
+     * when the editorkit is removed.
+     */
+    public void removeMarkers() {
+        Markers.removeMarkers(pane, marker);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        removeMarkers();
+        super.finalize();
+    }
 }

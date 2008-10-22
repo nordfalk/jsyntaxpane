@@ -14,7 +14,6 @@
 package jsyntaxpane;
 
 import java.io.Reader;
-import javax.swing.JEditorPane;
 
 /**
  * Lexers must implement these methods.  These are used in the Tokenizer 

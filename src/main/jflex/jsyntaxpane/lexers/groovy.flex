@@ -44,6 +44,13 @@ import jsyntaxpane.TokenType;
         return new Token(type, yychar, yylength());
     }
 
+    private Token token(TokenType type, int pairValue) {
+        return new Token(type, yychar, yylength(), (byte)pairValue);
+    }
+
+    private static final byte PARAN     = 1;
+    private static final byte BRACKET   = 2;
+    private static final byte CURLY     = 3;
 %}
 
 /* main character classes */
@@ -53,12 +60,10 @@ InputCharacter = [^\r\n]
 WhiteSpace = {LineTerminator} | [ \t\f]
 
 /* comments */
-Comment = {TraditionalComment} | {EndOfLineComment} | 
-          {DocumentationComment}
+Comment = {TraditionalComment} | {EndOfLineComment} 
 
 TraditionalComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
 EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
-DocumentationComment = "/*" "*"+ [^/*] ~"*/"
 
 /* identifiers */
 Identifier = [:jletter:][:jletterdigit:]*
@@ -92,7 +97,7 @@ StringCharacter = [^\r\n\"\\\$]
 SingleCharacter = [^\r\n\'\\]
 RegexCharacter  = [^\r\n\/]
 
-%state STRING, CHARLITERAL, REGEX, GSTRING_EXPR
+%state STRING, CHARLITERAL, REGEX, GSTRING_EXPR, CHARLITERAL, JDOC, JDOC_TAG
 
 %%
 
@@ -156,7 +161,7 @@ RegexCharacter  = [^\r\n\/]
   "in"                           |
   "threadsafe"                   |
 
-/* Booleans and null */
+  /* Booleans and null */
   "true"                         |
   "false"                        |
   "null"                         { return token(TokenType.KEYWORD); }
@@ -165,26 +170,66 @@ RegexCharacter  = [^\r\n\/]
   /* Builtin Types and Object Wrappers */
   "Boolean"                      |
   "Byte"                         |
+  "Character"                    |
   "Double"                       |
   "Float"                        |
   "Integer"                      |
   "Object"                       |
   "Short"                        |
   "String"                       |
+  "Void"                         |
+  "Class"                        |
+  "Number"                       |
+  "Package"                      |
+  "StringBuffer"                 |
+  "StringBuilder"                |
+  "CharSequence"                 |
+  "Thread"                       |
   "Regex"                        { return token(TokenType.TYPE); }
   
+  /* Some Java standard Library Types */
+  "Throwable"                    |
+  "Cloneable"                    |
+  "Comparable"                   |
+  "Serializable"                 |
+  "Runnable"                     { return token(TokenType.TYPE); }
+
   /* Groovy commonly used methods */
   "print"                        |
   "println"                      { return token(TokenType.KEYWORD); }
 
-  /* operators */
+  /* Frequently used Standard Exceptions */
+  "ArithmeticException"              |
+  "ArrayIndexOutOfBoundsException"   |
+  "ClassCastException"               |
+  "ClassNotFoundException"           |
+  "CloneNotSupportedException"       |
+  "Exception"                        |
+  "IllegalAccessException"           |
+  "IllegalArgumentException"         |
+  "IllegalStateException"            |
+  "IllegalThreadStateException"      |
+  "IndexOutOfBoundsException"        |
+  "InstantiationException"           |
+  "InterruptedException"             |
+  "NegativeArraySizeException"       |
+  "NoSuchFieldException"             |
+  "NoSuchMethodException"            |
+  "NullPointerException"             |
+  "NumberFormatException"            |
+  "RuntimeException"                 |
+  "SecurityException"                |
+  "StringIndexOutOfBoundsException"  |
+  "UnsupportedOperationException"    { return token(TokenType.TYPE2); }
 
-  "("                            |
-  ")"                            |
-  "{"                            | 
-  "}"                            | 
-  "["                            | 
-  "]"                            | 
+  /* operators */
+  "("                            { return token(TokenType.OPERATOR,  PARAN); }
+  ")"                            { return token(TokenType.OPERATOR, -PARAN); }
+  "{"                            { return token(TokenType.OPERATOR,  CURLY); }
+  "}"                            { return token(TokenType.OPERATOR, -CURLY); }
+  "["                            { return token(TokenType.OPERATOR,  BRACKET); }
+  "]"                            { return token(TokenType.OPERATOR, -BRACKET); }
+
   ";"                            | 
   ","                            | 
   "."                            | 
@@ -268,8 +313,12 @@ RegexCharacter  = [^\r\n\/]
   {DoubleLiteral}                |
   {DoubleLiteral}[dD]            { return token(TokenType.NUMBER); }
   
-  /* Types in Java and Groovy */ 
-  // {Type}                         { return token(TokenType.TYPE); }
+  // JavaDoc comments need a state so that we can highlight the @ controls
+  "/**"                          {
+                                    yybegin(JDOC);
+                                    tokenStart = yychar;
+                                    tokenLength = 3;
+                                 }
 
   /* comments */
   {Comment}                      { return token(TokenType.COMMENT); }
@@ -341,6 +390,44 @@ RegexCharacter  = [^\r\n\/]
 
   \\.                            { tokenLength += 2; }
   {LineTerminator}               { yybegin(YYINITIAL);  }
+}
+
+<JDOC> {
+  "*/"                           {
+                                     yybegin(YYINITIAL);
+                                     return new Token(TokenType.COMMENT, tokenStart, tokenLength + 2);
+                                 }
+
+  "@"                            {
+                                     yybegin(JDOC_TAG);
+                                     int start = tokenStart;
+                                     tokenStart = yychar;
+                                     int len = tokenLength;
+                                     tokenLength = 1;
+                                     return new Token(TokenType.COMMENT, start, len);
+                                 }
+
+  .|\n                           { tokenLength ++; }
+
+}
+
+<JDOC_TAG> {
+  ([:letter:])+ ":"?             { tokenLength += yylength(); }
+
+  "*/"                           {
+                                     yybegin(YYINITIAL);
+                                     return new Token(TokenType.COMMENT, tokenStart, tokenLength + 2);
+                                 }
+
+  .|\n                           {
+                                     yybegin(JDOC);
+                                     // length also includes the trailing quote
+                                     int start = tokenStart;
+                                     tokenStart = yychar;
+                                     int len = tokenLength;
+                                     tokenLength = 1;
+                                     return new Token(TokenType.COMMENT2, start, len);
+                                 }
 }
 
 <REGEX> {

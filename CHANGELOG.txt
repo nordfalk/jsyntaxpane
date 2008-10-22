@@ -23,6 +23,10 @@ Version 0.9.2 alpha (no binary release):
     * Token class made immutable (all final fields)
     * Added Find and Replace Dialogs and Action to Java (mapped to C-F and
       C-H )
+    * Added pair matching to XML tags
+    * Added CDATA matching and pair highlights for XML
+    * Added Comment Pair Highlighting in XML
+    * Fixed highlighting with selections so the selection always appears
 Version 0.9.1
     * Fixed empty strings in XML syntax  Issue 29
     * Fixed TAL lexer using incorrect package name

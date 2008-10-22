@@ -101,7 +101,7 @@ public class JarServiceProvider {
     public static Properties readProperties(Class clazz) {
         return readProperties(clazz.getName());
     }
-    
+
     /**
      * Read a file in the META-INF/services named name appended with 
      * ".properties"
@@ -127,7 +127,10 @@ public class JarServiceProvider {
                 LOG.log(Level.SEVERE, null, ex);
             } finally {
                 try {
-                    is.close();
+                    // maybe the is was not open coz we did not find the file
+                    if (is != null) {
+                        is.close();
+                    }
                 } catch (IOException ex) {
                     LOG.log(Level.SEVERE, null, ex);
                 }
@@ -135,7 +138,7 @@ public class JarServiceProvider {
         }
         return props;
     }
-    
+
     /**
      * Read a file in the META-INF/services named name appended with 
      * ".properties", and returns it as a <code>Map<String, String></code>
@@ -146,8 +149,10 @@ public class JarServiceProvider {
     public static Map<String, String> readStringsMap(String name) {
         Properties props = readProperties(name);
         HashMap<String, String> map = new HashMap<String, String>();
-        for(Map.Entry e:props.entrySet()) {
-            map.put(e.getKey().toString(), e.getValue().toString());
+        if (props != null) {
+            for (Map.Entry e : props.entrySet()) {
+                map.put(e.getKey().toString(), e.getValue().toString());
+            }
         }
         return map;
     }

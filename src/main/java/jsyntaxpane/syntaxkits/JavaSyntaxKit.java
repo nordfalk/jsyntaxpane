@@ -21,6 +21,7 @@ import javax.swing.JEditorPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
 import jsyntaxpane.DefaultSyntaxKit;
+import jsyntaxpane.Lexer;
 import jsyntaxpane.TokenType;
 import jsyntaxpane.actions.FindReplaceActions;
 import jsyntaxpane.actions.Markers;
@@ -41,12 +42,21 @@ public class JavaSyntaxKit extends DefaultSyntaxKit {
         super(new JavaLexer());
     }
 
+    /**
+     * Consruct a JavaSyntaxKit user the supplied lexer.  This is protected so
+     * only subclasses may extend this with a new lexer.
+     * @param lexer
+     */
+    JavaSyntaxKit(Lexer lexer) {
+        super(lexer);
+    }
+
     @Override
     public void addKeyActions(Keymap map) {
         super.addKeyActions(map);
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("control SPACE"),
-            new MapCompletion(COMPLETIONS));
+            new MapCompletion(getCompletions()));
         FindReplaceActions finder = new FindReplaceActions();
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("control F"), finder.getFindDialogAction());
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("control H"), finder.getReplaceDialogAction());
@@ -57,7 +67,7 @@ public class JavaSyntaxKit extends DefaultSyntaxKit {
     public void install(JEditorPane editorPane) {
         super.install(editorPane);
         tokenMarker = new TokenMarker(editorPane, new Color(0xffffbb),
-                HIGHLITED_TOKENTYPES);
+                getHighlightTokenTypes());
         pairMarker = new PairsMarker(editorPane, Color.ORANGE);
         
         editorPane.addCaretListener(tokenMarker);
@@ -69,14 +79,30 @@ public class JavaSyntaxKit extends DefaultSyntaxKit {
         super.deinstall(editorPane);
         editorPane.removeCaretListener(pairMarker);
         editorPane.removeCaretListener(tokenMarker);
-        Markers.removeHighlights(editorPane);
+        Markers.removeMarkers(editorPane);
     }
     
     private TokenMarker tokenMarker;
     private PairsMarker pairMarker;
 
-    public static Map<String, String> COMPLETIONS;
-    public static Set<TokenType> HIGHLITED_TOKENTYPES = new HashSet<TokenType>();
+    private static Map<String, String> COMPLETIONS;
+    private static Set<TokenType> HIGHLITED_TOKENTYPES = new HashSet<TokenType>();
+
+    /**
+     * returns the completions Map
+     * @return
+     */
+    public static Map<String, String> getCompletions() {
+        return COMPLETIONS;
+    }
+
+    /**
+     * Returns the TokenTypes to highlight
+     * @return
+     */
+    public static Set<TokenType> getHighlightTokenTypes() {
+        return HIGHLITED_TOKENTYPES;
+    }
 
     static {
         COMPLETIONS = JarServiceProvider.readStringsMap("jsyntaxpane.javasyntaxkit.completions");

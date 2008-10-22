@@ -66,6 +66,9 @@ public class ReplaceDialog extends javax.swing.JDialog {
         }
     }
 
+    /**
+     * update the finder object with data from our UI
+     */
     private void updateFinder() {
         int flag = 0;
         if (!jChkRegex.isSelected()) {

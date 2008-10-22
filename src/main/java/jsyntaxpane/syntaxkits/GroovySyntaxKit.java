@@ -13,25 +13,30 @@
  */
 package jsyntaxpane.syntaxkits;
 
-import javax.swing.KeyStroke;
-import javax.swing.text.Keymap;
-import jsyntaxpane.DefaultSyntaxKit;
-import jsyntaxpane.actions.SyntaxActions;
+import java.util.HashMap;
+import java.util.Map;
 import jsyntaxpane.lexers.GroovyLexer;
+import jsyntaxpane.util.JarServiceProvider;
 
 /**
  *
  * @author Ayman Al-Sairafi
  */
-public class GroovySyntaxKit extends DefaultSyntaxKit {
+public class GroovySyntaxKit extends JavaSyntaxKit {
 
     public GroovySyntaxKit() {
         super(new GroovyLexer());
     }
 
-    @Override
-    public void addKeyActions(Keymap map) {
-        super.addKeyActions(map);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
+    public static Map<String, String> GROOVY_COMPLETIONS;
+
+    public static Map<String, String> getCompletions() {
+        return GROOVY_COMPLETIONS;
+    }
+
+    static {
+        GROOVY_COMPLETIONS = new HashMap<String, String>();
+        GROOVY_COMPLETIONS.putAll(JavaSyntaxKit.getCompletions());
+        GROOVY_COMPLETIONS.putAll(JarServiceProvider.readStringsMap("jsyntaxpane.groovysyntaxkit.completions"));
     }
 }
