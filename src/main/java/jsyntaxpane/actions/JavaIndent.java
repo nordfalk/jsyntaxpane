@@ -59,6 +59,8 @@ public class JavaIndent extends TextAction {
                     } catch (BadLocationException ex) {
                         Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     }
+                } else {
+                    target.replaceSelection("\n" + prefix);
                 }
             } else {
                 target.replaceSelection("\n" + prefix);

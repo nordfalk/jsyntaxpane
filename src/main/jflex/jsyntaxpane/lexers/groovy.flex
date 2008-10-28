@@ -98,6 +98,7 @@ SingleCharacter = [^\r\n\'\\]
 RegexCharacter  = [^\r\n\/]
 
 %state STRING, CHARLITERAL, REGEX, GSTRING_EXPR, CHARLITERAL, JDOC, JDOC_TAG
+%state ML_STRING, ML_STRING_EXPR
 
 %%
 
@@ -276,6 +277,13 @@ RegexCharacter  = [^\r\n\/]
   "?."                           { return token(TokenType.OPERATOR); } 
 
   /* string literal */
+  \"{3}                          {
+                                    yybegin(ML_STRING);
+                                    tokenStart = yychar;
+                                    tokenLength = 3;
+                                 }
+
+  /* string literal */
   \"                             {  
                                     yybegin(STRING); 
                                     tokenStart = yychar; 
@@ -288,15 +296,6 @@ RegexCharacter  = [^\r\n\/]
                                     tokenStart = yychar; 
                                     tokenLength = 1; 
                                  }
-
-  /* 
-     Groovy Regex -- state cannot be easily used here due to / by itself being 
-     a valid operator.  So if we flip into the REGEX state, we cannot distinguish
-     a regular / 
-  */
-  "/" {RegexCharacter}+ "/"      { return token(TokenType.REGEX); }
-
-
 
   /* numeric literals */
 
@@ -329,25 +328,32 @@ RegexCharacter  = [^\r\n\/]
   /* identifiers */ 
   {Identifier}                   { return token(TokenType.IDENTIFIER); }
 
+  /*
+     Groovy Regex -- state cannot be easily used here due to / by itself being
+     a valid operator.  So if we flip into the REGEX state, we cannot distinguish
+     a regular /
+  */
+  "/" [^*] {RegexCharacter}+ "/"  { return token(TokenType.REGEX); }
+
 }
 
 
 <STRING> {
 
   \"                             { 
-                                     yybegin(YYINITIAL); 
-                                     // length also includes the trailing quote
-                                     return new Token(TokenType.STRING, tokenStart, tokenLength + 1);
+                                    yybegin(YYINITIAL); 
+                                    // length also includes the trailing quote
+                                    return new Token(TokenType.STRING, tokenStart, tokenLength + 1);
                                  }
 
   "${"                           { 
-                                     yybegin(GSTRING_EXPR); 
-                                     // length also includes the trailing quote
-				     int s = tokenStart;
-				     int l = tokenLength;
-				     tokenStart = yychar;
-				     tokenLength = 2;
-                                     return new Token(TokenType.STRING, s, l);
+                                    yybegin(GSTRING_EXPR); 
+                                    // length also includes the trailing quote
+                                    int s = tokenStart;
+                                    int l = tokenLength;
+                                    tokenStart = yychar;
+                                    tokenLength = 2;
+                                    return new Token(TokenType.STRING, s, l);
                                  }
   
   {StringCharacter}+             { tokenLength += yylength(); }
@@ -364,17 +370,57 @@ RegexCharacter  = [^\r\n\/]
 
 <GSTRING_EXPR> {
     "}"                          { 
-                                     yybegin(STRING); 
-                                     // length also includes the trailing quote
-				     int s = tokenStart;
-				     int l = tokenLength + 1;
-				     tokenStart = yychar + 1;
-				     tokenLength = 0;
-                                     return new Token(TokenType.STRING2, s, l);
+                                    yybegin(STRING); 
+                                    // length also includes the trailing quote
+                                    int s = tokenStart;
+                                    int l = tokenLength + 1;
+                                    tokenStart = yychar + 1;
+                                    tokenLength = 0;
+                                    return new Token(TokenType.STRING2, s, l);
                                  }
 
   {StringCharacter}              { tokenLength ++; }
+}
 
+<ML_STRING> {
+
+  \"{3}                          {
+                                    yybegin(YYINITIAL);
+                                    // length also includes the trailing quote
+                                    return new Token(TokenType.STRING, tokenStart, tokenLength + 3);
+                                 }
+
+  "${"                           {
+                                    yybegin(ML_STRING_EXPR);
+                                    // length also includes the trailing quote
+                                    int s = tokenStart;
+                                    int l = tokenLength;
+                                    tokenStart = yychar;
+                                    tokenLength = 2;
+                                    return new Token(TokenType.STRING, s, l);
+                                 }
+
+  \\[0-3]?{OctDigit}?{OctDigit}  { tokenLength += yylength(); }
+
+  /* escape sequences */
+
+  \\.                            { tokenLength += 2; }
+  .|{LineTerminator}             { tokenLength += yylength(); }
+
+}
+
+<ML_STRING_EXPR> {
+    "}"                          {
+                                    yybegin(ML_STRING);
+                                    // length also includes the trailing quote
+                                    int s = tokenStart;
+                                    int l = tokenLength + 1;
+                                    tokenStart = yychar + 1;
+                                    tokenLength = 0;
+                                    return new Token(TokenType.STRING2, s, l);
+                                 }
+
+  .|\n|\r                        { tokenLength ++; }
 }
 
 <CHARLITERAL> {

@@ -20,8 +20,6 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
-import jsyntaxpane.FindDialog;
-import jsyntaxpane.ReplaceDialog;
 import jsyntaxpane.SyntaxDocument;
 
 /**
@@ -41,6 +39,7 @@ public class FindReplaceActions {
     private final FindDialogAction findDialogAction = new FindDialogAction();
     private final FindNextAction findNextAction = new FindNextAction();
     private final ReplaceDialogAction replaceDialogAction = new ReplaceDialogAction();
+    private ReplaceDialog dlg;
 
     public FindReplaceActions() {
     }
@@ -70,15 +69,9 @@ public class FindReplaceActions {
         public void actionPerformed(ActionEvent e) {
             JTextComponent target = getTextComponent(e);
             if (target != null) {
-                Frame targetFrame = SyntaxActions.getFrameFor(target);
-                SyntaxDocument sDoc = (SyntaxDocument) target.getDocument();
-                if (dlg == null) {
-                    dlg = new FindDialog(targetFrame, sDoc, target, FindReplaceActions.this);
-                }
-                dlg.setVisible(true);
+                showDialog(target);
             }
         }
-        FindDialog dlg;
     }
 
     class ReplaceDialogAction extends TextAction {
@@ -90,15 +83,9 @@ public class FindReplaceActions {
         public void actionPerformed(ActionEvent e) {
             JTextComponent target = getTextComponent(e);
             if (target != null) {
-                Frame targetFrame = SyntaxActions.getFrameFor(target);
-                SyntaxDocument sDoc = (SyntaxDocument) target.getDocument();
-                if (dlg == null) {
-                    dlg = new ReplaceDialog(targetFrame, sDoc, target, FindReplaceActions.this);
-                }
-                dlg.setVisible(true);
+                showDialog(target);
             }
         }
-        ReplaceDialog dlg;
     }
 
     /**
@@ -132,12 +119,27 @@ public class FindReplaceActions {
     }
 
     /**
+     * Show the dialog
+     * @param targetFrame
+     * @param sDoc
+     * @param target
+     */
+    private void showDialog(JTextComponent target) {
+        Frame targetFrame = SyntaxActions.getFrameFor(target);
+        if (dlg == null) {
+            dlg = new ReplaceDialog(targetFrame, target, FindReplaceActions.this);
+            dlg.setLocationRelativeTo(target.getRootPane());
+        }
+        dlg.setVisible(true);
+    }
+
+    /**
      * Perform a FindNext operation on the given text component.  Position
      * the caret at the start of the next found pattern
      * @param target
      */
     public void doFindNext(JTextComponent target) {
-        if (target == null) {
+        if (target == null || pattern == null) {
             return;
         }
         SyntaxDocument sDoc = SyntaxActions.getSyntaxDocument(target);

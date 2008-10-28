@@ -28,12 +28,16 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.Segment;
 import javax.swing.undo.UndoManager;
 
 /**
- *
+ * A document that supports being highlighted.  The document maintains an
+ * internal List of all the Tokens.  The Tokens are updated using
+ * a Lexer, passed to it during construction.
+ * 
  * @author Ayman Al-Sairafi
  */
 public class SyntaxDocument extends PlainDocument {
@@ -408,7 +412,7 @@ public class SyntaxDocument extends PlainDocument {
      */
     public Matcher getMatcher(Pattern pattern, int start, int length) {
         Matcher matcher = null;
-        if(getLength() == 0) {
+        if (getLength() == 0) {
             return null;
         }
         try {
@@ -420,11 +424,25 @@ public class SyntaxDocument extends PlainDocument {
         }
         return matcher;
     }
+
     /**
      * This will discard all undoable edits
      */
     public void clearUndos() {
         undo.discardAllEdits();
+    }
+
+    /**
+     * Gets the line at given position.  
+     * @param pos
+     * @return the STring of text at given position
+     * @throws BadLocationException
+     */
+    public String getLineAt(int pos) throws BadLocationException {
+        String line = null;
+        Element e = getParagraphElement(pos);
+        line = getText(e.getStartOffset(), e.getEndOffset() - e.getStartOffset());
+        return line;
     }
     // our logger instance...
     private static Logger log = Logger.getLogger(SyntaxDocument.class.getName());
