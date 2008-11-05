@@ -13,6 +13,8 @@
  */
 package jsyntaxpane;
 
+import java.awt.Container;
+import javax.swing.JScrollPane;
 import jsyntaxpane.actions.SyntaxActions;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;

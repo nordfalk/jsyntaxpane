@@ -342,7 +342,9 @@ public class SyntaxDocument extends PlainDocument {
      * @param search The String to search for
      * @param start The beginning index of search
      * @return
+     * @deprecated use {@link getMatcher} instead
      */
+    @Deprecated
     public int getIndexOf(String search, int start) {
         int flag = Pattern.LITERAL;
         Pattern pattern = Pattern.compile(search, flag);
@@ -355,7 +357,9 @@ public class SyntaxDocument extends PlainDocument {
      * @param pattern the regex pattern to find
      * @param start The beginning index of search
      * @return
+     * @deprecated use {@link getMatcher} instead
      */
+    @Deprecated
     public int getIndexOf(Pattern pattern, int start) {
         int ndx = -1;
         if (pattern == null || getLength() == 0) {
@@ -433,17 +437,61 @@ public class SyntaxDocument extends PlainDocument {
     }
 
     /**
-     * Gets the line at given position.  
-     * @param pos
+     * Gets the line at given position.  The line returned will NOT include
+     * the line terminator '\n'
+     * @param pos Position (usually from text.getCaretPosition()
      * @return the STring of text at given position
      * @throws BadLocationException
      */
     public String getLineAt(int pos) throws BadLocationException {
-        String line = null;
         Element e = getParagraphElement(pos);
-        line = getText(e.getStartOffset(), e.getEndOffset() - e.getStartOffset());
-        return line;
+        Segment seg = new Segment();
+        getText(e.getStartOffset(), e.getEndOffset() - e.getStartOffset(), seg);
+        char last = seg.last();
+        if (last == '\n' || last == '\r') {
+            return seg.subSequence(0, seg.length() - 1).toString();
+        }
+        return seg.toString();
     }
+
+    /**
+     * Deletes the line at given position
+     * @param pos
+     * @throws javax.swing.text.BadLocationException
+     */
+    public void removeLineAt(int pos)
+            throws BadLocationException {
+        Element e = getParagraphElement(pos);
+        remove(e.getStartOffset(), getElementLength(e));
+    }
+
+    /**
+     * Replace the line at given position with the given string, which can span
+     * multiple lines
+     * @param pos
+     * @param newLines
+     * @throws javax.swing.text.BadLocationException
+     */
+    public void replaceLineAt(int pos, String newLines)
+            throws BadLocationException {
+        Element e = getParagraphElement(pos);
+        replace(e.getStartOffset(), getElementLength(e), newLines, null);
+    }
+
+    /**
+     * Helper method to get the length of an element and avoid getting
+     * a too long element at the end of the document
+     * @param e
+     * @return
+     */
+    private int getElementLength(Element e) {
+        int end = e.getEndOffset();
+        if (end >= (getLength() - 1)) {
+            end--;
+        }
+        return end - e.getStartOffset();
+    }
+
     // our logger instance...
     private static Logger log = Logger.getLogger(SyntaxDocument.class.getName());
 }

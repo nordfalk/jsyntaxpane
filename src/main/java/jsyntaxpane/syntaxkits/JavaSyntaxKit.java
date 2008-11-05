@@ -22,6 +22,7 @@ import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
 import jsyntaxpane.DefaultSyntaxKit;
 import jsyntaxpane.Lexer;
+import jsyntaxpane.actions.LineNumbersRule;
 import jsyntaxpane.TokenType;
 import jsyntaxpane.actions.FindReplaceActions;
 import jsyntaxpane.actions.Markers;
@@ -56,7 +57,7 @@ public class JavaSyntaxKit extends DefaultSyntaxKit {
         super.addKeyActions(map);
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("control SPACE"),
-            new MapCompletion(getCompletions()));
+                new MapCompletion(getCompletions()));
         FindReplaceActions finder = new FindReplaceActions();
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("control F"), finder.getFindDialogAction());
         map.addActionForKeyStroke(KeyStroke.getKeyStroke("control H"), finder.getReplaceDialogAction());
@@ -69,9 +70,10 @@ public class JavaSyntaxKit extends DefaultSyntaxKit {
         tokenMarker = new TokenMarker(editorPane, new Color(0xffffbb),
                 getHighlightTokenTypes());
         pairMarker = new PairsMarker(editorPane, Color.ORANGE);
-        
+
         editorPane.addCaretListener(tokenMarker);
         editorPane.addCaretListener(pairMarker);
+        lineNumbers = new LineNumbersRule(editorPane);
     }
 
     @Override
@@ -80,11 +82,12 @@ public class JavaSyntaxKit extends DefaultSyntaxKit {
         editorPane.removeCaretListener(pairMarker);
         editorPane.removeCaretListener(tokenMarker);
         Markers.removeMarkers(editorPane);
+        editorPane.removeCaretListener(lineNumbers);
     }
     
     private TokenMarker tokenMarker;
     private PairsMarker pairMarker;
-
+    private LineNumbersRule lineNumbers;
     private static Map<String, String> COMPLETIONS;
     private static Set<TokenType> HIGHLITED_TOKENTYPES = new HashSet<TokenType>();
 
@@ -103,6 +106,7 @@ public class JavaSyntaxKit extends DefaultSyntaxKit {
     public static Set<TokenType> getHighlightTokenTypes() {
         return HIGHLITED_TOKENTYPES;
     }
+
 
     static {
         COMPLETIONS = JarServiceProvider.readStringsMap("jsyntaxpane.javasyntaxkit.completions");

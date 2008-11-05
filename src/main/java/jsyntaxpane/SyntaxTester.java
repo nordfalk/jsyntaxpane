@@ -15,8 +15,12 @@ package jsyntaxpane;
 
 import java.awt.event.ItemEvent;
 import java.awt.Rectangle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.BadLocationException;
+import jsyntaxpane.actions.CaretMonitor;
+import jsyntaxpane.actions.SyntaxActions;
 
 public class SyntaxTester extends javax.swing.JFrame {
 
@@ -27,6 +31,7 @@ public class SyntaxTester extends javax.swing.JFrame {
         jCmbLangs.setModel(new DefaultComboBoxModel(DefaultSyntaxKit.getContentTypes()));
         // jEdtTest.setContentType(jCmbLangs.getItemAt(0).toString());
         jCmbLangs.setSelectedItem("text/java");
+        new CaretMonitor(jEdtTest, lblCaretPos);
     }
 
     /** This method is called from within the constructor to
@@ -42,6 +47,10 @@ public class SyntaxTester extends javax.swing.JFrame {
         jEdtTest = new javax.swing.JEditorPane();
         lblToken = new javax.swing.JLabel();
         jCmbLangs = new javax.swing.JComboBox();
+        jBtnGetLine = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jBtnPos = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("JSyntaxPane Tester");
@@ -49,7 +58,7 @@ public class SyntaxTester extends javax.swing.JFrame {
         lblCaretPos.setText("Caret Position");
 
         jEdtTest.setContentType("text/java");
-        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13));
+        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
         jEdtTest.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 jEdtTestCaretUpdate(evt);
@@ -68,6 +77,37 @@ public class SyntaxTester extends javax.swing.JFrame {
             }
         });
 
+        jBtnGetLine.setText("Get Line");
+        jBtnGetLine.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBtnGetLineActionPerformed(evt);
+            }
+        });
+
+        jButton1.setText("Del");
+        jButton1.setFocusable(false);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Repl");
+        jButton2.setFocusable(false);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jBtnPos.setText("Pos");
+        jBtnPos.setFocusable(false);
+        jBtnPos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jBtnPosActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -77,8 +117,16 @@ public class SyntaxTester extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lblToken, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jCmbLangs, 0, 186, Short.MAX_VALUE)
-                        .addGap(307, 307, 307)
+                        .addComponent(jCmbLangs, 0, 231, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jBtnPos)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jBtnGetLine)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(lblCaretPos, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE))
                 .addContainerGap())
@@ -93,7 +141,11 @@ public class SyntaxTester extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCmbLangs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblCaretPos, javax.swing.GroupLayout.DEFAULT_SIZE, 23, Short.MAX_VALUE))
+                    .addComponent(lblCaretPos, javax.swing.GroupLayout.DEFAULT_SIZE, 23, Short.MAX_VALUE)
+                    .addComponent(jBtnGetLine)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2)
+                    .addComponent(jBtnPos))
                 .addContainerGap())
         );
 
@@ -101,9 +153,6 @@ public class SyntaxTester extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
 private void jEdtTestCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_jEdtTestCaretUpdate
-    lblCaretPos.setText(Integer.toString(evt.getDot()));
-    lblToken.setText(null);
-
     if (jEdtTest.getDocument() instanceof SyntaxDocument) {
         SyntaxDocument sDoc = (SyntaxDocument) jEdtTest.getDocument();
         Token t = sDoc.getTokenAt(evt.getDot());
@@ -116,8 +165,9 @@ private void jEdtTestCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:
                 lblToken.setText(t.toString() + ": " + tData);
             } catch (BadLocationException ex) {
                 // should not happen.. and if it does, just ignore it
-                // System.err.println(ex);
-                }
+                System.err.println(ex);
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -146,6 +196,42 @@ private void jCmbLangsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRS
     }
 }//GEN-LAST:event_jCmbLangsItemStateChanged
 
+private void jBtnGetLineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnGetLineActionPerformed
+    SyntaxDocument sDoc = (SyntaxDocument) jEdtTest.getDocument();
+    try {
+        String line = sDoc.getLineAt(jEdtTest.getCaretPosition());
+        System.out.printf("Line = <%s>\n", line);
+    } catch (BadLocationException ex) {
+        Logger.getLogger(SyntaxTester.class.getName()).log(Level.SEVERE, null, ex);
+    }
+}//GEN-LAST:event_jBtnGetLineActionPerformed
+
+private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    try {
+        SyntaxDocument sDoc = (SyntaxDocument) jEdtTest.getDocument();
+        int pos = jEdtTest.getCaretPosition();
+        sDoc.replaceLineAt(pos, "New lines\ninserted\n");
+    } catch (BadLocationException ex) {
+        Logger.getLogger(SyntaxTester.class.getName()).log(Level.SEVERE, null, ex);
+    }
+}//GEN-LAST:event_jButton2ActionPerformed
+
+private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    try {
+        SyntaxDocument sDoc = (SyntaxDocument) jEdtTest.getDocument();
+        int pos = jEdtTest.getCaretPosition();
+        sDoc.removeLineAt(pos);
+    } catch (BadLocationException ex) {
+        Logger.getLogger(SyntaxTester.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
+}//GEN-LAST:event_jButton1ActionPerformed
+
+private void jBtnPosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnPosActionPerformed
+    int pos = SyntaxActions.getDocumentPosition(jEdtTest, 10, 10);
+    jEdtTest.setCaretPosition(pos);
+}//GEN-LAST:event_jBtnPosActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -160,6 +246,10 @@ private void jCmbLangsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRS
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jBtnGetLine;
+    private javax.swing.JButton jBtnPos;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JComboBox jCmbLangs;
     private javax.swing.JEditorPane jEdtTest;
     private javax.swing.JScrollPane jScrollPane1;

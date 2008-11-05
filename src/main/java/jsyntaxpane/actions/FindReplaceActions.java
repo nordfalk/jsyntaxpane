@@ -144,7 +144,6 @@ public class FindReplaceActions {
         }
         SyntaxDocument sDoc = SyntaxActions.getSyntaxDocument(target);
         if (sDoc == null) {
-            // FIXME: can we do Find on any Document??
             return;
         }
         int start = target.getCaretPosition() + 1;
@@ -176,8 +175,6 @@ public class FindReplaceActions {
      * Perfrom a replace all operation on the given component.
      * Note that this create a new duplicate String big as the entire
      * document and then assign it to the target text component
-     * FIXME:  This will have two undo operations, one that clears the
-     * text, and another that restores it to its old value before replacements
      * @param target
      * @param replacement
      */

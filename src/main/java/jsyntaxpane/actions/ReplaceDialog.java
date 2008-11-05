@@ -15,6 +15,7 @@ package jsyntaxpane.actions;
 
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.HeadlessException;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.JComboBox;
@@ -35,7 +36,7 @@ public class ReplaceDialog extends javax.swing.JDialog implements CaretListener 
 
     private JTextComponent textComponent;
     private FindReplaceActions finder;
-    private static Markers.SimpleMarker SEARCH_MARKER = new Markers.SimpleMarker(Color.GREEN);
+    private static Markers.SimpleMarker SEARCH_MARKER = new Markers.SimpleMarker(Color.YELLOW);
 
     /** Creates new form FindDialog */
     public ReplaceDialog(Frame parent, JTextComponent text,
@@ -56,6 +57,12 @@ public class ReplaceDialog extends javax.swing.JDialog implements CaretListener 
         if (jTglHighlight.isSelected()) {
             Markers.markAll(textComponent, finder.getPattern(), SEARCH_MARKER);
         }
+    }
+
+    private void showRegexpError(PatternSyntaxException ex) throws HeadlessException {
+        JOptionPane.showMessageDialog(this, "Regexp error: " + ex.getMessage(),
+                "Regular Expression Error", JOptionPane.ERROR_MESSAGE);
+        jCmbFind.requestFocus();
     }
 
     /**
@@ -240,9 +247,7 @@ public class ReplaceDialog extends javax.swing.JDialog implements CaretListener 
             finder.doFindNext(textComponent);
             textComponent.requestFocusInWindow();
         } catch (PatternSyntaxException ex) {
-            JOptionPane.showMessageDialog(this, "Regexp error: " + ex.getMessage(),
-                    "Regular Expression Error", JOptionPane.ERROR_MESSAGE);
-            jCmbFind.requestFocus();
+            showRegexpError(ex);
         }
     }//GEN-LAST:event_jBtnNextActionPerformed
 
@@ -254,9 +259,7 @@ public class ReplaceDialog extends javax.swing.JDialog implements CaretListener 
             finder.replaceAll(textComponent, replacement);
             textComponent.requestFocusInWindow();
         } catch (PatternSyntaxException ex) {
-            JOptionPane.showMessageDialog(this, "Regexp error: " + ex.getMessage(),
-                    "Regular Expression Error", JOptionPane.ERROR_MESSAGE);
-            jCmbFind.requestFocus();
+            showRegexpError(ex);
         }
 }//GEN-LAST:event_jBtnReplaceAllActionPerformed
 

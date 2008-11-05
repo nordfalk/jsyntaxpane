@@ -119,7 +119,7 @@ public class Markers {
      */
     public static void markAll(JTextComponent pane, Pattern pattern, SimpleMarker marker) {
         SyntaxDocument sDoc = SyntaxActions.getSyntaxDocument(pane);
-        if(sDoc  == null) {
+        if(sDoc  == null || pattern == null) {
             return;
         }
         Matcher matcher = sDoc.getMatcher(pattern);

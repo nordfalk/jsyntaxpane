@@ -13,10 +13,13 @@
  */
 package jsyntaxpane.actions;
 
-import jsyntaxpane.*;
 import java.awt.Component;
 import java.awt.Frame;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Window;
+import javax.swing.JEditorPane;
+import jsyntaxpane.*;
 import java.awt.event.ActionEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,9 +76,8 @@ public class SyntaxActions {
                 target.setCaretPosition(target.getCaretPosition() - 1);
             }
         }
-    }
-;
-;
+    };
+    ;
 
     /**
      * Undo action
@@ -169,13 +171,12 @@ public class SyntaxActions {
     }
 
     /**
-     * Return the line of text at the document's current position
+     * Return the line of text at the TextComponent's current position
      * @param target
      * @return
      */
     public static String getLine(JTextComponent target) {
-        PlainDocument pDoc = (PlainDocument) target.getDocument();
-        return getLineAt(pDoc, target.getCaretPosition());
+        return getLineAt(target, target.getCaretPosition());
     }
 
     /**
@@ -185,17 +186,21 @@ public class SyntaxActions {
      * @param pos
      * @return
      */
-    public static String getLineAt(PlainDocument doc, int pos) {
+    public static String getLineAt(JTextComponent target, int pos) {
         String line = null;
-        int start = doc.getParagraphElement(pos).getStartOffset();
-        int end = doc.getParagraphElement(pos).getEndOffset();
-        try {
-            line = doc.getText(start, end - start);
-            if (line != null && line.endsWith("\n")) {
-                line = line.substring(0, line.length() - 1);
+        Document doc = target.getDocument();
+        if (doc instanceof PlainDocument) {
+            PlainDocument pDoc = (PlainDocument) doc;
+            int start = pDoc.getParagraphElement(pos).getStartOffset();
+            int end = pDoc.getParagraphElement(pos).getEndOffset();
+            try {
+                line = doc.getText(start, end - start);
+                if (line != null && line.endsWith("\n")) {
+                    line = line.substring(0, line.length() - 1);
+                }
+            } catch (BadLocationException ex) {
+                Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (BadLocationException ex) {
-            Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
         }
         return line;
     }
@@ -214,6 +219,7 @@ public class SyntaxActions {
         }
         return null;
     }
+
     /**
      * Returns the the Token at pos as a String
      * @param doc
@@ -252,6 +258,71 @@ public class SyntaxActions {
             return null;
         }
     }
+
+    /**
+     * Gets the Line Number at the give position of the editor component.
+     * The first line number is ZERO
+     * @param editor
+     * @param pos
+     * @return line number
+     * @throws javax.swing.text.BadLocationException
+     */
+    public static int getLineNumber(JTextComponent editor, int pos)
+            throws BadLocationException {
+        Rectangle r = editor.modelToView(pos);
+        int lineHeight = editor.getFontMetrics(editor.getFont()).getHeight();
+        int line = r.y / lineHeight;
+        return line;
+    }
+
+    /**
+     * Gets the column number at given position of editor.  The first column is
+     * ZERO
+     * @param editor
+     * @param pos
+     * @return
+     * @throws javax.swing.text.BadLocationException
+     */
+    public static int getColumnNumber(JTextComponent editor, int pos)
+            throws BadLocationException {
+        Rectangle r = editor.modelToView(pos);
+        int start = editor.viewToModel(new Point(0, r.y));
+        int column = pos - start;
+        return column;
+    }
+
+    /**
+     * Get the closest position within the document of the component that
+     * has given line and column.  
+     * @param editor
+     * @param line
+     * @param column
+     * @return
+     */
+    public static int getDocumentPosition(JTextComponent editor, int line,
+            int column) {
+        int lineHeight = editor.getFontMetrics(editor.getFont()).getHeight();
+        int charWidth = editor.getFontMetrics(editor.getFont()).charWidth('m');
+        int y = line * lineHeight;
+        int x = column * charWidth;
+        Point pt = new Point(x, y);
+        int pos = editor.viewToModel(pt);
+        return pos;
+    }
+
+    public static int getLineCount(JTextComponent pane) {
+        int count = 0;
+        try {
+            int p = pane.getDocument().getLength() - 1;
+            if (p > 0) {
+                count = getLineNumber(pane, p);
+            }
+        } catch (BadLocationException ex) {
+            Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return count;
+    }
+
     // This is used internally to avoid NPE if we have no Strings
     static String[] EMPTY_STRING_ARRAY = new String[0];
     // This is used to quickly create Strings of at most 16 spaces (using substring)
