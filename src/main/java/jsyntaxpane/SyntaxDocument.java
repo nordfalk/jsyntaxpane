@@ -493,5 +493,5 @@ public class SyntaxDocument extends PlainDocument {
     }
 
     // our logger instance...
-    private static Logger log = Logger.getLogger(SyntaxDocument.class.getName());
+    private static final Logger log = Logger.getLogger(SyntaxDocument.class.getName());
 }

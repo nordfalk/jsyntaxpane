@@ -11,8 +11,9 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  */
-package jsyntaxpane.actions;
+package jsyntaxpane.components;
 
+import jsyntaxpane.actions.*;
 import java.awt.Color;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -128,5 +129,5 @@ public class Markers {
         }
     }
     
-    private static Logger LOG = Logger.getLogger(Markers.class.getName());
+    private static final Logger LOG = Logger.getLogger(Markers.class.getName());
 }

@@ -11,35 +11,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jsyntaxpane.actions;
+package jsyntaxpane.components;
 
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
 import jsyntaxpane.actions.SyntaxActions;
+import jsyntaxpane.util.Configuration;
 
 /**
  * LineRuleis used to number the lines in the EdiorPane
  * @author Ayman Al-Sairafi
  */
-public class LineNumbersRule extends JComponent implements CaretListener {
+public class LineNumbersRuler extends JComponent
+        implements SyntaxComponent, CaretListener {
 
     private JEditorPane pane;
     private String format;
     public static final int R_MARIGIN = 5;
     public static final int L_MARIGIN = 5;
 
-    public LineNumbersRule(JEditorPane pane) {
+    public LineNumbersRuler() {
         super();
-        this.pane = pane;
-        this.pane.addCaretListener(this);
-        updateSize();
-        // This will throw a NPE if the Ediror is not inside a JScrollPane
-        JScrollPane sp = getScrollPane(pane);
-        sp.setRowHeaderView(this);
+//        setBorder(new EtchedBorder());
     }
 
     @Override
@@ -103,5 +99,23 @@ public class LineNumbersRule extends JComponent implements CaretListener {
     @Override
     public void caretUpdate(CaretEvent e) {
         updateSize();
+    }
+
+    public void config(Configuration config, String prefix) {
+    }
+
+    public void install(JEditorPane editor) {
+        this.pane = editor;
+        this.pane.addCaretListener(this);
+        updateSize();
+        // This will throw a NPE if the Ediror is not inside a JScrollPane
+        JScrollPane sp = getScrollPane(pane);
+        sp.setRowHeaderView(this);
+    }
+
+    public void deinstall(JEditorPane editor) {
+        JScrollPane sp = getScrollPane(editor);
+        editor.removeCaretListener(this);
+        sp.setRowHeaderView(null);
     }
 }

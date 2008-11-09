@@ -11,15 +11,17 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  */
-package jsyntaxpane.actions;
+package jsyntaxpane.components;
 
 import java.awt.Color;
+import jsyntaxpane.actions.*;
 import javax.swing.JEditorPane;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.JTextComponent;
 import jsyntaxpane.SyntaxDocument;
 import jsyntaxpane.Token;
+import jsyntaxpane.util.Configuration;
 
 /**
  * This class highlights any pairs of the given language.  Pairs are defined
@@ -27,18 +29,13 @@ import jsyntaxpane.Token;
  *
  * @author Ayman Al-Sairafi
  */
-public class PairsMarker implements CaretListener {
+public class PairsMarker implements CaretListener, SyntaxComponent {
 
     private JTextComponent pane;
     private Markers.SimpleMarker marker;
 
-
-
-    public PairsMarker(JEditorPane pane, Color markerColor) {
-        this.pane = pane;
-        this.marker = new Markers.SimpleMarker(markerColor);
+    public PairsMarker() {
     }
-
 
     @Override
     public void caretUpdate(CaretEvent e) {
@@ -63,9 +60,19 @@ public class PairsMarker implements CaretListener {
         Markers.removeMarkers(pane, marker);
     }
 
-    @Override
-    protected void finalize() throws Throwable {
+    public void config(Configuration config, String prefix) {
+        Color markerColor = new Color(config.getPrefixInteger(prefix,
+                "PairMarker.Color", 0xeeee33));
+        this.marker = new Markers.SimpleMarker(markerColor);
+    }
+
+    public void install(JEditorPane editor) {
+        pane = editor;
+        pane.addCaretListener(this);
+    }
+
+    public void deinstall(JEditorPane editor) {
+        pane.removeCaretListener(this);
         removeMarkers();
-        super.finalize();
     }
 }

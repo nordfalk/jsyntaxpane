@@ -25,14 +25,33 @@ import javax.swing.text.Element;
 import javax.swing.text.PlainView;
 import javax.swing.text.Segment;
 import javax.swing.text.ViewFactory;
+import jsyntaxpane.util.Configuration;
 
 public class SyntaxView extends PlainView {
 
     private static final Logger log = Logger.getLogger(SyntaxView.class.getName());
-    private SyntaxStyle DEFAULT_STYLE = SyntaxStyles.getInstance().getStyle(TokenType.DEFAULT);;
+    private SyntaxStyle DEFAULT_STYLE = SyntaxStyles.getInstance().getStyle(TokenType.DEFAULT);
+    private final boolean singleColorSelect;
+    private final int rightMariginPosition;
+    private final Color rightMariginColor;
 
-    public SyntaxView(Element element) {
+    /**
+     * Construct a new view using the given configuration and prefix given
+     * 
+     * @param element
+     * @param config
+     * @param prefix
+     */
+    public SyntaxView(Element element, Configuration config, String prefix) {
         super(element);
+        singleColorSelect = config.getPrefixBoolean(prefix,
+                "SingleColorSelect", false);
+        rightMariginColor = new Color(config.getPrefixInteger(prefix,
+                "RightMariginColor",
+                0xFF7777));
+        rightMariginPosition = config.getPrefixInteger(prefix,
+                "RightMariginColumn",
+                0);
     }
 
     @Override
@@ -42,6 +61,14 @@ public class SyntaxView extends PlainView {
         Color saveColor = graphics.getColor();
         SyntaxDocument doc = (SyntaxDocument) getDocument();
         Segment segment = getLineBuffer();
+        // Draw the right marigin first, if needed.  This way the text overalys
+        // the marigin
+        if (rightMariginPosition > 0) {
+            int m_x = rightMariginPosition * graphics.getFontMetrics().charWidth('m');
+            int h = graphics.getFontMetrics().getHeight();
+            graphics.setColor(rightMariginColor);
+            graphics.drawLine(m_x, y, m_x, y - h);
+        }
         try {
             // Colour the parts
             Iterator<Token> i = doc.getTokens(p0, p1);
@@ -90,8 +117,19 @@ public class SyntaxView extends PlainView {
     }
 
     @Override
-    protected int drawSelectedText(Graphics g, int x, int y, int p0, int p1) throws BadLocationException {
-        return drawUnselectedText(g, x, y, p0, p1);
+    protected int drawSelectedText(Graphics graphics, int x, int y, int p0, int p1)
+            throws BadLocationException {
+        if (singleColorSelect) {
+            if (rightMariginPosition > 0) {
+                int m_x = rightMariginPosition * graphics.getFontMetrics().charWidth('m');
+                int h = graphics.getFontMetrics().getHeight();
+                graphics.setColor(rightMariginColor);
+                graphics.drawLine(m_x, y, m_x, y - h);
+            }
+            return super.drawUnselectedText(graphics, x, y, p0, p1);
+        } else {
+            return drawUnselectedText(graphics, x, y, p0, p1);
+        }
     }
 
     @Override

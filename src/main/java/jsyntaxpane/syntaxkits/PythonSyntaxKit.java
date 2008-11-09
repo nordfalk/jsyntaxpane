@@ -13,32 +13,25 @@
  */
 package jsyntaxpane.syntaxkits;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import javax.swing.JEditorPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
 import jsyntaxpane.DefaultSyntaxKit;
 import jsyntaxpane.Lexer;
-import jsyntaxpane.components.LineNumbersRuler;
-import jsyntaxpane.TokenType;
 import jsyntaxpane.actions.FindReplaceActions;
 import jsyntaxpane.actions.MapCompletion;
-import jsyntaxpane.components.PairsMarker;
 import jsyntaxpane.actions.SyntaxActions;
-import jsyntaxpane.components.TokenMarker;
-import jsyntaxpane.lexers.JavaLexer;
+import jsyntaxpane.lexers.PythonLexer;
 import jsyntaxpane.util.JarServiceProvider;
 
 /**
  *
  * @author Ayman Al-Sairafi
  */
-public class JavaSyntaxKit extends DefaultSyntaxKit {
+public class PythonSyntaxKit extends DefaultSyntaxKit {
 
-    public JavaSyntaxKit() {
-        super(new JavaLexer());
+    public PythonSyntaxKit() {
+        super(new PythonLexer());
     }
 
     /**
@@ -46,7 +39,7 @@ public class JavaSyntaxKit extends DefaultSyntaxKit {
      * only subclasses may extend this with a new lexer.
      * @param lexer
      */
-    JavaSyntaxKit(Lexer lexer) {
+    PythonSyntaxKit(Lexer lexer) {
         super(lexer);
     }
 

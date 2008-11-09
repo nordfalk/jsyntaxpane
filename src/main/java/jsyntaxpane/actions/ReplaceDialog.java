@@ -13,6 +13,7 @@
  */
 package jsyntaxpane.actions;
 
+import jsyntaxpane.components.Markers;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.HeadlessException;

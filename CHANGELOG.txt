@@ -4,6 +4,11 @@ Version 0.9.3 - Start of scripts for the document:
     * Added Line Numbering to Java
     * Added CaretMonitor Class
     * Merged Find And Replace dialogs into one.
+    * Created SyntaxComponent interface and have all UI components implement
+      that interface.  DefaultSyntaxKit will use config.properties class to
+      dynamically install these components.
+    * Added Right Marigin option and Single Color Selection Options
+    * Added Python, C and C++ SyntaxKits
 Version 0.9.2:
     * Fixing Java Indentation and Un-Indentattion Actions
     * Added and used (in the Tester) clearUndoes on the SyntaxDocument

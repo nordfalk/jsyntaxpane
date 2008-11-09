@@ -13,15 +13,16 @@
  */
 package jsyntaxpane;
 
-import java.awt.Container;
-import javax.swing.JScrollPane;
+import java.util.logging.Level;
 import jsyntaxpane.actions.SyntaxActions;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -34,6 +35,8 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
+import jsyntaxpane.components.SyntaxComponent;
+import jsyntaxpane.util.Configuration;
 import jsyntaxpane.util.JarServiceProvider;
 
 /**
@@ -49,7 +52,12 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
     public static Font DEFAULT_FONT;
     private static Set<String> CONTENTS = new HashSet<String>();
     private Lexer lexer;
-    private static Logger LOG = Logger.getLogger(DefaultSyntaxKit.class.getName());
+    private static final Logger LOG = Logger.getLogger(DefaultSyntaxKit.class.getName());
+    private List<SyntaxComponent> editorComponents = new ArrayList<SyntaxComponent>();
+    /**
+     * Main Configuration of JSyntaxPane
+     */
+    private static Configuration CONFIG;
 
 
     static {
@@ -71,7 +79,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 
     @Override
     public View create(Element element) {
-        return new SyntaxView(element);
+        return new SyntaxView(element, CONFIG, this.getClass().getSimpleName());
     }
 
     /**
@@ -89,6 +97,33 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
         Keymap km_new = JTextComponent.addKeymap(null, km_parent);
         addKeyActions(km_new);
         editorPane.setKeymap(km_new);
+        // install the components to the editor:
+        String[] components = CONFIG.getPrefixPropertyList(this.getClass().getSimpleName(),
+                "components");
+        if (components != null && components.length > 0) {
+            for (String c : components) {
+                try {
+                    Class<SyntaxComponent> compClass = (Class<SyntaxComponent>) Class.forName(c);
+                    SyntaxComponent comp = compClass.newInstance();
+                    comp.config(CONFIG, this.getClass().getSimpleName());
+                    comp.install(editorPane);
+                    editorComponents.add(comp);
+                } catch (InstantiationException ex) {
+                    LOG.log(Level.SEVERE, null, ex);
+                } catch (IllegalAccessException ex) {
+                    LOG.log(Level.SEVERE, null, ex);
+                } catch (ClassNotFoundException ex) {
+                    LOG.log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void deinstall(JEditorPane editorPane) {
+        for (SyntaxComponent c : editorComponents) {
+            c.deinstall(editorPane);
+        }
     }
 
     /**
@@ -151,6 +186,8 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
             String classname = kitsForTypes.getProperty(type);
             registerContentType(type, classname);
         }
+
+        CONFIG = new Configuration(JarServiceProvider.readProperties("jsyntaxpane.config"));
     }
 
     /**
@@ -175,5 +212,22 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
         String[] types = CONTENTS.toArray(new String[0]);
         Arrays.sort(types);
         return types;
+    }
+
+    /**
+     * returns the current config
+     * @return
+     */
+    public static Configuration getConfig() {
+        return CONFIG;
+    }
+
+    /**
+     * Merges the given properties with the defaults, which are read from the
+     * Jar file
+     * @param config
+     */
+    public static void setConfig(Properties config) {
+        DefaultSyntaxKit.CONFIG.putAll(config);
     }
 }

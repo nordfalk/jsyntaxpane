@@ -13,11 +13,7 @@
  */
 package jsyntaxpane.syntaxkits;
 
-import java.awt.Color;
-import javax.swing.JEditorPane;
 import jsyntaxpane.DefaultSyntaxKit;
-import jsyntaxpane.actions.Markers;
-import jsyntaxpane.actions.PairsMarker;
 import jsyntaxpane.lexers.XmlLexer;
 
 /**
@@ -30,18 +26,4 @@ public class XmlSyntaxKit extends DefaultSyntaxKit {
         super(new XmlLexer());
     }
 
-    @Override
-    public void install(JEditorPane editorPane) {
-        super.install(editorPane);
-        pairMarker = new PairsMarker(editorPane, new Color(0xffffcc));
-        editorPane.addCaretListener(pairMarker);
-    }
-    
-    @Override
-    public void deinstall(JEditorPane editorPane) {
-        super.deinstall(editorPane);
-        editorPane.removeCaretListener(pairMarker);
-    }
-    
-    private PairsMarker pairMarker;
 }
