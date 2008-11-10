@@ -14,6 +14,7 @@
 package jsyntaxpane.components;
 
 import java.awt.*;
+import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
@@ -106,6 +107,8 @@ public class LineNumbersRuler extends JComponent
         this.pane = editor;
         JScrollPane sp = getScrollPane(pane);
         if (sp != null) {
+            Logger.getLogger(this.getClass().getName()).warning(
+                    "JEditorPane is not enclosed in JScrollPane, no LineNumbers will be displayed");
             sp.setRowHeaderView(this);
             this.pane.addCaretListener(this);
             updateSize();
