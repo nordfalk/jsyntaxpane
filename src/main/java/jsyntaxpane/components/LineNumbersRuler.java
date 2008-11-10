@@ -44,7 +44,6 @@ public class LineNumbersRuler extends JComponent
         Rectangle clip = g.getClipBounds();
         int lh = getLineHeight();
         int end = clip.y + clip.height + lh;
-        long t = System.nanoTime();
         int lineNum = clip.y / lh + 1;
         // round the start to a multiple of lh, and shift by 2 pixels to align
         // properly to the text.
@@ -53,7 +52,6 @@ public class LineNumbersRuler extends JComponent
             lineNum++;
             g.drawString(text, L_MARIGIN, y);
         }
-        t = System.nanoTime() - t;
     }
 
     /**
@@ -106,16 +104,19 @@ public class LineNumbersRuler extends JComponent
 
     public void install(JEditorPane editor) {
         this.pane = editor;
-        this.pane.addCaretListener(this);
-        updateSize();
-        // This will throw a NPE if the Ediror is not inside a JScrollPane
         JScrollPane sp = getScrollPane(pane);
-        sp.setRowHeaderView(this);
+        if (sp != null) {
+            sp.setRowHeaderView(this);
+            this.pane.addCaretListener(this);
+            updateSize();
+        }
     }
 
     public void deinstall(JEditorPane editor) {
         JScrollPane sp = getScrollPane(editor);
-        editor.removeCaretListener(this);
-        sp.setRowHeaderView(null);
+        if (sp != null) {
+            editor.removeCaretListener(this);
+            sp.setRowHeaderView(null);
+        }
     }
 }
