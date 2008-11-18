@@ -10,7 +10,9 @@ Version 0.9.3 - Start of scripts for the document:
     * Added Right Marigin option and Single Color Selection Options
     * Added Python, C and C++ Support
     * Added Ruby Syntax Support
-     * Fixed Issue 37 (NPE for LineNumbersRuler)
+    * Fixed Issue 37 (NPE for LineNumbersRuler)
+    * Fixed Issue 39 (Highlighting Tokens overrides selection highlights)
+    * Fixed some JavaDoc comments.
 Version 0.9.2:
     * Fixing Java Indentation and Un-Indentattion Actions
     * Added and used (in the Tester) clearUndoes on the SyntaxDocument

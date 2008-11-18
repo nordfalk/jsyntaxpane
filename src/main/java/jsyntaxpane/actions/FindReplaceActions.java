@@ -109,8 +109,6 @@ public class FindReplaceActions {
 
     /**
      * Display an OptionPane dialog that the search string is not found
-     * @param pattern Pattern being searched for
-     * @param target the target text area, parent of the OptionPane
      */
     public void msgNotFound() {
         JOptionPane.showMessageDialog(null,

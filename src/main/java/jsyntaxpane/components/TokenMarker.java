@@ -37,7 +37,6 @@ public class TokenMarker implements SyntaxComponent, CaretListener {
 
     public static final String DEFAULT_TOKENTYPES = "IDENTIFIER, TYPE, TYPE2, TYPE3";
     private static final int DEFAULT_COLOR = 16772710;
-    
     private JEditorPane pane;
     private Set<TokenType> tokenTypes = new HashSet<TokenType>();
     private Markers.SimpleMarker marker;
@@ -53,8 +52,8 @@ public class TokenMarker implements SyntaxComponent, CaretListener {
         int pos = e.getDot();
         SyntaxDocument doc = SyntaxActions.getSyntaxDocument(pane);
         Token token = doc.getTokenAt(pos);
+        removeMarkers();
         if (token != null && tokenTypes.contains(token.type)) {
-            removeMarkers();
             addMarkers(token);
         }
     }
@@ -97,7 +96,7 @@ public class TokenMarker implements SyntaxComponent, CaretListener {
                 TokenType tt = TokenType.valueOf(type);
                 tokenTypes.add(tt);
             } catch (IllegalArgumentException e) {
-                LOG.warning("Error in setting up TokenMarker for " + prefix + 
+                LOG.warning("Error in setting up TokenMarker for " + prefix +
                         " - Invalid TokenType: " + type);
             }
         }
@@ -114,6 +113,5 @@ public class TokenMarker implements SyntaxComponent, CaretListener {
         removeMarkers();
         pane.removeCaretListener(this);
     }
-
     private static final Logger LOG = Logger.getLogger(TokenMarker.class.getName());
 }

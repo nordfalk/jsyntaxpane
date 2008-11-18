@@ -51,6 +51,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 
     public static Font DEFAULT_FONT;
     private static Set<String> CONTENTS = new HashSet<String>();
+    private static boolean initialized = false;
     private Lexer lexer;
     private static final Logger LOG = Logger.getLogger(DefaultSyntaxKit.class.getName());
     private List<SyntaxComponent> editorComponents = new ArrayList<SyntaxComponent>();
@@ -188,6 +189,8 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
         }
 
         CONFIG = new Configuration(JarServiceProvider.readProperties("jsyntaxpane.config"));
+
+        initialized = true;
     }
 
     /**
@@ -219,6 +222,9 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
      * @return
      */
     public static Configuration getConfig() {
+        if(!initialized) {
+            initKit();
+        }
         return CONFIG;
     }
 
@@ -229,5 +235,32 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
      */
     public static void setConfig(Properties config) {
         DefaultSyntaxKit.CONFIG.putAll(config);
+    }
+
+    /**
+     * Sets the given property to the given value.  If the kit is not
+     * initialized,  then calls initKit
+     * @param key
+     * @param value
+     */
+    public static void setProperty(String key, String value) {
+        if(!initialized) {
+            initKit();
+        }
+        CONFIG.put(key, value);
+    }
+
+    /**
+     * Return the property with the given key.  If the kit is not
+     * initialized,  then calls initKit
+     * Be careful when changing property as the default property may be used 
+     * @param key
+     * @return value for given key
+     */
+    public static String getProperty(String key) {
+        if(!initialized) {
+            initKit();
+        }
+        return CONFIG.getProperty(key);
     }
 }

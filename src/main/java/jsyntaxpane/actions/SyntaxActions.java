@@ -18,8 +18,6 @@ import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
-import javax.swing.JEditorPane;
-import jsyntaxpane.*;
 import java.awt.event.ActionEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +27,8 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.TextAction;
+import jsyntaxpane.SyntaxDocument;
+import jsyntaxpane.Token;
 
 /**
  * Keyboard Actions for various Syntax files.
@@ -123,8 +123,7 @@ public class SyntaxActions {
      * Perform Smart Indentation:  pos must be on a line: this method will
      * use the previous lines indentation (number of spaces before any non-space
      * character or end of line) and return that as the prefix
-     * @param target
-     * @param pos
+     * @param line the line of text
      */
     public static String getIndent(String line) {
         if (line == null || line.length() == 0) {
@@ -182,8 +181,8 @@ public class SyntaxActions {
     /**
      * Return the line of text at the given position.  The returned value may
      * be null.  It will not contain the trailing new-line character.
-     * @param doc
-     * @param pos
+     * @param target the text component
+     * @param pos char position
      * @return
      */
     public static String getLineAt(JTextComponent target, int pos) {
@@ -280,7 +279,7 @@ public class SyntaxActions {
      * ZERO
      * @param editor
      * @param pos
-     * @return
+     * @return the 0 based column number
      * @throws javax.swing.text.BadLocationException
      */
     public static int getColumnNumber(JTextComponent editor, int pos)
@@ -297,7 +296,8 @@ public class SyntaxActions {
      * @param editor
      * @param line
      * @param column
-     * @return
+     * @return the closest positon for the text component at given line and
+     * column
      */
     public static int getDocumentPosition(JTextComponent editor, int line,
             int column) {

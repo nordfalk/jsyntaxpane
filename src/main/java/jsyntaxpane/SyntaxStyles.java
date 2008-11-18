@@ -39,7 +39,6 @@ public class SyntaxStyles {
      * the existing styles.  Any existing styles will be overwritten by the
      * styles you provide.
      * @param styles
-     * @param s
      */
     public void mergeStyles(Properties styles) {
         for (String token : styles.stringPropertyNames()) {

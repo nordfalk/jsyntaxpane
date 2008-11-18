@@ -36,7 +36,6 @@ public class LineNumbersRuler extends JComponent
 
     public LineNumbersRuler() {
         super();
-//        setBorder(new EtchedBorder());
     }
 
     @Override
@@ -106,9 +105,11 @@ public class LineNumbersRuler extends JComponent
     public void install(JEditorPane editor) {
         this.pane = editor;
         JScrollPane sp = getScrollPane(pane);
-        if (sp != null) {
+        if (sp == null) {
             Logger.getLogger(this.getClass().getName()).warning(
-                    "JEditorPane is not enclosed in JScrollPane, no LineNumbers will be displayed");
+                    "JEditorPane is not enclosed in JScrollPane, " +
+                    "no LineNumbers will be displayed");
+        } else {
             sp.setRowHeaderView(this);
             this.pane.addCaretListener(this);
             updateSize();

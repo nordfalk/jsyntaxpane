@@ -27,7 +27,7 @@ public interface SyntaxComponent {
     /**
      * Configure the component using the given properties.  The keys
      * needed for configuration will be prefixed by the given prefix
-     * @param props config data
+     * @param config configuration data
      * @param prefix prefix for keys
      */
     public void config(Configuration config, String prefix);

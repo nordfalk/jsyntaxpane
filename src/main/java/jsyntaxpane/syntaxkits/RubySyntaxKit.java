@@ -13,16 +13,13 @@
  */
 package jsyntaxpane.syntaxkits;
 
-import java.util.Map;
 import javax.swing.KeyStroke;
 import javax.swing.text.Keymap;
 import jsyntaxpane.DefaultSyntaxKit;
 import jsyntaxpane.Lexer;
 import jsyntaxpane.actions.FindReplaceActions;
-import jsyntaxpane.actions.MapCompletion;
 import jsyntaxpane.actions.SyntaxActions;
 import jsyntaxpane.lexers.RubyLexer;
-import jsyntaxpane.util.JarServiceProvider;
 
 /**
  *

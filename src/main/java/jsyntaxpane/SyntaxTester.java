@@ -28,6 +28,7 @@ public class SyntaxTester extends javax.swing.JFrame {
     public SyntaxTester() {
         initComponents();
         DefaultSyntaxKit.initKit();
+//        DefaultSyntaxKit.setProperty("JavaSyntaxKit.components", "jsyntaxpane.components.LineNumbersRuler");
         jCmbLangs.setModel(new DefaultComboBoxModel(DefaultSyntaxKit.getContentTypes()));
         // jEdtTest.setContentType(jCmbLangs.getItemAt(0).toString());
         jCmbLangs.setSelectedItem("text/java");
