@@ -31,6 +31,7 @@ public class LineNumbersRuler extends JComponent
 
     private JEditorPane pane;
     private String format;
+    private int lineCount = -1;
     public static final int R_MARIGIN = 5;
     public static final int L_MARIGIN = 5;
 
@@ -42,6 +43,9 @@ public class LineNumbersRuler extends JComponent
     protected void paintComponent(Graphics g) {
         g.setFont(pane.getFont());
         Rectangle clip = g.getClipBounds();
+        g.setColor(getBackground());
+        g.fillRect(clip.x, clip.y, clip.width, clip.height);
+        g.setColor(getForeground());
         int lh = getLineHeight();
         int end = clip.y + clip.height + lh;
         int lineNum = clip.y / lh + 1;
@@ -49,8 +53,11 @@ public class LineNumbersRuler extends JComponent
         // properly to the text.
         for (int y = (clip.y / lh) * lh + lh - 2; y <= end; y += lh) {
             String text = String.format(format, lineNum);
-            lineNum++;
             g.drawString(text, L_MARIGIN, y);
+            lineNum++;
+            if(lineNum > lineCount) {
+                break;
+            }
         }
     }
 
@@ -58,15 +65,20 @@ public class LineNumbersRuler extends JComponent
      * Upddate the size of the line numbers based on the length of the document
      */
     private void updateSize() {
-        int lineCount = SyntaxActions.getLineCount(pane);
+        int newLineCount = SyntaxActions.getLineCount(pane) + 1;
+        if(newLineCount == lineCount) {
+            return;
+        }
+        lineCount = newLineCount;
         int h = lineCount * getLineHeight() + pane.getHeight();
-        int d = (int) Math.log10(lineCount) + 2;
-        if (d < 0) {
-            d = 2;
+        int d = (int) Math.log10(lineCount) + 1;
+        if (d < 1) {
+            d = 1;
         }
         int w = d * getCharWidth() + R_MARIGIN + L_MARIGIN;
         format = "%" + d + "d";
         setPreferredSize(new Dimension(w, h));
+        getParent().doLayout();
     }
 
     private int getLineHeight() {

@@ -26,9 +26,8 @@ public class SyntaxTester extends javax.swing.JFrame {
 
     /** Creates new form Tester */
     public SyntaxTester() {
-        initComponents();
         DefaultSyntaxKit.initKit();
-//        DefaultSyntaxKit.setProperty("JavaSyntaxKit.components", "jsyntaxpane.components.LineNumbersRuler");
+        initComponents();
         jCmbLangs.setModel(new DefaultComboBoxModel(DefaultSyntaxKit.getContentTypes()));
         // jEdtTest.setContentType(jCmbLangs.getItemAt(0).toString());
         jCmbLangs.setSelectedItem("text/java");
@@ -58,7 +57,7 @@ public class SyntaxTester extends javax.swing.JFrame {
 
         lblCaretPos.setText("Caret Position");
 
-        jEdtTest.setContentType("text/java");
+        jEdtTest.setContentType("");
         jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
         jEdtTest.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
