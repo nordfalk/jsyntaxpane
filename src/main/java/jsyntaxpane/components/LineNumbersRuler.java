@@ -32,11 +32,13 @@ public class LineNumbersRuler extends JComponent
     private JEditorPane pane;
     private String format;
     private int lineCount = -1;
-    public static final int R_MARIGIN = 5;
-    public static final int L_MARIGIN = 5;
+    public static final int R_MARGIN = 5;
+    public static final int L_MARGIN = 5;
 
     public LineNumbersRuler() {
         super();
+        // FIXME: add settings for foreground, and background colors, and
+        // border style
     }
 
     @Override
@@ -53,7 +55,7 @@ public class LineNumbersRuler extends JComponent
         // properly to the text.
         for (int y = (clip.y / lh) * lh + lh - 2; y <= end; y += lh) {
             String text = String.format(format, lineNum);
-            g.drawString(text, L_MARIGIN, y);
+            g.drawString(text, L_MARGIN, y);
             lineNum++;
             if(lineNum > lineCount) {
                 break;
@@ -75,7 +77,7 @@ public class LineNumbersRuler extends JComponent
         if (d < 1) {
             d = 1;
         }
-        int w = d * getCharWidth() + R_MARIGIN + L_MARIGIN;
+        int w = d * getCharWidth() + R_MARGIN + L_MARGIN;
         format = "%" + d + "d";
         setPreferredSize(new Dimension(w, h));
         getParent().doLayout();

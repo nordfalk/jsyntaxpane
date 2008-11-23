@@ -32,8 +32,8 @@ public class SyntaxView extends PlainView {
     private static final Logger log = Logger.getLogger(SyntaxView.class.getName());
     private SyntaxStyle DEFAULT_STYLE = SyntaxStyles.getInstance().getStyle(TokenType.DEFAULT);
     private final boolean singleColorSelect;
-    private final int rightMariginPosition;
-    private final Color rightMariginColor;
+    private final int rightMarginPosition;
+    private final Color rightMarginColor;
 
     /**
      * Construct a new view using the given configuration and prefix given
@@ -46,11 +46,11 @@ public class SyntaxView extends PlainView {
         super(element);
         singleColorSelect = config.getPrefixBoolean(prefix,
                 "SingleColorSelect", false);
-        rightMariginColor = new Color(config.getPrefixInteger(prefix,
-                "RightMariginColor",
+        rightMarginColor = new Color(config.getPrefixInteger(prefix,
+                "RightMarginColor",
                 0xFF7777));
-        rightMariginPosition = config.getPrefixInteger(prefix,
-                "RightMariginColumn",
+        rightMarginPosition = config.getPrefixInteger(prefix,
+                "RightMarginColumn",
                 0);
     }
 
@@ -61,12 +61,12 @@ public class SyntaxView extends PlainView {
         Color saveColor = graphics.getColor();
         SyntaxDocument doc = (SyntaxDocument) getDocument();
         Segment segment = getLineBuffer();
-        // Draw the right marigin first, if needed.  This way the text overalys
-        // the marigin
-        if (rightMariginPosition > 0) {
-            int m_x = rightMariginPosition * graphics.getFontMetrics().charWidth('m');
+        // Draw the right margin first, if needed.  This way the text overalys
+        // the margin
+        if (rightMarginPosition > 0) {
+            int m_x = rightMarginPosition * graphics.getFontMetrics().charWidth('m');
             int h = graphics.getFontMetrics().getHeight();
-            graphics.setColor(rightMariginColor);
+            graphics.setColor(rightMarginColor);
             graphics.drawLine(m_x, y, m_x, y - h);
         }
         try {
@@ -120,10 +120,10 @@ public class SyntaxView extends PlainView {
     protected int drawSelectedText(Graphics graphics, int x, int y, int p0, int p1)
             throws BadLocationException {
         if (singleColorSelect) {
-            if (rightMariginPosition > 0) {
-                int m_x = rightMariginPosition * graphics.getFontMetrics().charWidth('m');
+            if (rightMarginPosition > 0) {
+                int m_x = rightMarginPosition * graphics.getFontMetrics().charWidth('m');
                 int h = graphics.getFontMetrics().getHeight();
-                graphics.setColor(rightMariginColor);
+                graphics.setColor(rightMarginColor);
                 graphics.drawLine(m_x, y, m_x, y - h);
             }
             return super.drawUnselectedText(graphics, x, y, p0, p1);
