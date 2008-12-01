@@ -16,8 +16,12 @@ package jsyntaxpane;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
@@ -34,6 +38,7 @@ public class SyntaxView extends PlainView {
     private final boolean singleColorSelect;
     private final int rightMarginPosition;
     private final Color rightMarginColor;
+    private final Object textAAHint;
 
     /**
      * Construct a new view using the given configuration and prefix given
@@ -52,11 +57,18 @@ public class SyntaxView extends PlainView {
         rightMarginPosition = config.getPrefixInteger(prefix,
                 "RightMarginColumn",
                 0);
+        String textaa = config.getPrefixProperty(prefix, 
+                "View.TextAA",
+                "DEFAULT");
+        textAAHint = TEXT_AA_HINT_NAMES.get(textaa);
     }
 
     @Override
     protected int drawUnselectedText(Graphics graphics, int x, int y, int p0,
             int p1) {
+        Graphics2D graphics2D = (Graphics2D) graphics;
+        graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                           textAAHint);
         Font saveFont = graphics.getFont();
         Color saveColor = graphics.getColor();
         SyntaxDocument doc = (SyntaxDocument) getDocument();
@@ -139,5 +151,22 @@ public class SyntaxView extends PlainView {
         super.updateDamage(changes, a, f);
         java.awt.Component host = getContainer();
         host.repaint();
+    }
+
+    /**
+     * The values for the string key for Text Anti-Aliasing
+     */
+    private static Map<String, Object> TEXT_AA_HINT_NAMES =
+            new HashMap<String, Object>();
+
+    static {
+        TEXT_AA_HINT_NAMES.put("DEFAULT", RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT);
+        TEXT_AA_HINT_NAMES.put("GASP", RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+        TEXT_AA_HINT_NAMES.put("HBGR", RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR);
+        TEXT_AA_HINT_NAMES.put("HRGB", RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+        TEXT_AA_HINT_NAMES.put("VBGR", RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR);
+        TEXT_AA_HINT_NAMES.put("VRGB", RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR);
+        TEXT_AA_HINT_NAMES.put("OFF", RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+        TEXT_AA_HINT_NAMES.put("ON", RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
     }
 }

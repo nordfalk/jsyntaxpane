@@ -50,7 +50,7 @@ public class TokenMarker implements SyntaxComponent, CaretListener {
     @Override
     public void caretUpdate(CaretEvent e) {
         int pos = e.getDot();
-        SyntaxDocument doc = SyntaxActions.getSyntaxDocument(pane);
+        SyntaxDocument doc = ActionUtils.getSyntaxDocument(pane);
         Token token = doc.getTokenAt(pos);
         removeMarkers();
         if (token != null && tokenTypes.contains(token.type)) {

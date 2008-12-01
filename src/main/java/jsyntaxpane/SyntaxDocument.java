@@ -492,6 +492,53 @@ public class SyntaxDocument extends PlainDocument {
         return end - e.getStartOffset();
     }
 
+    /**
+     * Gets the text without the comments. For example for the string
+     * <code>{ // it's a comment</code> this method will return "{ ".
+     * @param aStart start of the text.
+     * @param anEnd end of the text.
+     * @param aDocument document which holds the line.
+     * @return String for the line without comments (if exists).
+     */
+    public synchronized String getUncommentedText(int aStart, int anEnd) {
+        readLock();
+        StringBuilder result = new StringBuilder();
+        Iterator<Token> iter = getTokens(aStart, anEnd);
+        while (iter.hasNext()) {
+            Token t = iter.next();
+            if (TokenType.COMMENT != t.type && TokenType.COMMENT2 != t.type) {
+                result.append(t.getText(this));
+            }
+        }
+        readUnlock();
+        return result.toString();
+    }
+
+    /**
+     * Returns the starting position of the line at pos
+     * @param pos
+     * @return starting position of the line
+     */
+    public int getLineStartOffset(int pos) {
+        return getParagraphElement(pos).getStartOffset();
+    }
+
+    /**
+     * Returns the end position of the line at pos.
+     * Does a bounds check to ensure the returned value does not exceed
+     * document length
+     * @param pos
+     * @return
+     */
+    public int getLineEndOffset(int pos) {
+        int end = 0;
+        end = getParagraphElement(pos).getEndOffset();
+        if(end >= getLength()) {
+            end = getLength();
+        }
+        return end;
+    }
+    
     // our logger instance...
     private static final Logger log = Logger.getLogger(SyntaxDocument.class.getName());
 }

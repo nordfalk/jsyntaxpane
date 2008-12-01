@@ -13,6 +13,7 @@
  */
 package jsyntaxpane.util;
 
+import java.awt.Color;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +30,10 @@ public class Configuration extends Properties {
 
     public Configuration(Properties defaults) {
         super(defaults);
+    }
+
+    private Configuration() {
+        super();
     }
 
     /**
@@ -91,7 +96,7 @@ public class Configuration extends Properties {
     }
 
     /**
-     * Returns a boolean from the config
+     * Returns a boolean from the configuration
      * @param prefix
      * @param key
      * @param Default
@@ -104,10 +109,53 @@ public class Configuration extends Properties {
         }
         return Boolean.parseBoolean(b.trim());
     }
-    
-    
-    private static String[] EMPTY_LIST = new String[0];
-    private static Pattern COMMA_SEPARATOR = Pattern.compile("\\s*,\\s*");
-    private static final Logger LOG = Logger.getLogger(Configuration.class.getName());
 
+    /**
+     * return the COlor that has the given key = prefix.key or key = key or
+     * default, in that order
+     * @param prefix
+     * @param key
+     * @param Default
+     * @return
+     */
+    public Color getPrefixColor(String prefix, String key, Color Default) {
+        String c = getPrefixProperty(prefix, key, null);
+        if (c == null) {
+            return Default;
+        }
+        try {
+            return Color.decode(c);
+        } catch (NumberFormatException e) {
+            return Default;
+        }
+    }
+
+    /**
+     * Return a sub configuration from this instance that has the keys equal to
+     * either prefix.keyPrefix or keyPrefix.  The entries of keyPrefix are
+     * added first, so they are the defaults if prefix is not found.
+     * 
+     * @param prefix
+     * @param keyPrefix
+     * @return
+     */
+    public Configuration subConfig(String prefix, String keyPrefix) {
+        Configuration sub = new Configuration();
+        addToSubConf(sub, keyPrefix);
+        addToSubConf(sub, prefix + "." + keyPrefix);
+        return sub;
+    }
+
+    private void addToSubConf(Configuration subConf, String prefix) {
+        int prefixLen = prefix.length();
+        for (String k : stringPropertyNames()) {
+            if (k.startsWith(prefix)) {
+                subConf.put(k.substring(prefixLen), getProperty(k));
+            }
+        }
+    }
+    
+    public static final String[] EMPTY_LIST = new String[0];
+    public static final Pattern COMMA_SEPARATOR = Pattern.compile("\\s*,\\s*");
+    private static final Logger LOG = Logger.getLogger(Configuration.class.getName());
 }

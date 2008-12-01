@@ -17,24 +17,25 @@ import java.awt.event.ActionEvent;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.TextAction;
+import jsyntaxpane.util.Configuration;
 
 /**
  * This is usually mapped to Shift-TAB to unindent the selection.  The
  * current line, or the selected lines are un-indented by the tabstop of the
  * document.
  */
-public class Unindent extends TextAction {
+public class UnindentAction extends TextAction implements SyntaxAction {
 
-    public Unindent() {
+    public UnindentAction() {
         super("UNINDENT");
     }
 
     public void actionPerformed(ActionEvent e) {
         JTextComponent target = getTextComponent(e);
         Integer tabStop = (Integer) target.getDocument().getProperty(PlainDocument.tabSizeAttribute);
-        String indent = SyntaxActions.SPACES.substring(0, tabStop);
+        String indent = ActionUtils.SPACES.substring(0, tabStop);
         if (target != null) {
-            String[] lines = SyntaxActions.getSelectedLines(target);
+            String[] lines = ActionUtils.getSelectedLines(target);
             int start = target.getSelectionStart();
             StringBuilder sb = new StringBuilder();
             for (String line : lines) {
@@ -50,5 +51,12 @@ public class Unindent extends TextAction {
             target.replaceSelection(sb.toString());
             target.select(start, start + sb.length());
         }
+    }
+
+    public void config(Configuration config, String prefix, String name) {
+    }
+
+    public TextAction getAction(String key) {
+        return this;
     }
 }

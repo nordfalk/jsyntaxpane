@@ -15,13 +15,10 @@ package jsyntaxpane.actions;
 
 import jsyntaxpane.components.Markers;
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.MutableComboBoxModel;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.JTextComponent;
@@ -40,13 +37,14 @@ public class ReplaceDialog extends javax.swing.JDialog implements CaretListener 
     private static Markers.SimpleMarker SEARCH_MARKER = new Markers.SimpleMarker(Color.YELLOW);
 
     /** Creates new form FindDialog */
-    public ReplaceDialog(Frame parent, JTextComponent text,
+    public ReplaceDialog(JTextComponent text,
             FindReplaceActions finderActions) {
-        super(parent, false);
+        super(ActionUtils.getFrameFor(text), false);
         initComponents();
         textComponent = text;
         finder = finderActions;
         textComponent.addCaretListener(this);
+        setLocationRelativeTo(text.getRootPane());
     }
 
     /**
@@ -83,33 +81,10 @@ public class ReplaceDialog extends javax.swing.JDialog implements CaretListener 
             Pattern pattern = Pattern.compile(regex, flag);
             finder.setWrap(jChkWrap.isSelected());
             finder.setPattern(pattern);
-            insertIntoCombo(jCmbFind, regex);
+            ActionUtils.insertIntoCombo(jCmbFind, regex);
         } else {
             finder.setPattern(null);
         }
-    }
-
-    /**
-     * Insert the given item into the combo box, and set it as first selected
-     * item.  If the item already exists, it is removed, so there are no
-     * duplicates.
-     * @param combo
-     * @param item
-     */
-    private void insertIntoCombo(JComboBox combo, Object item) {
-        MutableComboBoxModel model = (MutableComboBoxModel) combo.getModel();
-        if (model.getSize() == 0) {
-            model.insertElementAt(item, 0);
-            return;
-        }
-
-        Object o = model.getElementAt(0);
-        if (o.equals(item)) {
-            return;
-        }
-        model.removeElement(item);
-        model.insertElementAt(item, 0);
-        combo.setSelectedIndex(0);
     }
 
     /** 
@@ -135,6 +110,7 @@ public class ReplaceDialog extends javax.swing.JDialog implements CaretListener 
         jCmbFind = new javax.swing.JComboBox();
 
         setTitle("Find and Replace");
+        setName(""); // NOI18N
         setResizable(false);
 
         jLabel1.setText("Find");
@@ -256,7 +232,7 @@ public class ReplaceDialog extends javax.swing.JDialog implements CaretListener 
         try {
             updateFinder();
             String replacement = (String) jCmbReplace.getSelectedItem();
-            insertIntoCombo(jCmbFind, replacement);
+            ActionUtils.insertIntoCombo(jCmbFind, replacement);
             finder.replaceAll(textComponent, replacement);
             textComponent.requestFocusInWindow();
         } catch (PatternSyntaxException ex) {

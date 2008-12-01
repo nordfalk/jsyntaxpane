@@ -13,10 +13,7 @@
  */
 package jsyntaxpane.syntaxkits;
 
-import java.util.HashMap;
-import java.util.Map;
 import jsyntaxpane.lexers.GroovyLexer;
-import jsyntaxpane.util.JarServiceProvider;
 
 /**
  *
@@ -26,17 +23,5 @@ public class GroovySyntaxKit extends JavaSyntaxKit {
 
     public GroovySyntaxKit() {
         super(new GroovyLexer());
-    }
-
-    public static Map<String, String> GROOVY_COMPLETIONS;
-
-    public static Map<String, String> getCompletions() {
-        return GROOVY_COMPLETIONS;
-    }
-
-    static {
-        GROOVY_COMPLETIONS = new HashMap<String, String>();
-        GROOVY_COMPLETIONS.putAll(JavaSyntaxKit.getCompletions());
-        GROOVY_COMPLETIONS.putAll(JarServiceProvider.readStringsMap("jsyntaxpane.groovysyntaxkit.completions"));
     }
 }

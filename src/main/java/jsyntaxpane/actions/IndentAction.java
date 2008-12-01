@@ -17,13 +17,16 @@ import java.awt.event.ActionEvent;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
+import javax.swing.text.TextAction;
+import jsyntaxpane.util.Configuration;
 
 /**
  * IndentAction is used to replace Tabs with spaces.  If there is selected
  * text, then the lines spanning the selection will be shifted
  * right by one tab-width space  character
  */
-public class IndentAction extends DefaultEditorKit.InsertTabAction {
+public class IndentAction extends DefaultEditorKit.InsertTabAction 
+        implements SyntaxAction {
 
     public IndentAction() {
         super();
@@ -40,9 +43,9 @@ public class IndentAction extends DefaultEditorKit.InsertTabAction {
                 int lineStart = pDoc.getParagraphElement(target.getCaretPosition()).getStartOffset();
                 int column = target.getCaretPosition() - lineStart;
                 int needed = tabStop - (column % tabStop);
-                target.replaceSelection(SyntaxActions.SPACES.substring(0, needed));
+                target.replaceSelection(ActionUtils.SPACES.substring(0, needed));
             } else {
-                String[] lines = SyntaxActions.getSelectedLines(target);
+                String[] lines = ActionUtils.getSelectedLines(target);
                 int start = target.getSelectionStart();
                 StringBuilder sb = new StringBuilder();
                 for (String line : lines) {
@@ -54,5 +57,12 @@ public class IndentAction extends DefaultEditorKit.InsertTabAction {
                 target.select(start, start + sb.length());
             }
         }
+    }
+
+    public void config(Configuration config, String prefix, String name) {
+    }
+
+    public TextAction getAction(String key) {
+        return this;
     }
 }

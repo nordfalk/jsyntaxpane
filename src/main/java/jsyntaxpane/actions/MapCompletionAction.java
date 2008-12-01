@@ -19,17 +19,19 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
 import jsyntaxpane.SyntaxDocument;
 import jsyntaxpane.Token;
+import jsyntaxpane.util.Configuration;
+import jsyntaxpane.util.JarServiceProvider;
 
 /**
- * Completion Actions
+ * Completion Actions:
+ * All completions are based on a simple String to String Map.
  */
-public class MapCompletion extends TextAction {
+public class MapCompletionAction extends TextAction implements SyntaxAction {
 
     Map<String, String> completions;
 
-    public MapCompletion(Map<String, String> completions) {
+    public MapCompletionAction() {
         super("MAP_COMPLETION");
-        this.completions = completions;
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -39,7 +41,7 @@ public class MapCompletion extends TextAction {
             int dot = target.getCaretPosition();
             Token token = sDoc.getTokenAt(dot);
             if (token != null) {
-                String abbriv = SyntaxActions.getTokenStringAt(sDoc, dot);
+                String abbriv = ActionUtils.getTokenStringAt(sDoc, dot);
                 if (completions.containsKey(abbriv)) {
                     String completed = completions.get(abbriv);
                     if (completed.indexOf('|') >= 0) {
@@ -52,5 +54,24 @@ public class MapCompletion extends TextAction {
                 }
             }
         }
+    }
+
+    /**
+     * The completions will for now reside on another properties style file
+     * referenced by prefix.Completions.File
+     * 
+     * @param config
+     * @param prefix
+     */
+    public void config(Configuration config, String prefix, String name) {
+        // FIXME Add name use
+        String completionsFile = config.getPrefixProperty(prefix, "Completions.File", "NONE");
+        if(completionsFile != null) {
+            completions = JarServiceProvider.readStringsMap(completionsFile);
+        }
+    }
+
+    public TextAction getAction(String key) {
+        return this;
     }
 }

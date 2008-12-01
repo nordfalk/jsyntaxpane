@@ -21,6 +21,7 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.TextAction;
 import jsyntaxpane.SyntaxDocument;
+import jsyntaxpane.util.Configuration;
 
 /**
  * This action performs Java Indentation each time VK_ENTER is pressed
@@ -30,22 +31,22 @@ import jsyntaxpane.SyntaxDocument;
  * tab is inserted.
  * If the trimmed current line ends with '}', then the line is unindented
  */
-public class JavaIndent extends TextAction {
+public class JavaIndentAction extends TextAction implements SyntaxAction {
 
-    public JavaIndent() {
+    public JavaIndentAction() {
         super("JAVA_INDENT");
     }
 
     public void actionPerformed(ActionEvent e) {
         JTextComponent target = getTextComponent(e);
         if (target != null) {
-            String line = SyntaxActions.getLine(target);
-            String prefix = SyntaxActions.getIndent(line);
+            String line = ActionUtils.getLine(target);
+            String prefix = ActionUtils.getIndent(line);
             Integer tabSize = (Integer) target.getDocument().getProperty(PlainDocument.tabSizeAttribute);
             if (line.trim().endsWith("{")) {
-                prefix += SyntaxActions.SPACES.substring(0, tabSize);
+                prefix += ActionUtils.SPACES.substring(0, tabSize);
             }
-            SyntaxDocument sDoc = SyntaxActions.getSyntaxDocument(target);
+            SyntaxDocument sDoc = ActionUtils.getSyntaxDocument(target);
             if (sDoc != null && line.trim().equals("}")) {
                 int pos = target.getCaretPosition();
                 int start = sDoc.getParagraphElement(pos).getStartOffset();
@@ -53,11 +54,11 @@ public class JavaIndent extends TextAction {
                 if (end >= sDoc.getLength()) {
                     end--;
                 }
-                if (line.startsWith(SyntaxActions.SPACES.substring(0, tabSize))) {
+                if (line.startsWith(ActionUtils.SPACES.substring(0, tabSize))) {
                     try {
                         sDoc.replace(start, end - start, line.substring(tabSize) + "\n", null);
                     } catch (BadLocationException ex) {
-                        Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                        Logger.getLogger(ActionUtils.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
                     }
                 } else {
                     target.replaceSelection("\n" + prefix);
@@ -66,5 +67,12 @@ public class JavaIndent extends TextAction {
                 target.replaceSelection("\n" + prefix);
             }
         }
+    }
+
+    public void config(Configuration config, String prefix, String name) {
+    }
+
+    public TextAction getAction(String key) {
+        return this;
     }
 }

@@ -13,6 +13,7 @@
  */
 package jsyntaxpane;
 
+import java.awt.Font;
 import java.awt.event.ItemEvent;
 import java.awt.Rectangle;
 import java.util.logging.Level;
@@ -20,7 +21,7 @@ import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.BadLocationException;
 import jsyntaxpane.actions.CaretMonitor;
-import jsyntaxpane.actions.SyntaxActions;
+import jsyntaxpane.actions.ActionUtils;
 
 public class SyntaxTester extends javax.swing.JFrame {
 
@@ -32,6 +33,7 @@ public class SyntaxTester extends javax.swing.JFrame {
         // jEdtTest.setContentType(jCmbLangs.getItemAt(0).toString());
         jCmbLangs.setSelectedItem("text/java");
         new CaretMonitor(jEdtTest, lblCaretPos);
+//        jEdtTest.setFont(Font.getFont("Tahoma"));
     }
 
     /** This method is called from within the constructor to
@@ -228,7 +230,7 @@ private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 }//GEN-LAST:event_jButton1ActionPerformed
 
 private void jBtnPosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnPosActionPerformed
-    int pos = SyntaxActions.getDocumentPosition(jEdtTest, 10, 10);
+    int pos = ActionUtils.getDocumentPosition(jEdtTest, 10, 10);
     jEdtTest.setCaretPosition(pos);
 }//GEN-LAST:event_jBtnPosActionPerformed
 

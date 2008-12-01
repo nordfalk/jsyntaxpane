@@ -42,18 +42,18 @@ public class CaretMonitor implements CaretListener {
                 if (text.getSelectionStart() == text.getSelectionEnd()) {
                     int pos = evt.getDot();
                     String loc = String.format("%d:%d (%d)",
-                            SyntaxActions.getLineNumber(text, pos) + 1,
-                            SyntaxActions.getColumnNumber(text, pos) + 1,
+                            ActionUtils.getLineNumber(text, pos) + 1,
+                            ActionUtils.getColumnNumber(text, pos) + 1,
                             pos);
                     label.setText(loc);
                 } else {
                     int start = text.getSelectionStart();
                     int end = text.getSelectionEnd();
                     String loc = String.format("%d:%d - %d:%d (%d)",
-                            SyntaxActions.getLineNumber(text, start) + 1,
-                            SyntaxActions.getColumnNumber(text, start) + 1,
-                            SyntaxActions.getLineNumber(text, end) + 1,
-                            SyntaxActions.getColumnNumber(text, end) + 1,
+                            ActionUtils.getLineNumber(text, start) + 1,
+                            ActionUtils.getColumnNumber(text, start) + 1,
+                            ActionUtils.getLineNumber(text, end) + 1,
+                            ActionUtils.getColumnNumber(text, end) + 1,
                             (end - start));
                     label.setText(loc);
                 }

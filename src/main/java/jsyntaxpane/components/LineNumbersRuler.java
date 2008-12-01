@@ -14,12 +14,15 @@
 package jsyntaxpane.components;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.JTextComponent;
-import jsyntaxpane.actions.SyntaxActions;
+import jsyntaxpane.actions.GotoLineDialog;
+import jsyntaxpane.actions.ActionUtils;
 import jsyntaxpane.util.Configuration;
 
 /**
@@ -32,13 +35,14 @@ public class LineNumbersRuler extends JComponent
     private JEditorPane pane;
     private String format;
     private int lineCount = -1;
-    public static final int R_MARGIN = 5;
-    public static final int L_MARGIN = 5;
+    private int r_margin;
+    private int l_margin;
+    private GotoLineDialog gotoLineDialog = null;
+    public static final int DEFAULT_R_MARGIN = 5;
+    public static final int DEFAULT_L_MARGIN = 5;
 
     public LineNumbersRuler() {
         super();
-        // FIXME: add settings for foreground, and background colors, and
-        // border style
     }
 
     @Override
@@ -55,20 +59,20 @@ public class LineNumbersRuler extends JComponent
         // properly to the text.
         for (int y = (clip.y / lh) * lh + lh - 2; y <= end; y += lh) {
             String text = String.format(format, lineNum);
-            g.drawString(text, L_MARGIN, y);
+            g.drawString(text, l_margin, y);
             lineNum++;
-            if(lineNum > lineCount) {
+            if (lineNum > lineCount) {
                 break;
             }
         }
     }
 
     /**
-     * Upddate the size of the line numbers based on the length of the document
+     * Update the size of the line numbers based on the length of the document
      */
     private void updateSize() {
-        int newLineCount = SyntaxActions.getLineCount(pane) + 1;
-        if(newLineCount == lineCount) {
+        int newLineCount = ActionUtils.getLineCount(pane) + 1;
+        if (newLineCount == lineCount) {
             return;
         }
         lineCount = newLineCount;
@@ -77,7 +81,7 @@ public class LineNumbersRuler extends JComponent
         if (d < 1) {
             d = 1;
         }
-        int w = d * getCharWidth() + R_MARGIN + L_MARGIN;
+        int w = d * getCharWidth() + r_margin + l_margin;
         format = "%" + d + "d";
         setPreferredSize(new Dimension(w, h));
         getParent().doLayout();
@@ -114,6 +118,18 @@ public class LineNumbersRuler extends JComponent
     }
 
     public void config(Configuration config, String prefix) {
+        r_margin = config.getPrefixInteger(prefix,
+                "LineNumbers.RightMargin",
+                DEFAULT_R_MARGIN);
+        l_margin = config.getPrefixInteger(prefix,
+                "LineNumbers.LeftMargin",
+                DEFAULT_L_MARGIN);
+        Color foreground = config.getPrefixColor(prefix, "LineNumbers.Foreground",
+                Color.BLACK);
+        setForeground(foreground);
+        Color back = config.getPrefixColor(prefix, "LineNumbers.Background",
+                Color.WHITE);
+        setBackground(back);
     }
 
     public void install(JEditorPane editor) {
@@ -127,6 +143,13 @@ public class LineNumbersRuler extends JComponent
             sp.setRowHeaderView(this);
             this.pane.addCaretListener(this);
             updateSize();
+            gotoLineDialog = new GotoLineDialog(pane);
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    gotoLineDialog.setVisible(true);
+                }
+            });
         }
     }
 

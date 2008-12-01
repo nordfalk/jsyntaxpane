@@ -13,23 +13,9 @@
  */
 package jsyntaxpane.syntaxkits;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import javax.swing.JEditorPane;
-import javax.swing.KeyStroke;
-import javax.swing.text.Keymap;
 import jsyntaxpane.DefaultSyntaxKit;
 import jsyntaxpane.Lexer;
-import jsyntaxpane.components.LineNumbersRuler;
-import jsyntaxpane.TokenType;
-import jsyntaxpane.actions.FindReplaceActions;
-import jsyntaxpane.actions.MapCompletion;
-import jsyntaxpane.components.PairsMarker;
-import jsyntaxpane.actions.SyntaxActions;
-import jsyntaxpane.components.TokenMarker;
 import jsyntaxpane.lexers.JavaLexer;
-import jsyntaxpane.util.JarServiceProvider;
 
 /**
  *
@@ -41,38 +27,7 @@ public class JavaSyntaxKit extends DefaultSyntaxKit {
         super(new JavaLexer());
     }
 
-    /**
-     * Consruct a JavaSyntaxKit user the supplied lexer.  This is protected so
-     * only subclasses may extend this with a new lexer.
-     * @param lexer
-     */
     JavaSyntaxKit(Lexer lexer) {
         super(lexer);
-    }
-
-    @Override
-    public void addKeyActions(Keymap map) {
-        super.addKeyActions(map);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control SPACE"),
-                new MapCompletion(getCompletions()));
-        FindReplaceActions finder = new FindReplaceActions();
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control F"), finder.getFindDialogAction());
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control H"), finder.getReplaceDialogAction());
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("F3"), finder.getFindNextAction());
-    }
-
-    private static Map<String, String> COMPLETIONS;
-
-    /**
-     * returns the completions Map
-     * @return
-     */
-    public static Map<String, String> getCompletions() {
-        return COMPLETIONS;
-    }
-
-    static {
-        COMPLETIONS = JarServiceProvider.readStringsMap("jsyntaxpane.javasyntaxkit.completions");
     }
 }

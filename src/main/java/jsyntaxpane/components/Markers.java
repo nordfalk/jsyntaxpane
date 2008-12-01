@@ -63,7 +63,7 @@ public class Markers {
     }
 
     /**
-     * Remove all the markers from an editorpane
+     * Remove all the markers from an JEditorPane
      * @param editorPane
      */
     public static void removeMarkers(JTextComponent editorPane) {
@@ -119,7 +119,7 @@ public class Markers {
      * @param marker marker to use for highlighting
      */
     public static void markAll(JTextComponent pane, Pattern pattern, SimpleMarker marker) {
-        SyntaxDocument sDoc = SyntaxActions.getSyntaxDocument(pane);
+        SyntaxDocument sDoc = ActionUtils.getSyntaxDocument(pane);
         if(sDoc  == null || pattern == null) {
             return;
         }

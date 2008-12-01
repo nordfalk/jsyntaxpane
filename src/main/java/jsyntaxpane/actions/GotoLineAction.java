@@ -14,25 +14,37 @@
 package jsyntaxpane.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.WeakHashMap;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
+import jsyntaxpane.util.Configuration;
 
 /**
- * This action performs SmartIndentation each time VK_ENTER is pressed
- * SmartIndentation is inserting the same amount of spaces as
- * the line above.  May not be too smart, but good enough.
+ * This actions displays the GotoLine dialog
  */
-public class SmartIndent extends TextAction {
+public class GotoLineAction extends TextAction implements SyntaxAction {
 
-    public SmartIndent() {
-        super("SMART_INDENT");
+    private static WeakHashMap<JTextComponent, GotoLineDialog> DIALOGS =
+            new WeakHashMap<JTextComponent, GotoLineDialog>();
+
+    public GotoLineAction() {
+        super("GOTO_LINE");
     }
 
     public void actionPerformed(ActionEvent e) {
         JTextComponent target = getTextComponent(e);
-        if (target != null) {
-            String line = ActionUtils.getLine(target);
-            target.replaceSelection("\n" + ActionUtils.getIndent(line));
+        GotoLineDialog dlg = DIALOGS.get(target);
+        if(dlg == null) {
+            dlg = new GotoLineDialog(target);
+            DIALOGS.put(target, dlg);
         }
+        dlg.setVisible(true);
+    }
+
+    public void config(Configuration config, String prefix, String name) {
+    }
+
+    public TextAction getAction(String key) {
+        return this;
     }
 }

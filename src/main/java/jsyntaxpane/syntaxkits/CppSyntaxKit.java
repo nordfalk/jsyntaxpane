@@ -13,40 +13,15 @@
  */
 package jsyntaxpane.syntaxkits;
 
-import javax.swing.KeyStroke;
-import javax.swing.text.Keymap;
-import jsyntaxpane.DefaultSyntaxKit;
-import jsyntaxpane.Lexer;
-import jsyntaxpane.actions.FindReplaceActions;
-import jsyntaxpane.actions.SyntaxActions;
 import jsyntaxpane.lexers.CppLexer;
 
 /**
  *
  * @author Ayman Al-Sairafi
  */
-public class CppSyntaxKit extends DefaultSyntaxKit {
+public class CppSyntaxKit extends CSyntaxKit {
 
     public CppSyntaxKit() {
         super(new CppLexer());
-    }
-
-    /**
-     * Consruct a JavaSyntaxKit user the supplied lexer.  This is protected so
-     * only subclasses may extend this with a new lexer.
-     * @param lexer
-     */
-    CppSyntaxKit(Lexer lexer) {
-        super(lexer);
-    }
-
-    @Override
-    public void addKeyActions(Keymap map) {
-        super.addKeyActions(map);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
-        FindReplaceActions finder = new FindReplaceActions();
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control F"), finder.getFindDialogAction());
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("control H"), finder.getReplaceDialogAction());
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("F3"), finder.getFindNextAction());
     }
 }

@@ -18,106 +18,25 @@ import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComboBox;
+import javax.swing.MutableComboBoxModel;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
-import javax.swing.text.TextAction;
 import jsyntaxpane.SyntaxDocument;
 import jsyntaxpane.Token;
 
 /**
- * Keyboard Actions for various Syntax files.
+ * Various utility methods to work on JEditorPane and its SyntaxDocument
+ * for use by Actions
+ *
  * @author Ayman Al-Sairafi
  */
-public class SyntaxActions {
-
-    // It is better to use any of these Actions than instatiate new
-    // ones.
-    public static PairAction LPARAN = new PairAction("LPARAN", "(", ")");
-    public static PairAction LSQUARE = new PairAction("LSQUARE", "[", "]");
-    public static PairAction DQUOTE = new PairAction("DQUOTE", "\"", "\"");
-    public static PairAction SQUOTE = new PairAction("SQUOTE", "'", "'");
-    public static SmartIndent SMART_INDENT = new SmartIndent();
-    public static JavaIndent JAVA_INDENT = new JavaIndent();
-    public static IndentAction INDENT = new IndentAction();
-    public static Unindent UNINDENT = new Unindent();
-    public static UndoAction UNDO = new UndoAction();
-    public static RedoAction REDO = new RedoAction();
-
-    /**
-     * A Pair action inserts a pair of characters (left and right) around the
-     * current selection, and then places the caret between them
-     */
-    public static class PairAction extends TextAction {
-
-        String left;
-        String right;
-
-        public PairAction(String actionName, String left, String right) {
-            super(actionName);
-            this.left = left;
-            this.right = right;
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            JTextComponent target = getTextComponent(e);
-            if (target != null) {
-                String selected = target.getSelectedText();
-                if (selected != null) {
-                    target.replaceSelection(left + selected + right);
-                } else {
-                    target.replaceSelection(left + right);
-                }
-                target.setCaretPosition(target.getCaretPosition() - 1);
-            }
-        }
-    };
-    ;
-
-    /**
-     * Undo action
-     */
-    public static class UndoAction extends TextAction {
-
-        public UndoAction() {
-            super("UNDO");
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            JTextComponent target = getTextComponent(e);
-            if (target != null) {
-                if (target.getDocument() instanceof SyntaxDocument) {
-                    SyntaxDocument sDoc = (SyntaxDocument) target.getDocument();
-                    sDoc.doUndo();
-                }
-            }
-        }
-    }
-
-    /**
-     * Redo action
-     */
-    public static class RedoAction extends TextAction {
-
-        public RedoAction() {
-            super("REDO");
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            JTextComponent target = getTextComponent(e);
-            if (target != null) {
-                if (target.getDocument() instanceof SyntaxDocument) {
-                    SyntaxDocument sDoc = (SyntaxDocument) target.getDocument();
-                    sDoc.doRedo();
-                }
-            }
-        }
-    }
+public class ActionUtils {
 
     /**
      * Perform Smart Indentation:  pos must be on a line: this method will
@@ -163,7 +82,7 @@ public class SyntaxActions {
             lines = pDoc.getText(start, end - start).split("\n");
             target.select(start, end);
         } catch (BadLocationException ex) {
-            Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ActionUtils.class.getName()).log(Level.SEVERE, null, ex);
             lines = EMPTY_STRING_ARRAY;
         }
         return lines;
@@ -198,7 +117,7 @@ public class SyntaxActions {
                     line = line.substring(0, line.length() - 1);
                 }
             } catch (BadLocationException ex) {
-                Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ActionUtils.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return line;
@@ -233,7 +152,7 @@ public class SyntaxActions {
             try {
                 word = doc.getText(t.start, t.length);
             } catch (BadLocationException ex) {
-                Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ActionUtils.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         return word;
@@ -318,9 +237,84 @@ public class SyntaxActions {
                 count = getLineNumber(pane, p);
             }
         } catch (BadLocationException ex) {
-            Logger.getLogger(SyntaxActions.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ActionUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return count;
+    }
+
+    /**
+     * Insert the given item into the combo box, and set it as first selected
+     * item.  If the item already exists, it is removed, so there are no
+     * duplicates.
+     * @param combo
+     * @param item
+     */
+    public static void insertIntoCombo(JComboBox combo, Object item) {
+        MutableComboBoxModel model = (MutableComboBoxModel) combo.getModel();
+        if (model.getSize() == 0) {
+            model.insertElementAt(item, 0);
+            return;
+        }
+
+        Object o = model.getElementAt(0);
+        if (o.equals(item)) {
+            return;
+        }
+        model.removeElement(item);
+        model.insertElementAt(item, 0);
+        combo.setSelectedIndex(0);
+    }
+
+    /**
+     * Repeat the string source repeat times.
+     * If repeats == 0 then empty String is returned
+     * if source is null, then empty string is returned
+     * @param source
+     * @param repeat
+     * @return source String repeated repeat times.
+     */
+    public static String repeatString(String source, int repeat) {
+        if (repeat < 0) {
+            throw new IllegalArgumentException("Cannot repeat " + repeat + " times.");
+        }
+        if (repeat == 0 || source == null || source.length() == 0) {
+            return "";
+        }
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < repeat; i++) {
+            buffer.append(source);
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Checks if the given string is null, empty or contains whitespace only
+     * @param string
+     * @return true if string is null, empty or contains whitespace only, false
+     * otherwise.
+     */
+    public static boolean isEmptyOrBlanks(String string) {
+        if(string == null || string.length() == 0) {
+            return true;
+        }
+        for(int i=0; i<string.length(); i++) {
+            char c = string.charAt(i);
+            if(!Character.isWhitespace(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Return the TabStop property for the given text component, or 0 if not
+     * used
+     * @param text
+     * @return
+     */
+    public static int getTabSize(JTextComponent text) {
+        Integer tabs = (Integer) text.getDocument().getProperty(PlainDocument.tabSizeAttribute);
+        return (null == tabs) ? 0 : tabs.intValue();
     }
 
     // This is used internally to avoid NPE if we have no Strings

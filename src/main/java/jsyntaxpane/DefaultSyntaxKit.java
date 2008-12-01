@@ -14,18 +14,19 @@
 package jsyntaxpane;
 
 import java.util.logging.Level;
-import jsyntaxpane.actions.SyntaxActions;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.swing.JEditorPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
@@ -33,8 +34,10 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Keymap;
+import javax.swing.text.TextAction;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
+import jsyntaxpane.actions.SyntaxAction;
 import jsyntaxpane.components.SyntaxComponent;
 import jsyntaxpane.util.Configuration;
 import jsyntaxpane.util.JarServiceProvider;
@@ -54,7 +57,9 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
     private static boolean initialized = false;
     private Lexer lexer;
     private static final Logger LOG = Logger.getLogger(DefaultSyntaxKit.class.getName());
+    public static final Pattern COMMA_REGEX = Pattern.compile("\\w+,\\w+");
     private List<SyntaxComponent> editorComponents = new ArrayList<SyntaxComponent>();
+    private Map<String, SyntaxAction> editorActions = new HashMap<String, SyntaxAction>();
     /**
      * Main Configuration of JSyntaxPane
      */
@@ -96,26 +101,24 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
         editorPane.setFont(DEFAULT_FONT);
         Keymap km_parent = JTextComponent.getKeymap(JTextComponent.DEFAULT_KEYMAP);
         Keymap km_new = JTextComponent.addKeymap(null, km_parent);
-        addKeyActions(km_new);
+        String kitName = this.getClass().getSimpleName();
+        addSyntaxActions(km_new, kitName);
         editorPane.setKeymap(km_new);
         // install the components to the editor:
-        String[] components = CONFIG.getPrefixPropertyList(this.getClass().getSimpleName(),
-                "components");
-        if (components != null && components.length > 0) {
-            for (String c : components) {
-                try {
-                    Class<SyntaxComponent> compClass = (Class<SyntaxComponent>) Class.forName(c);
-                    SyntaxComponent comp = compClass.newInstance();
-                    comp.config(CONFIG, this.getClass().getSimpleName());
-                    comp.install(editorPane);
-                    editorComponents.add(comp);
-                } catch (InstantiationException ex) {
-                    LOG.log(Level.SEVERE, null, ex);
-                } catch (IllegalAccessException ex) {
-                    LOG.log(Level.SEVERE, null, ex);
-                } catch (ClassNotFoundException ex) {
-                    LOG.log(Level.SEVERE, null, ex);
-                }
+        String[] components = CONFIG.getPrefixPropertyList(kitName, "Components");
+        for (String c : components) {
+            try {
+                Class<SyntaxComponent> compClass = (Class<SyntaxComponent>) Class.forName(c);
+                SyntaxComponent comp = compClass.newInstance();
+                comp.config(CONFIG, kitName);
+                comp.install(editorPane);
+                editorComponents.add(comp);
+            } catch (InstantiationException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                LOG.log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -128,29 +131,67 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
     }
 
     /**
-     * Add keyboard actions to this control.  
+     * Add keyboard actions to this control using the Configuration we have
      * @param map
      */
-    public void addKeyActions(Keymap map) {
-        int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke(
-                KeyEvent.VK_Z, menuShortcutMask),
-                SyntaxActions.UNDO);
-        map.addActionForKeyStroke(
-                KeyStroke.getKeyStroke(KeyEvent.VK_Y, menuShortcutMask),
-                SyntaxActions.REDO);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("TAB"),
-                SyntaxActions.INDENT);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("TAB"),
-                SyntaxActions.INDENT);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("shift TAB"),
-                SyntaxActions.UNINDENT);
+    public void addSyntaxActions(Keymap map, String prefix) {
+        // look at all keys that either start with prefix.Action, or
+        // that start with Action.
+
+        Configuration actionsConf = CONFIG.subConfig(prefix, "Action.");
+
+        for (String actionName : actionsConf.stringPropertyNames()) {
+            String[] values = Configuration.COMMA_SEPARATOR.split(
+                    actionsConf.getProperty(actionName));
+            String actionClass = values[0];
+            SyntaxAction action = editorActions.get(actionClass);
+            if (action == null) {
+                action = createAction(actionClass);
+                // FIXME:  add name to the config parameter
+                action.config(CONFIG, prefix, actionName);
+            }
+            String keyStrokeString = values[1];
+            KeyStroke ks = KeyStroke.getKeyStroke(keyStrokeString);
+            // KeyEvent.VK_QUOTEDBL
+            if (ks == null) {
+                throw new IllegalArgumentException("Invalid KeyStroke: " +
+                        keyStrokeString);
+            }
+            TextAction ta = action.getAction(actionName);
+            if(ta == null) {
+                throw new IllegalArgumentException("Invalid ActionName: " +
+                        actionName);
+            }
+            map.addActionForKeyStroke(ks, ta);
+        }
+    }
+
+    private SyntaxAction createAction(String actionClassName) {
+        SyntaxAction action = null;
+        try {
+            Class clazz = Class.forName(actionClassName);
+            action = (SyntaxAction) clazz.newInstance();
+            editorActions.put(actionClassName, action);
+        } catch (InstantiationException ex) {
+            throw new IllegalArgumentException("Cannot create action class: " +
+                    actionClassName, ex);
+        } catch (IllegalAccessException ex) {
+            throw new IllegalArgumentException("Cannot create action class: " +
+                    actionClassName, ex);
+        } catch (ClassNotFoundException ex) {
+            throw new IllegalArgumentException("Cannot create action class: " +
+                    actionClassName, ex);
+        } catch (ClassCastException ex) {
+            throw new IllegalArgumentException("Cannot create action class: " +
+                    actionClassName, ex);
+        }
+        return action;
     }
 
     /**
      * This is called by Swing to create a Document for the JEditorPane document
      * This may be called before you actually get a reference to the control.
-     * We use it here to create a properl lexer and pass it to the 
+     * We use it here to create a proper lexer and pass it to the 
      * SyntaxDcument we return.
      * @return
      */
@@ -160,9 +201,8 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
     }
 
     /**
-     * This is called to initialize the list of lexers we have.  You can call 
-     * this at initialization, or it will be called when needed.
-     * 
+     * This is called to initialize the list of <code>Lexer</code>s we have.
+     * You can call  this at initialization, or it will be called when needed.
      * The method will also add the appropriate EditorKit classes to the
      * corresponding ContentType of the JEditorPane.  After this is called,
      * you can simply call the editor.setCOntentType("text/java") on the 
@@ -170,6 +210,8 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
      */
     public static void initKit() {
         // attempt to find a suitable default font
+        CONFIG = new Configuration(JarServiceProvider.readProperties("jsyntaxpane.config"));
+
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         String[] fonts = ge.getAvailableFontFamilyNames();
         Arrays.sort(fonts);
@@ -188,16 +230,14 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
             registerContentType(type, classname);
         }
 
-        CONFIG = new Configuration(JarServiceProvider.readProperties("jsyntaxpane.config"));
-
         initialized = true;
     }
 
     /**
-     * Register the given content type to use the given classsname as its kit
+     * Register the given content type to use the given class name as its kit
      * When this is called, an entry is added into the private HashMap of the
-     * registered editorskits.  This is needed so that the SyntaxPane library
-     * has it's own registeration of all the EditorKits
+     * registered editors kits.  This is needed so that the SyntaxPane library
+     * has it's own registration of all the EditorKits
      * @param type
      * @param classname
      */
@@ -222,7 +262,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
      * @return
      */
     public static Configuration getConfig() {
-        if(!initialized) {
+        if (!initialized) {
             initKit();
         }
         return CONFIG;
@@ -244,7 +284,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
      * @param value
      */
     public static void setProperty(String key, String value) {
-        if(!initialized) {
+        if (!initialized) {
             initKit();
         }
         CONFIG.put(key, value);
@@ -258,7 +298,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
      * @return value for given key
      */
     public static String getProperty(String key) {
-        if(!initialized) {
+        if (!initialized) {
             initKit();
         }
         return CONFIG.getProperty(key);

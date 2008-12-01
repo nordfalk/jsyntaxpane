@@ -13,7 +13,6 @@
  */
 package jsyntaxpane.actions;
 
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
 import jsyntaxpane.SyntaxDocument;
+import jsyntaxpane.util.Configuration;
 
 /**
  * Finder class.  This class contains the general Find, Find Next,
@@ -32,13 +32,12 @@ import jsyntaxpane.SyntaxDocument;
  *
  * @author Ayman Al-Sairafi
  */
-public class FindReplaceActions {
+public class FindReplaceActions implements SyntaxAction {
 
     private Pattern pattern = null;
     private boolean wrap = true;
     private final FindDialogAction findDialogAction = new FindDialogAction();
     private final FindNextAction findNextAction = new FindNextAction();
-    private final ReplaceDialogAction replaceDialogAction = new ReplaceDialogAction();
     private ReplaceDialog dlg;
 
     public FindReplaceActions() {
@@ -52,8 +51,19 @@ public class FindReplaceActions {
         return findNextAction;
     }
 
-    public TextAction getReplaceDialogAction() {
-        return replaceDialogAction;
+    public void config(Configuration config, String prefix, String name) {
+    }
+
+    public TextAction getAction(String key) {
+        if(key.equals("FIND") ) {
+        return findDialogAction;
+        } else if(key.equals("REPLACE")) {
+            return findDialogAction;
+        } else if(key.equals("FIND_NEXT")) {
+            return findNextAction;
+        } else {
+            throw new IllegalArgumentException("Bad Action: " + key);
+        }
     }
 
     /**
@@ -64,20 +74,6 @@ public class FindReplaceActions {
 
         public FindDialogAction() {
             super("FIND_ACTION");
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            JTextComponent target = getTextComponent(e);
-            if (target != null) {
-                showDialog(target);
-            }
-        }
-    }
-
-    class ReplaceDialogAction extends TextAction {
-
-        public ReplaceDialogAction() {
-            super("FINDREPLACE_ACTION");
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -123,10 +119,8 @@ public class FindReplaceActions {
      * @param target
      */
     private void showDialog(JTextComponent target) {
-        Frame targetFrame = SyntaxActions.getFrameFor(target);
         if (dlg == null) {
-            dlg = new ReplaceDialog(targetFrame, target, FindReplaceActions.this);
-            dlg.setLocationRelativeTo(target.getRootPane());
+            dlg = new ReplaceDialog(target, FindReplaceActions.this);
         }
         dlg.setVisible(true);
     }
@@ -140,7 +134,7 @@ public class FindReplaceActions {
         if (target == null || pattern == null) {
             return;
         }
-        SyntaxDocument sDoc = SyntaxActions.getSyntaxDocument(target);
+        SyntaxDocument sDoc = ActionUtils.getSyntaxDocument(target);
         if (sDoc == null) {
             return;
         }
@@ -170,14 +164,14 @@ public class FindReplaceActions {
     }
 
     /**
-     * Perfrom a replace all operation on the given component.
+     * Perform a replace all operation on the given component.
      * Note that this create a new duplicate String big as the entire
      * document and then assign it to the target text component
      * @param target
      * @param replacement
      */
     public void replaceAll(JTextComponent target, String replacement) {
-        SyntaxDocument sDoc = SyntaxActions.getSyntaxDocument(target);
+        SyntaxDocument sDoc = ActionUtils.getSyntaxDocument(target);
         if (pattern == null || sDoc == null) {
             return;
         }

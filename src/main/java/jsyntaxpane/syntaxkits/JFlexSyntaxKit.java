@@ -13,25 +13,15 @@
  */
 package jsyntaxpane.syntaxkits;
 
-import javax.swing.KeyStroke;
-import javax.swing.text.Keymap;
-import jsyntaxpane.DefaultSyntaxKit;
-import jsyntaxpane.actions.SyntaxActions;
 import jsyntaxpane.lexers.JFlexLexer;
 
 /**
- *
+ * JFlex lexer 
  * @author Ayman Al-Sairafi
  */
-public class JFlexSyntaxKit extends DefaultSyntaxKit {
+public class JFlexSyntaxKit extends JavaSyntaxKit {
 
     public JFlexSyntaxKit() {
         super(new JFlexLexer());
-    }
-
-    @Override
-    public void addKeyActions(Keymap map) {
-        super.addKeyActions(map);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
     }
 }

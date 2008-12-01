@@ -13,10 +13,7 @@
  */
 package jsyntaxpane.syntaxkits;
 
-import javax.swing.KeyStroke;
-import javax.swing.text.Keymap;
 import jsyntaxpane.DefaultSyntaxKit;
-import jsyntaxpane.actions.SyntaxActions;
 import jsyntaxpane.lexers.SqlLexer;
 
 /**
@@ -27,11 +24,5 @@ public class SqlSyntaxKit extends DefaultSyntaxKit {
 
     public SqlSyntaxKit() {
         super(new SqlLexer());
-    }
-
-    @Override
-    public void addKeyActions(Keymap map) {
-        super.addKeyActions(map);
-        map.addActionForKeyStroke(KeyStroke.getKeyStroke("ENTER"), SyntaxActions.JAVA_INDENT);
     }
 }

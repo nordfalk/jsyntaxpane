@@ -16,6 +16,11 @@ Version 0.9.3 - Start of scripts for the document:
     * Fixed Line Numbers being displayed for the height of the editor and now
       just for the actual available lines.
     * Fixed Mrgin typo in all project. Issue 43
+    * Changing Actions to be more configurable:
+      * SyntaxActions renamed to ActionUtils
+      * Removed all inner classes from SyntaxActions
+      * Will create new SyntaxAction interface that will allow dynamic addition
+        actions (in the addKeyActions of DefaultSyntaxKit
 Version 0.9.2:
     * Fixing Java Indentation and Un-Indentattion Actions
     * Added and used (in the Tester) clearUndoes on the SyntaxDocument
