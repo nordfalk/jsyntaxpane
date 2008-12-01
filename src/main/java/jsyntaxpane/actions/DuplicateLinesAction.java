@@ -41,7 +41,6 @@ public class DuplicateLinesAction extends TextAction implements SyntaxAction {
                 int st = sDoc.getLineStartOffset(target.getSelectionStart());
                 int en = sDoc.getLineEndOffset(target.getSelectionEnd());
                 String dupLines = sDoc.getText(st, en-st);
-                System.out.println("Key pressed = " + e);
                 sDoc.insertString(st, dupLines, null);
             } catch (BadLocationException ex) {
                 Logger.getLogger(DuplicateLinesAction.class.getName()).log(Level.SEVERE, null, ex);
