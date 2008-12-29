@@ -145,14 +145,14 @@ public class FindReplaceActions implements SyntaxAction {
             start = 0;
         }
         Matcher matcher = sDoc.getMatcher(pattern, start);
-        if (matcher.find()) {
+        if (matcher != null && matcher.find()) {
             // since we used an offset in the matcher, the matcher location
             // MUST be offset by that location
             target.select(matcher.start() + start, matcher.end() + start);
         } else {
             if (isWrap()) {
                 matcher = sDoc.getMatcher(pattern);
-                if (matcher.find()) {
+                if (matcher != null && matcher.find()) {
                     target.select(matcher.start(), matcher.end());
                 } else {
                     msgNotFound();
