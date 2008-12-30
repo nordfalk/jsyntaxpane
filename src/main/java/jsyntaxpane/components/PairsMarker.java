@@ -30,6 +30,7 @@ import jsyntaxpane.util.Configuration;
  * @author Ayman Al-Sairafi
  */
 public class PairsMarker implements CaretListener, SyntaxComponent {
+    public static final String PROPERTY_COLOR = "PairMarker.Color";
 
     private JTextComponent pane;
     private Markers.SimpleMarker marker;
@@ -62,7 +63,8 @@ public class PairsMarker implements CaretListener, SyntaxComponent {
 
     public void config(Configuration config, String prefix) {
         Color markerColor = new Color(config.getPrefixInteger(prefix,
-                "PairMarker.Color", 0xeeee33));
+                PROPERTY_COLOR,
+                0xeeee33));
         this.marker = new Markers.SimpleMarker(markerColor);
     }
 

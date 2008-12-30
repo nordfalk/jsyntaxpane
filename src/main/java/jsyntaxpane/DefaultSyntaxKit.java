@@ -13,10 +13,10 @@
  */
 package jsyntaxpane;
 
+import java.awt.Color;
 import java.util.logging.Level;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -72,6 +72,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 
     /**
      * Create a new Kit for the given language 
+     * @param lexer 
      */
     public DefaultSyntaxKit(Lexer lexer) {
         super();
@@ -102,12 +103,15 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
         Keymap km_parent = JTextComponent.getKeymap(JTextComponent.DEFAULT_KEYMAP);
         Keymap km_new = JTextComponent.addKeymap(null, km_parent);
         String kitName = this.getClass().getSimpleName();
+        Color caretColor = CONFIG.getPrefixColor(kitName, "CaretColor", Color.BLACK);
+        editorPane.setCaretColor(caretColor);
         addSyntaxActions(km_new, kitName);
         editorPane.setKeymap(km_new);
         // install the components to the editor:
         String[] components = CONFIG.getPrefixPropertyList(kitName, "Components");
         for (String c : components) {
             try {
+                @SuppressWarnings("unchecked")
                 Class<SyntaxComponent> compClass = (Class<SyntaxComponent>) Class.forName(c);
                 SyntaxComponent comp = compClass.newInstance();
                 comp.config(CONFIG, kitName);
@@ -133,6 +137,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
     /**
      * Add keyboard actions to this control using the Configuration we have
      * @param map
+     * @param prefix 
      */
     public void addSyntaxActions(Keymap map, String prefix) {
         // look at all keys that either start with prefix.Action, or
@@ -147,7 +152,6 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
             SyntaxAction action = editorActions.get(actionClass);
             if (action == null) {
                 action = createAction(actionClass);
-                // FIXME:  add name to the config parameter
                 action.config(CONFIG, prefix, actionName);
             }
             String keyStrokeString = values[1];

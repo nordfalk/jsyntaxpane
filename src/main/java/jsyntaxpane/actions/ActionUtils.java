@@ -43,6 +43,7 @@ public class ActionUtils {
      * use the previous lines indentation (number of spaces before any non-space
      * character or end of line) and return that as the prefix
      * @param line the line of text
+     * @return
      */
     public static String getIndent(String line) {
         if (line == null || line.length() == 0) {
@@ -294,12 +295,12 @@ public class ActionUtils {
      * otherwise.
      */
     public static boolean isEmptyOrBlanks(String string) {
-        if(string == null || string.length() == 0) {
+        if (string == null || string.length() == 0) {
             return true;
         }
-        for(int i=0; i<string.length(); i++) {
+        for (int i = 0; i < string.length(); i++) {
             char c = string.charAt(i);
-            if(!Character.isWhitespace(c)) {
+            if (!Character.isWhitespace(c)) {
                 return false;
             }
         }
@@ -317,6 +318,31 @@ public class ActionUtils {
         return (null == tabs) ? 0 : tabs.intValue();
     }
 
+    /**
+     * Insert the given String into the textcomponent.  If the string contains
+     * the | vertical BAr char, then it will not be inserted, and the cursor will
+     * be set to its location.
+     * <b>FIXME: add following feature
+     * If the String is multi-line, then it will be indented with the same
+     * indentattion as the line with pos.</b>
+     * @param target
+     * @param dot
+     * @param toInsert
+     * @throws javax.swing.text.BadLocationException
+     */
+    public static void insertString(JTextComponent target, int dot, String toInsert)
+            throws BadLocationException {
+        Document doc = target.getDocument();
+        if (toInsert.indexOf('|') >= 0) {
+            int ofst = toInsert.indexOf('|') - toInsert.length() + 1;
+            toInsert = toInsert.replace("|", "");
+            doc.insertString(dot, toInsert, null);
+            target.setCaretPosition(target.getCaretPosition() + ofst);
+        } else {
+            doc.insertString(dot, toInsert, null);
+        }
+    }
+    
     // This is used internally to avoid NPE if we have no Strings
     static String[] EMPTY_STRING_ARRAY = new String[0];
     // This is used to quickly create Strings of at most 16 spaces (using substring)

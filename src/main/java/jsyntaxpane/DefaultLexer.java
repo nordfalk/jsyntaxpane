@@ -13,16 +13,11 @@
  */
 package jsyntaxpane;
 
-import javax.swing.JEditorPane;
-import javax.swing.KeyStroke;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.Keymap;
-
 /**
  * This is a default, and abstract implemenatation of a Lexer with
  * some utility methods that Lexers can implement.
  *
- * @author ayman
+ * @author Ayman Al-Sairafi
  */
 public abstract class DefaultLexer implements Lexer {
     
@@ -31,6 +26,12 @@ public abstract class DefaultLexer implements Lexer {
 
     /**
      * Helper method to create and return a new Token from of TokenType
+     * @param type
+     * @param tStart
+     * @param tLength
+     * @param newStart
+     * @param newLength
+     * @return
      */
     protected Token token(TokenType type, int tStart, int tLength,
             int newStart, int newLength) {

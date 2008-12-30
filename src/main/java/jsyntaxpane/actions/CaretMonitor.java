@@ -23,6 +23,9 @@ import jsyntaxpane.SyntaxDocument;
 /**
  * This class can be used to display the caret location in friendly manner for
  * an EditorPane.
+ *
+ * FIXME: Add configurable position text using String.format and arrays of locations
+ *
  * @author Ayman Al-Sairafi
  */
 public class CaretMonitor implements CaretListener {

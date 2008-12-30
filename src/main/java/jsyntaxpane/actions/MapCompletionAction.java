@@ -62,9 +62,9 @@ public class MapCompletionAction extends TextAction implements SyntaxAction {
      * 
      * @param config
      * @param prefix
+     * @param name 
      */
     public void config(Configuration config, String prefix, String name) {
-        // FIXME Add name use
         String completionsFile = config.getPrefixProperty(prefix, "Completions.File", "NONE");
         if(completionsFile != null) {
             completions = JarServiceProvider.readStringsMap(completionsFile);

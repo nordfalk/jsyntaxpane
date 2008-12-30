@@ -24,7 +24,10 @@ public class GotoLineDialog extends javax.swing.JDialog {
 
     private JTextComponent text;
 
-    /** Creates new form GotoLineDialog */
+    /** 
+     * Creates new form GotoLineDialog
+     * @param text
+     */
     public GotoLineDialog(JTextComponent text) {
         super(ActionUtils.getFrameFor(text), false);
         initComponents();

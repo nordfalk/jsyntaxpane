@@ -32,6 +32,10 @@ import jsyntaxpane.util.Configuration;
 public class LineNumbersRuler extends JComponent
         implements SyntaxComponent, CaretListener {
 
+    public static final String PROPERTY_BACKGROUND = "LineNumbers.Background";
+    public static final String PROPERTY_FOREGROUND = "LineNumbers.Foreground";
+    public static final String PROPERTY_LEFT_MARGIN = "LineNumbers.LeftMargin";
+    public static final String PROPERTY_RIGHT_MARGIN = "LineNumbers.RightMargin";
     private JEditorPane pane;
     private String format;
     private int lineCount = -1;
@@ -119,15 +123,15 @@ public class LineNumbersRuler extends JComponent
 
     public void config(Configuration config, String prefix) {
         r_margin = config.getPrefixInteger(prefix,
-                "LineNumbers.RightMargin",
-                DEFAULT_R_MARGIN);
+                PROPERTY_RIGHT_MARGIN, DEFAULT_R_MARGIN);
         l_margin = config.getPrefixInteger(prefix,
-                "LineNumbers.LeftMargin",
-                DEFAULT_L_MARGIN);
-        Color foreground = config.getPrefixColor(prefix, "LineNumbers.Foreground",
+                PROPERTY_LEFT_MARGIN, DEFAULT_L_MARGIN);
+        Color foreground = config.getPrefixColor(prefix,
+                PROPERTY_FOREGROUND,
                 Color.BLACK);
         setForeground(foreground);
-        Color back = config.getPrefixColor(prefix, "LineNumbers.Background",
+        Color back = config.getPrefixColor(prefix, 
+                PROPERTY_BACKGROUND,
                 Color.WHITE);
         setBackground(back);
     }
@@ -145,6 +149,7 @@ public class LineNumbersRuler extends JComponent
             updateSize();
             gotoLineDialog = new GotoLineDialog(pane);
             addMouseListener(new MouseAdapter() {
+
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     gotoLineDialog.setVisible(true);

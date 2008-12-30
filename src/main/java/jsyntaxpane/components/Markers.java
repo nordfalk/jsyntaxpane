@@ -47,6 +47,8 @@ public class Markers {
      * This is public so that we can remove the highlights when the editorKit
      * is unregistered.  SimpleMarker can be null, in which case all instances of
      * our Markers are removed.
+     * @param component the text component whose markers are to be removed
+     * @param marker the SimpleMarker to remove
      */
     public static void removeMarkers(JTextComponent component, SimpleMarker marker) {
         Highlighter hilite = component.getHighlighter();

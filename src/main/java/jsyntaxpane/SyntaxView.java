@@ -33,10 +33,15 @@ import jsyntaxpane.util.Configuration;
 
 public class SyntaxView extends PlainView {
 
+    public static final String PROPERTY_RIGHT_MARGIN_COLOR = "RightMarginColor";
+    public static final String PROPERTY_RIGHT_MARGIN_COLUMN = "RightMarginColumn";
+    public static final String PROPERTY_SINGLE_COLOR_SELECT = "SingleColorSelect";
+    public static final String PROPERTY_TEXTAA = "TextAA";
+    
     private static final Logger log = Logger.getLogger(SyntaxView.class.getName());
     private SyntaxStyle DEFAULT_STYLE = SyntaxStyles.getInstance().getStyle(TokenType.DEFAULT);
     private final boolean singleColorSelect;
-    private final int rightMarginPosition;
+    private final int rightMarginColumn;
     private final Color rightMarginColor;
     private final Object textAAHint;
 
@@ -49,16 +54,12 @@ public class SyntaxView extends PlainView {
      */
     public SyntaxView(Element element, Configuration config, String prefix) {
         super(element);
-        singleColorSelect = config.getPrefixBoolean(prefix,
-                "SingleColorSelect", false);
-        rightMarginColor = new Color(config.getPrefixInteger(prefix,
-                "RightMarginColor",
+        singleColorSelect = config.getPrefixBoolean(prefix, PROPERTY_SINGLE_COLOR_SELECT, false);
+        rightMarginColor = new Color(config.getPrefixInteger(prefix, PROPERTY_RIGHT_MARGIN_COLOR,
                 0xFF7777));
-        rightMarginPosition = config.getPrefixInteger(prefix,
-                "RightMarginColumn",
+        rightMarginColumn = config.getPrefixInteger(prefix, PROPERTY_RIGHT_MARGIN_COLUMN,
                 0);
-        String textaa = config.getPrefixProperty(prefix, 
-                "View.TextAA",
+        String textaa = config.getPrefixProperty(prefix, PROPERTY_TEXTAA,
                 "DEFAULT");
         textAAHint = TEXT_AA_HINT_NAMES.get(textaa);
     }
@@ -68,15 +69,15 @@ public class SyntaxView extends PlainView {
             int p1) {
         Graphics2D graphics2D = (Graphics2D) graphics;
         graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                           textAAHint);
+                textAAHint);
         Font saveFont = graphics.getFont();
         Color saveColor = graphics.getColor();
         SyntaxDocument doc = (SyntaxDocument) getDocument();
         Segment segment = getLineBuffer();
         // Draw the right margin first, if needed.  This way the text overalys
         // the margin
-        if (rightMarginPosition > 0) {
-            int m_x = rightMarginPosition * graphics.getFontMetrics().charWidth('m');
+        if (rightMarginColumn > 0) {
+            int m_x = rightMarginColumn * graphics.getFontMetrics().charWidth('m');
             int h = graphics.getFontMetrics().getHeight();
             graphics.setColor(rightMarginColor);
             graphics.drawLine(m_x, y, m_x, y - h);
@@ -132,8 +133,8 @@ public class SyntaxView extends PlainView {
     protected int drawSelectedText(Graphics graphics, int x, int y, int p0, int p1)
             throws BadLocationException {
         if (singleColorSelect) {
-            if (rightMarginPosition > 0) {
-                int m_x = rightMarginPosition * graphics.getFontMetrics().charWidth('m');
+            if (rightMarginColumn > 0) {
+                int m_x = rightMarginColumn * graphics.getFontMetrics().charWidth('m');
                 int h = graphics.getFontMetrics().getHeight();
                 graphics.setColor(rightMarginColor);
                 graphics.drawLine(m_x, y, m_x, y - h);

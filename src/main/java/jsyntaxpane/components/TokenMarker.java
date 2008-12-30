@@ -36,6 +36,8 @@ import jsyntaxpane.util.Configuration;
 public class TokenMarker implements SyntaxComponent, CaretListener {
 
     public static final String DEFAULT_TOKENTYPES = "IDENTIFIER, TYPE, TYPE2, TYPE3";
+    public static final String PROPERTY_COLOR = "TokenMarker.Color";
+    public static final String PROPERTY_TOKENTYPES = "TokenMarker.TokenTypes";
     private static final int DEFAULT_COLOR = 16772710;
     private JEditorPane pane;
     private Set<TokenType> tokenTypes = new HashSet<TokenType>();
@@ -85,11 +87,11 @@ public class TokenMarker implements SyntaxComponent, CaretListener {
 
     @Override
     public void config(Configuration config, String prefix) {
-        Color markerColor = new Color(config.getPrefixInteger(prefix,
-                "TokenMarker.Color", DEFAULT_COLOR));
+        Color markerColor = new Color(config.getPrefixInteger(prefix, 
+                PROPERTY_COLOR, DEFAULT_COLOR));
         this.marker = new Markers.SimpleMarker(markerColor);
-        String types = config.getPrefixProperty(prefix, "TokenMarker.TokenTypes",
-                DEFAULT_TOKENTYPES);
+        String types = config.getPrefixProperty(prefix,
+                PROPERTY_TOKENTYPES, DEFAULT_TOKENTYPES);
 
         for (String type : types.split("\\s*,\\s*")) {
             try {
