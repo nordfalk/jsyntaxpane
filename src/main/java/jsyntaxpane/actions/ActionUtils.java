@@ -189,6 +189,11 @@ public class ActionUtils {
     public static int getLineNumber(JTextComponent editor, int pos)
             throws BadLocationException {
         Rectangle r = editor.modelToView(pos);
+        // The editor may not be displayed yet, and the rect may be null.
+        // if it is null, then just return a zero.  Issue 47
+        if(r == null) {
+            return 0;
+        }
         int lineHeight = editor.getFontMetrics(editor.getFont()).getHeight();
         int line = r.y / lineHeight;
         return line;
