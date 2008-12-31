@@ -16,11 +16,14 @@ package jsyntaxpane.components;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.logging.Logger;
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
+import jsyntaxpane.SyntaxDocument;
 import jsyntaxpane.actions.GotoLineDialog;
 import jsyntaxpane.actions.ActionUtils;
 import jsyntaxpane.util.Configuration;
@@ -30,20 +33,24 @@ import jsyntaxpane.util.Configuration;
  * @author Ayman Al-Sairafi
  */
 public class LineNumbersRuler extends JComponent
-        implements SyntaxComponent, CaretListener {
+        implements SyntaxComponent, PropertyChangeListener, DocumentListener {
 
     public static final String PROPERTY_BACKGROUND = "LineNumbers.Background";
     public static final String PROPERTY_FOREGROUND = "LineNumbers.Foreground";
     public static final String PROPERTY_LEFT_MARGIN = "LineNumbers.LeftMargin";
     public static final String PROPERTY_RIGHT_MARGIN = "LineNumbers.RightMargin";
+    public static final int DEFAULT_R_MARGIN = 5;
+    public static final int DEFAULT_L_MARGIN = 5;
+
     private JEditorPane pane;
     private String format;
     private int lineCount = -1;
     private int r_margin;
     private int l_margin;
+    private int charHeight;
+    private int charWidth;
     private GotoLineDialog gotoLineDialog = null;
-    public static final int DEFAULT_R_MARGIN = 5;
-    public static final int DEFAULT_L_MARGIN = 5;
+
 
     public LineNumbersRuler() {
         super();
@@ -56,7 +63,7 @@ public class LineNumbersRuler extends JComponent
         g.setColor(getBackground());
         g.fillRect(clip.x, clip.y, clip.width, clip.height);
         g.setColor(getForeground());
-        int lh = getLineHeight();
+        int lh = charHeight;
         int end = clip.y + clip.height + lh;
         int lineNum = clip.y / lh + 1;
         // round the start to a multiple of lh, and shift by 2 pixels to align
@@ -75,28 +82,20 @@ public class LineNumbersRuler extends JComponent
      * Update the size of the line numbers based on the length of the document
      */
     private void updateSize() {
-        int newLineCount = ActionUtils.getLineCount(pane) + 1;
+        int newLineCount = ActionUtils.getLineCount(pane);
         if (newLineCount == lineCount) {
             return;
         }
         lineCount = newLineCount;
-        int h = lineCount * getLineHeight() + pane.getHeight();
+        int h = lineCount * charHeight + pane.getHeight();
         int d = (int) Math.log10(lineCount) + 1;
         if (d < 1) {
             d = 1;
         }
-        int w = d * getCharWidth() + r_margin + l_margin;
+        int w = d * charWidth + r_margin + l_margin;
         format = "%" + d + "d";
         setPreferredSize(new Dimension(w, h));
         getParent().doLayout();
-    }
-
-    private int getLineHeight() {
-        return pane.getFontMetrics(pane.getFont()).getHeight();
-    }
-
-    private int getCharWidth() {
-        return pane.getFontMetrics(pane.getFont()).charWidth('0');
     }
 
     /**
@@ -116,11 +115,6 @@ public class LineNumbersRuler extends JComponent
         return null;
     }
 
-    @Override
-    public void caretUpdate(CaretEvent e) {
-        updateSize();
-    }
-
     public void config(Configuration config, String prefix) {
         r_margin = config.getPrefixInteger(prefix,
                 PROPERTY_RIGHT_MARGIN, DEFAULT_R_MARGIN);
@@ -138,6 +132,9 @@ public class LineNumbersRuler extends JComponent
 
     public void install(JEditorPane editor) {
         this.pane = editor;
+        charHeight = pane.getFontMetrics(pane.getFont()).getHeight();
+        charWidth = pane.getFontMetrics(pane.getFont()).charWidth('0');
+        editor.addPropertyChangeListener(this);
         JScrollPane sp = getScrollPane(pane);
         if (sp == null) {
             Logger.getLogger(this.getClass().getName()).warning(
@@ -145,7 +142,7 @@ public class LineNumbersRuler extends JComponent
                     "no LineNumbers will be displayed");
         } else {
             sp.setRowHeaderView(this);
-            this.pane.addCaretListener(this);
+            this.pane.getDocument().addDocumentListener(this);
             updateSize();
             gotoLineDialog = new GotoLineDialog(pane);
             addMouseListener(new MouseAdapter() {
@@ -161,8 +158,36 @@ public class LineNumbersRuler extends JComponent
     public void deinstall(JEditorPane editor) {
         JScrollPane sp = getScrollPane(editor);
         if (sp != null) {
-            editor.removeCaretListener(this);
+            editor.getDocument().removeDocumentListener(this);
             sp.setRowHeaderView(null);
         }
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(evt.getPropertyName().equals("document")) {
+            if (evt.getOldValue() instanceof SyntaxDocument) {
+                SyntaxDocument syntaxDocument = (SyntaxDocument) evt.getOldValue();
+                syntaxDocument.removeDocumentListener(this);
+            }
+            if (evt.getNewValue() instanceof SyntaxDocument) {
+                SyntaxDocument syntaxDocument = (SyntaxDocument) evt.getNewValue();
+                syntaxDocument.addDocumentListener(this);
+            }
+        } else if(evt.getPropertyName().equals("font")) {
+            charHeight = pane.getFontMetrics(pane.getFont()).getHeight();
+            charWidth = pane.getFontMetrics(pane.getFont()).charWidth('0');
+        }
+    }
+
+    public void insertUpdate(DocumentEvent e) {
+        updateSize();
+    }
+
+    public void removeUpdate(DocumentEvent e) {
+        updateSize();
+    }
+
+    public void changedUpdate(DocumentEvent e) {
+        updateSize();
     }
 }

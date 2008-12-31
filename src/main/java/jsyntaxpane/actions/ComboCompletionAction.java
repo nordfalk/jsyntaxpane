@@ -77,7 +77,7 @@ public class ComboCompletionAction extends TextAction implements SyntaxAction {
                 dlg.setText(abbrev);
                 dlg.setVisible(true);
                 String res = dlg.getResult();
-                ActionUtils.insertString(target, dot, res);
+                ActionUtils.insertMagicString(target, dot, res);
             } catch (BadLocationException ex) {
                 Logger.getLogger(ComboCompletionAction.class.getName()).log(Level.SEVERE, null, ex);
             }

@@ -1,6 +1,7 @@
 Version 0.9.4 - IntelliSense additions
     * Adding IntelliSense to Java with simple List of selectable keywords
     * Added Toggle Comment Actions using Control SLASH
+    * Fixed Issue 47.
 Version 0.9.3 - Start of scripts for the document:
     * Added new methods getLine() to SyntaxDocument
     * SyntaxDocument getIndexOf methods deprecated, use getMatchers instead

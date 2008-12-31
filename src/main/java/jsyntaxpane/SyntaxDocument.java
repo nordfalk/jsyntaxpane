@@ -92,10 +92,6 @@ public class SyntaxDocument extends PlainDocument {
             // This will not be thrown from the Lexer
             log.log(Level.SEVERE, null, ex);
         } finally {
-            // Benchmarks:
-            // Parsed 574038 chars in 81 ms, giving 74584 tokens
-//                System.out.printf("Parsed %d in %d ms, giving %d tokens\n",
-//                        len, (System.nanoTime() - ts) / 1000000, toks.size());
             if (log.isLoggable(Level.FINEST)) {
                 log.finest(String.format("Parsed %d in %d ms, giving %d tokens\n",
                         len, (System.nanoTime() - ts) / 1000000, toks.size()));
@@ -411,6 +407,7 @@ public class SyntaxDocument extends PlainDocument {
      *
      * @param pattern
      * @param start
+     * @param length
      * @return matcher that <b>MUST</b> be offset by start to get the proper
      * location within the document
      */
@@ -497,7 +494,6 @@ public class SyntaxDocument extends PlainDocument {
      * <code>{ // it's a comment</code> this method will return "{ ".
      * @param aStart start of the text.
      * @param anEnd end of the text.
-     * @param aDocument document which holds the line.
      * @return String for the line without comments (if exists).
      */
     public synchronized String getUncommentedText(int aStart, int anEnd) {
@@ -533,12 +529,31 @@ public class SyntaxDocument extends PlainDocument {
     public int getLineEndOffset(int pos) {
         int end = 0;
         end = getParagraphElement(pos).getEndOffset();
-        if(end >= getLength()) {
+        if (end >= getLength()) {
             end = getLength();
         }
         return end;
     }
-    
-    // our logger instance...
+
+    /**
+     * Return the number of lines in this document
+     * @return
+     */
+    public int getLineCount() {
+        Element e = getDefaultRootElement();
+        int cnt = e.getElementCount();
+        return cnt;
+    }
+
+    /**
+     * Return the line number at given position.  The line numbers are zero based
+     * @param pos
+     * @return
+     */
+    public int getLineNumberAt(int pos) {
+        int lineNr = getDefaultRootElement().getElementIndex(pos);
+        return lineNr;
+    }
+// our logger instance...
     private static final Logger log = Logger.getLogger(SyntaxDocument.class.getName());
 }

@@ -188,15 +188,13 @@ public class ActionUtils {
      */
     public static int getLineNumber(JTextComponent editor, int pos)
             throws BadLocationException {
-        Rectangle r = editor.modelToView(pos);
-        // The editor may not be displayed yet, and the rect may be null.
-        // if it is null, then just return a zero.  Issue 47
-        if(r == null) {
-            return 0;
+        if (getSyntaxDocument(editor) != null) {
+            SyntaxDocument sdoc = getSyntaxDocument(editor);
+            return sdoc.getLineNumberAt(pos);
+        } else {
+            Document doc = editor.getDocument();
+            return doc.getDefaultRootElement().getElementIndex(pos);
         }
-        int lineHeight = editor.getFontMetrics(editor.getFont()).getHeight();
-        int line = r.y / lineHeight;
-        return line;
     }
 
     /**
@@ -236,6 +234,10 @@ public class ActionUtils {
     }
 
     public static int getLineCount(JTextComponent pane) {
+        SyntaxDocument sdoc = getSyntaxDocument(pane);
+        if (sdoc != null) {
+            return sdoc.getLineCount();
+        }
         int count = 0;
         try {
             int p = pane.getDocument().getLength() - 1;
@@ -327,6 +329,7 @@ public class ActionUtils {
      * Insert the given String into the textcomponent.  If the string contains
      * the | vertical BAr char, then it will not be inserted, and the cursor will
      * be set to its location.
+     * If there are TWO vertical bars, then the text between them will be selected
      * <b>FIXME: add following feature
      * If the String is multi-line, then it will be indented with the same
      * indentattion as the line with pos.</b>
@@ -335,19 +338,27 @@ public class ActionUtils {
      * @param toInsert
      * @throws javax.swing.text.BadLocationException
      */
-    public static void insertString(JTextComponent target, int dot, String toInsert)
+    public static void insertMagicString(JTextComponent target, int dot, String toInsert)
             throws BadLocationException {
         Document doc = target.getDocument();
         if (toInsert.indexOf('|') >= 0) {
-            int ofst = toInsert.indexOf('|') - toInsert.length() + 1;
+            int ofst = toInsert.indexOf('|');
+            int ofst2 = toInsert.indexOf('|', ofst + 1);
             toInsert = toInsert.replace("|", "");
             doc.insertString(dot, toInsert, null);
-            target.setCaretPosition(target.getCaretPosition() + ofst);
+            dot = target.getCaretPosition();
+            final int strLength = toInsert.length();
+            if (ofst2 > 0) {
+                // note that we already removed the first |, so end offset is now
+                // one less than what it was.
+                target.select(dot + ofst - strLength, dot + ofst2 - strLength - 1);
+            } else {
+                target.setCaretPosition(dot + ofst -strLength);
+            }
         } else {
             doc.insertString(dot, toInsert, null);
         }
     }
-    
     // This is used internally to avoid NPE if we have no Strings
     static String[] EMPTY_STRING_ARRAY = new String[0];
     // This is used to quickly create Strings of at most 16 spaces (using substring)

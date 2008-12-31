@@ -32,7 +32,7 @@ public class ComboCompletionDialog extends javax.swing.JDialog {
     /**
      * The current filter, to avoid refiltering the items
      */
-    public String escapeChars = ";.(= \t\n";
+    public String escapeChars = ";(= \t\n";
     public String[] items;
 
     /** Creates new form ComboCompletionDialog
@@ -109,13 +109,6 @@ public class ComboCompletionDialog extends javax.swing.JDialog {
         setUndecorated(true);
 
         jTxtItem.setBorder(null);
-        jTxtItem.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-            }
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-                jTxtItemInputMethodTextChanged(evt);
-            }
-        });
         jTxtItem.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTxtItemKeyPressed(evt);
@@ -149,7 +142,7 @@ public class ComboCompletionDialog extends javax.swing.JDialog {
         int i = jLstItems.getSelectedIndex();
         switch (evt.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
-                result = null;
+                result = jTxtItem.getText();
                 setVisible(false);
                 return;
             case KeyEvent.VK_DOWN:
@@ -183,10 +176,6 @@ public class ComboCompletionDialog extends javax.swing.JDialog {
             setVisible(false);
         }
     }//GEN-LAST:event_jTxtItemKeyPressed
-
-    private void jTxtItemInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_jTxtItemInputMethodTextChanged
-        System.out.println("New text: " + jTxtItem.getText());
-    }//GEN-LAST:event_jTxtItemInputMethodTextChanged
 
     /**
      * Gets the selected text shown on the dialog.
