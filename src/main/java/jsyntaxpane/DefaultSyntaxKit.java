@@ -132,6 +132,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
         for (SyntaxComponent c : editorComponents) {
             c.deinstall(editorPane);
         }
+        editorComponents.clear();
     }
 
     /**

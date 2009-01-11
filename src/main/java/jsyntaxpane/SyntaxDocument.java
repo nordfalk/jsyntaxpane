@@ -554,6 +554,13 @@ public class SyntaxDocument extends PlainDocument {
         int lineNr = getDefaultRootElement().getElementIndex(pos);
         return lineNr;
     }
+
+    @Override
+    public String toString() {
+        return "SyntaxDocument(" + lexer + ", " + ((tokens == null) ? 0 : tokens.size()) + " tokens)@" +
+                hashCode();
+    }
+
 // our logger instance...
     private static final Logger log = Logger.getLogger(SyntaxDocument.class.getName());
 }

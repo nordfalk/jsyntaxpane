@@ -87,6 +87,7 @@ public class SyntaxStyles {
      * Set the graphics font and others to the style for the given token
      * @param g
      * @param type
+     * @deprecated 
      */
     @Deprecated
     public void setGraphicsStyle(Graphics g, TokenType type) {

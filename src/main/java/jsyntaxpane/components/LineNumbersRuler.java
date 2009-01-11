@@ -16,6 +16,7 @@ package jsyntaxpane.components;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.logging.Logger;
@@ -41,7 +42,6 @@ public class LineNumbersRuler extends JComponent
     public static final String PROPERTY_RIGHT_MARGIN = "LineNumbers.RightMargin";
     public static final int DEFAULT_R_MARGIN = 5;
     public static final int DEFAULT_L_MARGIN = 5;
-
     private JEditorPane pane;
     private String format;
     private int lineCount = -1;
@@ -50,7 +50,17 @@ public class LineNumbersRuler extends JComponent
     private int charHeight;
     private int charWidth;
     private GotoLineDialog gotoLineDialog = null;
+    private MouseListener mouseListener = null;
 
+    /**
+     * The status is used to have proper propertyCHange support.  We need to know if we are INSTALLING
+     * the component or DE-INSTALLING it
+     */
+    static enum Status {
+        INSTALLING,
+        DEINSTALLING
+    }
+    private Status status;
 
     public LineNumbersRuler() {
         super();
@@ -124,7 +134,7 @@ public class LineNumbersRuler extends JComponent
                 PROPERTY_FOREGROUND,
                 Color.BLACK);
         setForeground(foreground);
-        Color back = config.getPrefixColor(prefix, 
+        Color back = config.getPrefixColor(prefix,
                 PROPERTY_BACKGROUND,
                 Color.WHITE);
         setBackground(back);
@@ -145,17 +155,21 @@ public class LineNumbersRuler extends JComponent
             this.pane.getDocument().addDocumentListener(this);
             updateSize();
             gotoLineDialog = new GotoLineDialog(pane);
-            addMouseListener(new MouseAdapter() {
+            mouseListener = new MouseAdapter() {
 
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     gotoLineDialog.setVisible(true);
                 }
-            });
+            };
+            addMouseListener(mouseListener);
         }
+        status = Status.INSTALLING;
     }
 
     public void deinstall(JEditorPane editor) {
+        removeMouseListener(mouseListener);
+        status = Status.DEINSTALLING;
         JScrollPane sp = getScrollPane(editor);
         if (sp != null) {
             editor.getDocument().removeDocumentListener(this);
@@ -164,16 +178,16 @@ public class LineNumbersRuler extends JComponent
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        if(evt.getPropertyName().equals("document")) {
+        if (evt.getPropertyName().equals("document")) {
             if (evt.getOldValue() instanceof SyntaxDocument) {
                 SyntaxDocument syntaxDocument = (SyntaxDocument) evt.getOldValue();
                 syntaxDocument.removeDocumentListener(this);
             }
-            if (evt.getNewValue() instanceof SyntaxDocument) {
+            if (evt.getNewValue() instanceof SyntaxDocument && status.equals(Status.INSTALLING)) {
                 SyntaxDocument syntaxDocument = (SyntaxDocument) evt.getNewValue();
                 syntaxDocument.addDocumentListener(this);
             }
-        } else if(evt.getPropertyName().equals("font")) {
+        } else if (evt.getPropertyName().equals("font")) {
             charHeight = pane.getFontMetrics(pane.getFont()).getHeight();
             charWidth = pane.getFontMetrics(pane.getFont()).charWidth('0');
         }
