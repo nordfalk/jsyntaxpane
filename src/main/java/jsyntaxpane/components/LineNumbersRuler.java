@@ -105,7 +105,9 @@ public class LineNumbersRuler extends JComponent
         int w = d * charWidth + r_margin + l_margin;
         format = "%" + d + "d";
         setPreferredSize(new Dimension(w, h));
-        getParent().doLayout();
+        if(getParent() != null){
+            getParent().doLayout();
+        }
     }
 
     /**

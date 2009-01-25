@@ -13,9 +13,15 @@
  */
 package jsyntaxpane.actions;
 
+import java.awt.event.ContainerEvent;
+import java.awt.event.KeyEvent;
 import jsyntaxpane.components.Markers;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.HeadlessException;
+import java.awt.event.ContainerListener;
+import java.awt.event.KeyListener;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.JOptionPane;
@@ -30,7 +36,7 @@ import javax.swing.text.JTextComponent;
  * 
  * @author Ayman Al-Sairafi
  */
-public class ReplaceDialog extends javax.swing.JDialog implements CaretListener {
+public class ReplaceDialog extends javax.swing.JDialog implements CaretListener, KeyListener, ContainerListener {
 
     private JTextComponent textComponent;
     private FindReplaceActions finder;
@@ -41,6 +47,7 @@ public class ReplaceDialog extends javax.swing.JDialog implements CaretListener 
             FindReplaceActions finderActions) {
         super(ActionUtils.getFrameFor(text), false);
         initComponents();
+        registerKeyAction(this);
         textComponent = text;
         finder = finderActions;
         textComponent.addCaretListener(this);
@@ -261,5 +268,44 @@ public class ReplaceDialog extends javax.swing.JDialog implements CaretListener 
 
     public void caretUpdate(CaretEvent e) {
         updateHighlights();
+    }
+
+    public void keyTyped(KeyEvent arg0) {
+        
+    }
+
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            this.setVisible(false);
+        }
+    }
+
+    public void keyReleased(KeyEvent arg0) {
+        
+    }
+
+    public void componentAdded(ContainerEvent e) {
+        registerKeyAction(e.getChild());
+    }
+
+    public void componentRemoved(ContainerEvent e) {
+        registerKeyAction(e.getChild());
+    }
+
+    private void registerKeyAction(Component c) {
+        if (c instanceof ReplaceDialog == false) {
+            c.removeKeyListener(this);
+            c.addKeyListener(this);
+        }
+
+        if (c instanceof Container) {
+            Container cnt = (Container) c;
+            cnt.removeContainerListener(this);
+            cnt.addContainerListener(this);
+            Component[] ch = cnt.getComponents();
+            for (int i = 0; i < ch.length; i++) {
+                registerKeyAction(ch[i]);
+            }
+        }
     }
 }
