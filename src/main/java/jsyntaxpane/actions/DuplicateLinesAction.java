@@ -14,44 +14,32 @@
 package jsyntaxpane.actions;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.TextAction;
 import jsyntaxpane.SyntaxDocument;
-import jsyntaxpane.util.Configuration;
 
 /**
  * This Action duplicates the current line, or all the highlighted lines.
  * @author Ayman Al-Sairafi
  */
-public class DuplicateLinesAction extends TextAction implements SyntaxAction {
+public class DuplicateLinesAction extends DefaultSyntaxAction {
 
     public DuplicateLinesAction() {
         super("DUPLICATE_LINES");
     }
 
-    public void actionPerformed(ActionEvent e) {
-        JTextComponent target = getTextComponent(e);
-        if (target != null) {
-            try {
-                SyntaxDocument sDoc = (SyntaxDocument) target.getDocument();
-                int st = sDoc.getLineStartOffset(target.getSelectionStart());
-                int en = sDoc.getLineEndOffset(target.getSelectionEnd());
-                String dupLines = sDoc.getText(st, en-st);
-                sDoc.insertString(st, dupLines, null);
-            } catch (BadLocationException ex) {
-                Logger.getLogger(DuplicateLinesAction.class.getName()).log(Level.SEVERE, null, ex);
-            }
+    @Override
+    public void actionPerformed(JTextComponent target, SyntaxDocument sdoc,
+            int dot, ActionEvent e) {
+        try {
+            int st = sdoc.getLineStartOffset(target.getSelectionStart());
+            int en = sdoc.getLineEndOffset(target.getSelectionEnd());
+            String dupLines = sdoc.getText(st, en - st);
+            sdoc.insertString(st, dupLines, null);
+        } catch (BadLocationException ex) {
+            Logger.getLogger(DuplicateLinesAction.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    public void config(Configuration config, String prefix, String name) {
-    }
-
-    public TextAction getAction(String key) {
-        return this;
     }
 }

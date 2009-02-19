@@ -13,8 +13,6 @@
  */
 package jsyntaxpane;
 
-import java.io.CharArrayReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -80,16 +78,8 @@ public class SyntaxDocument extends PlainDocument {
         try {
             Segment seg = new Segment();
             getText(0, getLength(), seg);
-            CharArrayReader reader = new CharArrayReader(seg.array, seg.offset, seg.count);
-            lexer.yyreset(reader);
-            Token token;
-            while ((token = lexer.yylex()) != null) {
-                toks.add(token);
-            }
+            lexer.parse(seg, 0, toks);
         } catch (BadLocationException ex) {
-            log.log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            // This will not be thrown from the Lexer
             log.log(Level.SEVERE, null, ex);
         } finally {
             if (log.isLoggable(Level.FINEST)) {
@@ -116,12 +106,6 @@ public class SyntaxDocument extends PlainDocument {
     protected void fireRemoveUpdate(DocumentEvent e) {
         parse();
         super.fireRemoveUpdate(e);
-    }
-
-    @Override
-    protected void fireUndoableEditUpdate(UndoableEditEvent e) {
-        parse();
-        super.fireUndoableEditUpdate(e);
     }
 
     /**
@@ -194,6 +178,7 @@ public class SyntaxDocument extends PlainDocument {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public boolean hasPrevious() {
             if (tokens == null) {
                 return false;
@@ -270,6 +255,36 @@ public class SyntaxDocument extends PlainDocument {
             tok = tokens.get(ndx);
         }
         return tok;
+    }
+
+    /**
+     * Return the token following the current token, or null
+     * <b>This is an expensive operation, so do not use it to update the gui</b>
+     * @param tok
+     * @return
+     */
+    public Token getNextToken(Token tok) {
+        int n = tokens.indexOf(tok);
+        if ((n >= 0) && (n < (tokens.size() - 1))) {
+            return tokens.get(n + 1);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Return the token prior to the given token, or null
+     * <b>This is an expensive operation, so do not use it to update the gui</b>
+     * @param tok
+     * @return
+     */
+    public Token getPrevToken(Token tok) {
+        int n = tokens.indexOf(tok);
+        if ((n > 0) && (!tokens.isEmpty())) {
+            return tokens.get(n - 1);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -502,7 +517,7 @@ public class SyntaxDocument extends PlainDocument {
         Iterator<Token> iter = getTokens(aStart, anEnd);
         while (iter.hasNext()) {
             Token t = iter.next();
-            if (TokenType.COMMENT != t.type && TokenType.COMMENT2 != t.type) {
+            if (!TokenType.isComment(t)) {
                 result.append(t.getText(this));
             }
         }

@@ -14,7 +14,7 @@
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 
@@ -22,7 +22,7 @@ import jsyntaxpane.TokenType;
 
 %public
 %class GroovyLexer
-%extends DefaultLexer
+%extends DefaultJFlexLexer
 %final
 %unicode
 %char
@@ -37,15 +37,9 @@ import jsyntaxpane.TokenType;
         super();
     }
 
-    /**
-     * Helper method to create and return a new Token of TokenType
-     */
-    private Token token(TokenType type) {
-        return new Token(type, yychar, yylength());
-    }
-
-    private Token token(TokenType type, int pairValue) {
-        return new Token(type, yychar, yylength(), (byte)pairValue);
+    @Override
+    public int yychar() {
+        return yychar;
     }
 
     private static final byte PARAN     = 1;
@@ -343,7 +337,7 @@ RegexCharacter  = [^\r\n\/]
   \"                             { 
                                     yybegin(YYINITIAL); 
                                     // length also includes the trailing quote
-                                    return new Token(TokenType.STRING, tokenStart, tokenLength + 1);
+                                    return token(TokenType.STRING, tokenStart, tokenLength + 1);
                                  }
 
   "${"                           { 
@@ -353,7 +347,7 @@ RegexCharacter  = [^\r\n\/]
                                     int l = tokenLength;
                                     tokenStart = yychar;
                                     tokenLength = 2;
-                                    return new Token(TokenType.STRING, s, l);
+                                    return token(TokenType.STRING, s, l);
                                  }
   
   {StringCharacter}+             { tokenLength += yylength(); }
@@ -376,7 +370,7 @@ RegexCharacter  = [^\r\n\/]
                                     int l = tokenLength + 1;
                                     tokenStart = yychar + 1;
                                     tokenLength = 0;
-                                    return new Token(TokenType.STRING2, s, l);
+                                    return token(TokenType.STRING2, s, l);
                                  }
 
   {StringCharacter}              { tokenLength ++; }
@@ -387,7 +381,7 @@ RegexCharacter  = [^\r\n\/]
   \"{3}                          {
                                     yybegin(YYINITIAL);
                                     // length also includes the trailing quote
-                                    return new Token(TokenType.STRING, tokenStart, tokenLength + 3);
+                                    return token(TokenType.STRING, tokenStart, tokenLength + 3);
                                  }
 
   "${"                           {
@@ -397,7 +391,7 @@ RegexCharacter  = [^\r\n\/]
                                     int l = tokenLength;
                                     tokenStart = yychar;
                                     tokenLength = 2;
-                                    return new Token(TokenType.STRING, s, l);
+                                    return token(TokenType.STRING, s, l);
                                  }
 
   \\[0-3]?{OctDigit}?{OctDigit}  { tokenLength += yylength(); }
@@ -417,7 +411,7 @@ RegexCharacter  = [^\r\n\/]
                                     int l = tokenLength + 1;
                                     tokenStart = yychar + 1;
                                     tokenLength = 0;
-                                    return new Token(TokenType.STRING2, s, l);
+                                    return token(TokenType.STRING2, s, l);
                                  }
 
   .|\n|\r                        { tokenLength ++; }
@@ -427,7 +421,7 @@ RegexCharacter  = [^\r\n\/]
   \'                             { 
                                      yybegin(YYINITIAL); 
                                      // length also includes the trailing quote
-                                     return new Token(TokenType.STRING, tokenStart, tokenLength + 1);
+                                     return token(TokenType.STRING, tokenStart, tokenLength + 1);
                                  }
   
   {SingleCharacter}+             { tokenLength += yylength(); }
@@ -441,7 +435,7 @@ RegexCharacter  = [^\r\n\/]
 <JDOC> {
   "*/"                           {
                                      yybegin(YYINITIAL);
-                                     return new Token(TokenType.COMMENT, tokenStart, tokenLength + 2);
+                                     return token(TokenType.COMMENT, tokenStart, tokenLength + 2);
                                  }
 
   "@"                            {
@@ -450,7 +444,7 @@ RegexCharacter  = [^\r\n\/]
                                      tokenStart = yychar;
                                      int len = tokenLength;
                                      tokenLength = 1;
-                                     return new Token(TokenType.COMMENT, start, len);
+                                     return token(TokenType.COMMENT, start, len);
                                  }
 
   .|\n                           { tokenLength ++; }
@@ -462,7 +456,7 @@ RegexCharacter  = [^\r\n\/]
 
   "*/"                           {
                                      yybegin(YYINITIAL);
-                                     return new Token(TokenType.COMMENT, tokenStart, tokenLength + 2);
+                                     return token(TokenType.COMMENT, tokenStart, tokenLength + 2);
                                  }
 
   .|\n                           {
@@ -472,7 +466,7 @@ RegexCharacter  = [^\r\n\/]
                                      tokenStart = yychar;
                                      int len = tokenLength;
                                      tokenLength = 1;
-                                     return new Token(TokenType.COMMENT2, start, len);
+                                     return token(TokenType.COMMENT2, start, len);
                                  }
 }
 
@@ -480,7 +474,7 @@ RegexCharacter  = [^\r\n\/]
   "/"                            { 
                                      yybegin(YYINITIAL); 
                                      // length also includes the trailing quote
-                                     return new Token(TokenType.REGEX, tokenStart, tokenLength + 1);
+                                     return token(TokenType.REGEX, tokenStart, tokenLength + 1);
                                  }
   
   {RegexCharacter}+             { tokenLength += yylength(); }

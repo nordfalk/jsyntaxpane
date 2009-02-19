@@ -13,38 +13,23 @@
  */
 package jsyntaxpane.actions;
 
+import jsyntaxpane.actions.gui.GotoLineDialog;
 import java.awt.event.ActionEvent;
-import java.util.WeakHashMap;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.TextAction;
-import jsyntaxpane.util.Configuration;
+import jsyntaxpane.SyntaxDocument;
 
 /**
  * This actions displays the GotoLine dialog
  */
-public class GotoLineAction extends TextAction implements SyntaxAction {
-
-    private static WeakHashMap<JTextComponent, GotoLineDialog> DIALOGS =
-            new WeakHashMap<JTextComponent, GotoLineDialog>();
+public class GotoLineAction extends DefaultSyntaxAction {
 
     public GotoLineAction() {
         super("GOTO_LINE");
     }
 
-    public void actionPerformed(ActionEvent e) {
-        JTextComponent target = getTextComponent(e);
-        GotoLineDialog dlg = DIALOGS.get(target);
-        if(dlg == null) {
-            dlg = new GotoLineDialog(target);
-            DIALOGS.put(target, dlg);
-        }
-        dlg.setVisible(true);
-    }
-
-    public void config(Configuration config, String prefix, String name) {
-    }
-
-    public TextAction getAction(String key) {
-        return this;
+    @Override
+    public void actionPerformed(JTextComponent target, SyntaxDocument sdoc,
+            int dot, ActionEvent e) {
+        GotoLineDialog.showForEditor(target);
     }
 }

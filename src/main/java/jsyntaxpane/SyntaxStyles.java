@@ -20,19 +20,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.swing.text.Segment;
 import javax.swing.text.TabExpander;
+import jsyntaxpane.util.Configuration;
 import jsyntaxpane.util.JarServiceProvider;
 
 /**
- * The STyles to use for each TokenType.  The defaults are created here, and
+ * The Styles to use for each TokenType.  The defaults are created here, and
  * then the resource META-INF/services/syntaxstyles.properties is read and
  * merged.  You can also pass a properties instance and merge your prefered
- * styles into the default styles
+ * styles into the default styles.
+ *
+ * Text is drawn by forwarding the drawText request to the SyntaxStyle for the
+ * that matches the given TokenType
  * 
- * @author Ayman
+ * @author Ayman Al-Sairafi
  */
 public class SyntaxStyles {
+
+    public static final String STYLE_PROPERTY_KEY = "Style.";
+    public static final Pattern STYLE_PATTERN = Pattern.compile("Style\\.(\\w+)");
 
     /**
      * You can call the mergeStyles method with a Properties file to customize
@@ -41,21 +49,21 @@ public class SyntaxStyles {
      * @param styles
      */
     public void mergeStyles(Properties styles) {
-        for (String token : styles.stringPropertyNames()) {
-            String stv = styles.getProperty(token);
+        for (Map.Entry e : styles.entrySet()) {
+            String tokenType = e.getKey().toString();
+            String style = e.getValue().toString();
             try {
-                TokenType tt = TokenType.valueOf(token);
-                SyntaxStyle tokenStyle = new SyntaxStyle(stv);
+                TokenType tt = TokenType.valueOf(tokenType);
+                SyntaxStyle tokenStyle = new SyntaxStyle(style);
                 put(tt, tokenStyle);
             } catch (IllegalArgumentException ex) {
-                LOG.warning("illegal token type or style for: " + token);
+                LOG.warning("illegal token type or style for: " + tokenType);
             }
         }
     }
     Map<TokenType, SyntaxStyle> styles;
     private static SyntaxStyles instance = createInstance();
     private static final Logger LOG = Logger.getLogger(SyntaxStyles.class.getName());
-    
     private static SyntaxStyle DEFAULT_STYLE = new SyntaxStyle(Color.BLACK, Font.PLAIN);
 
     private SyntaxStyles() {
@@ -72,8 +80,28 @@ public class SyntaxStyles {
         return syntaxstyles;
     }
 
+    /**
+     * Returns the Default Singleton
+     * @return
+     */
     public static SyntaxStyles getInstance() {
         return instance;
+    }
+
+    public static SyntaxStyles read(Configuration config) {
+        SyntaxStyles ss = createInstance();
+        // Configuration styleConf = config.subConfig(STYLE_PROPERTY_KEY);
+
+        for (Configuration.StringKeyMatcher m : config.getKeys(STYLE_PATTERN)) {
+            String type = m.group1;
+            try {
+                ss.put(TokenType.valueOf(type), new SyntaxStyle(m.value));
+            } catch (IllegalArgumentException e) {
+                Logger.getLogger(SyntaxStyles.class.getName()).warning(
+                        String.format("Invalid Token Type [%s] for Style of ", type));
+            }
+        }
+        return ss;
     }
 
     public void put(TokenType type, SyntaxStyle style) {
@@ -84,31 +112,12 @@ public class SyntaxStyles {
     }
 
     /**
-     * Set the graphics font and others to the style for the given token
-     * @param g
-     * @param type
-     * @deprecated 
-     */
-    @Deprecated
-    public void setGraphicsStyle(Graphics g, TokenType type) {
-        Font c = g.getFont();
-        SyntaxStyle ss = styles.get(type);
-        if (ss != null) {
-            g.setFont(g.getFont().deriveFont(ss.getFontStyle()));
-            g.setColor(ss.getColor());
-        } else {
-            g.setFont(g.getFont().deriveFont(Font.PLAIN));
-            g.setColor(Color.BLACK);
-        }
-    }
-
-    /**
      * Return the style for the given TokenType
      * @param type
      * @return
      */
     public SyntaxStyle getStyle(TokenType type) {
-        if (styles.containsKey(type)) {
+        if (styles != null && styles.containsKey(type)) {
             return styles.get(type);
         } else {
             return DEFAULT_STYLE;

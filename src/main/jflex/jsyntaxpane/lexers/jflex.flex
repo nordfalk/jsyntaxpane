@@ -14,7 +14,7 @@
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
  
@@ -22,7 +22,7 @@ import jsyntaxpane.TokenType;
 
 %public
 %class JFlexLexer
-%extends DefaultLexer
+%extends DefaultJFlexLexer
 %final
 %unicode
 %char
@@ -38,10 +38,10 @@ import jsyntaxpane.TokenType;
         super();
     }
 
-    private Token token(TokenType type) {
-        return new Token(type, yychar, yylength());
+    @Override
+    public int yychar() {
+        return yychar;
     }
-
 %}
 
 /* main character classes */
@@ -327,7 +327,7 @@ SingleCharacter = [^\r\n\'\\]
   \"                             { 
                                      yybegin(YYINITIAL); 
                                      // length also includes the trailing quote
-                                     return new Token(TokenType.STRING, tokenStart, tokenLength + 1);
+                                     return token(TokenType.STRING, tokenStart, tokenLength + 1);
                                  }
   
   {StringCharacter}+             { tokenLength += yylength(); }
@@ -344,7 +344,7 @@ SingleCharacter = [^\r\n\'\\]
   \'                             { 
                                      yybegin(YYINITIAL); 
                                      // length also includes the trailing quote
-                                     return new Token(TokenType.STRING, tokenStart, tokenLength + 1);
+                                     return token(TokenType.STRING, tokenStart, tokenLength + 1);
                                  }
   
   {SingleCharacter}+             { tokenLength += yylength(); }
@@ -358,7 +358,7 @@ SingleCharacter = [^\r\n\'\\]
 <JDOC> {
   "*/"                           { 
                                      yybegin(YYINITIAL); 
-                                     return new Token(TokenType.COMMENT, tokenStart, tokenLength + 2);
+                                     return token(TokenType.COMMENT, tokenStart, tokenLength + 2);
                                  }
 
   "@"                            {   
@@ -367,7 +367,7 @@ SingleCharacter = [^\r\n\'\\]
                                      tokenStart = yychar;
                                      int len = tokenLength;
                                      tokenLength = 1;
-                                     return new Token(TokenType.COMMENT, start, len);
+                                     return token(TokenType.COMMENT, start, len);
                                  }
 
   .|\n                           { tokenLength ++; }
@@ -379,7 +379,7 @@ SingleCharacter = [^\r\n\'\\]
 
   "*/"                           { 
                                      yybegin(YYINITIAL); 
-                                     return new Token(TokenType.COMMENT, tokenStart, tokenLength + 2);
+                                     return token(TokenType.COMMENT, tokenStart, tokenLength + 2);
                                  }
 
   .|\n                           {   
@@ -389,7 +389,7 @@ SingleCharacter = [^\r\n\'\\]
                                      tokenStart = yychar;
                                      int len = tokenLength;
                                      tokenLength = 1;
-                                     return new Token(TokenType.COMMENT2, start, len);
+                                     return token(TokenType.COMMENT2, start, len);
                                  }
 }
 

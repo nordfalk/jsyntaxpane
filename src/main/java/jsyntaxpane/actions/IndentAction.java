@@ -14,55 +14,43 @@
 package jsyntaxpane.actions;
 
 import java.awt.event.ActionEvent;
-import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
-import javax.swing.text.TextAction;
-import jsyntaxpane.util.Configuration;
+import jsyntaxpane.SyntaxDocument;
 
 /**
  * IndentAction is used to replace Tabs with spaces.  If there is selected
  * text, then the lines spanning the selection will be shifted
  * right by one tab-width space  character
  */
-public class IndentAction extends DefaultEditorKit.InsertTabAction 
-        implements SyntaxAction {
+public class IndentAction extends DefaultSyntaxAction {
 
     public IndentAction() {
-        super();
+        super("INSERT_TAB");
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        JTextComponent target = getTextComponent(e);
-        if (target != null) {
-            String selected = target.getSelectedText();
-            if (selected == null) {
-                PlainDocument pDoc = (PlainDocument) target.getDocument();
-                Integer tabStop = (Integer) pDoc.getProperty(PlainDocument.tabSizeAttribute);
-                int lineStart = pDoc.getParagraphElement(target.getCaretPosition()).getStartOffset();
-                int column = target.getCaretPosition() - lineStart;
-                int needed = tabStop - (column % tabStop);
-                target.replaceSelection(ActionUtils.SPACES.substring(0, needed));
-            } else {
-                String[] lines = ActionUtils.getSelectedLines(target);
-                int start = target.getSelectionStart();
-                StringBuilder sb = new StringBuilder();
-                for (String line : lines) {
-                    sb.append('\t');
-                    sb.append(line);
-                    sb.append('\n');
-                }
-                target.replaceSelection(sb.toString());
-                target.select(start, start + sb.length());
+    public void actionPerformed(JTextComponent target, SyntaxDocument sDoc,
+            int dot, ActionEvent e) {
+        String selected = target.getSelectedText();
+        if (selected == null) {
+            PlainDocument pDoc = (PlainDocument) target.getDocument();
+            Integer tabStop = (Integer) pDoc.getProperty(PlainDocument.tabSizeAttribute);
+            int lineStart = pDoc.getParagraphElement(target.getCaretPosition()).getStartOffset();
+            int column = target.getCaretPosition() - lineStart;
+            int needed = tabStop - (column % tabStop);
+            target.replaceSelection(ActionUtils.SPACES.substring(0, needed));
+        } else {
+            String[] lines = ActionUtils.getSelectedLines(target);
+            int start = target.getSelectionStart();
+            StringBuilder sb = new StringBuilder();
+            for (String line : lines) {
+                sb.append('\t');
+                sb.append(line);
+                sb.append('\n');
             }
+            target.replaceSelection(sb.toString());
+            target.select(start, start + sb.length());
         }
-    }
-
-    public void config(Configuration config, String prefix, String name) {
-    }
-
-    public TextAction getAction(String key) {
-        return this;
     }
 }

@@ -19,7 +19,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.util.HashMap;
+import java.awt.Toolkit;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
@@ -36,40 +36,33 @@ public class SyntaxView extends PlainView {
     public static final String PROPERTY_RIGHT_MARGIN_COLOR = "RightMarginColor";
     public static final String PROPERTY_RIGHT_MARGIN_COLUMN = "RightMarginColumn";
     public static final String PROPERTY_SINGLE_COLOR_SELECT = "SingleColorSelect";
-    public static final String PROPERTY_TEXTAA = "TextAA";
-    
     private static final Logger log = Logger.getLogger(SyntaxView.class.getName());
     private SyntaxStyle DEFAULT_STYLE = SyntaxStyles.getInstance().getStyle(TokenType.DEFAULT);
     private final boolean singleColorSelect;
     private final int rightMarginColumn;
     private final Color rightMarginColor;
-    private final Object textAAHint;
+    private final SyntaxStyles styles;
 
     /**
      * Construct a new view using the given configuration and prefix given
      * 
      * @param element
      * @param config
-     * @param prefix
      */
-    public SyntaxView(Element element, Configuration config, String prefix) {
+    public SyntaxView(Element element, Configuration config) {
         super(element);
-        singleColorSelect = config.getPrefixBoolean(prefix, PROPERTY_SINGLE_COLOR_SELECT, false);
-        rightMarginColor = new Color(config.getPrefixInteger(prefix, PROPERTY_RIGHT_MARGIN_COLOR,
+        singleColorSelect = config.getBoolean(PROPERTY_SINGLE_COLOR_SELECT, false);
+        rightMarginColor = new Color(config.getInteger(PROPERTY_RIGHT_MARGIN_COLOR,
                 0xFF7777));
-        rightMarginColumn = config.getPrefixInteger(prefix, PROPERTY_RIGHT_MARGIN_COLUMN,
+        rightMarginColumn = config.getInteger(PROPERTY_RIGHT_MARGIN_COLUMN,
                 0);
-        String textaa = config.getPrefixProperty(prefix, PROPERTY_TEXTAA,
-                "DEFAULT");
-        textAAHint = TEXT_AA_HINT_NAMES.get(textaa);
+        styles = SyntaxStyles.read(config);
     }
 
     @Override
     protected int drawUnselectedText(Graphics graphics, int x, int y, int p0,
             int p1) {
-        Graphics2D graphics2D = (Graphics2D) graphics;
-        graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                textAAHint);
+        setRenderingHits((Graphics2D) graphics);
         Font saveFont = graphics.getFont();
         Color saveColor = graphics.getColor();
         SyntaxDocument doc = (SyntaxDocument) getDocument();
@@ -111,7 +104,7 @@ public class SyntaxView extends PlainView {
                     l = p1 - s;
                 }
                 doc.getText(s, l, segment);
-                x = SyntaxStyles.getInstance().drawText(segment, x, y, graphics, this, t);
+                x = styles.drawText(segment, x, y, graphics, this, t);
                 start = t.end();
             }
             // now for any remaining text not tokenized:
@@ -120,8 +113,7 @@ public class SyntaxView extends PlainView {
                 x = DEFAULT_STYLE.drawText(segment, x, y, graphics, this, start);
             }
         } catch (BadLocationException ex) {
-            System.err.println("Requested: " + ex.offsetRequested());
-            log.log(Level.SEVERE, null, ex);
+            log.log(Level.SEVERE, "Requested: " + ex.offsetRequested(), ex);
         } finally {
             graphics.setFont(saveFont);
             graphics.setColor(saveColor);
@@ -145,6 +137,15 @@ public class SyntaxView extends PlainView {
         }
     }
 
+    /**
+     * Sets the Rendering Hints o nthe Graphics.  This is used so that
+     * any painters can set the Rendering Hits to match the view.
+     * @param g2d
+     */
+    public static void setRenderingHits(Graphics2D g2d) {
+        g2d.addRenderingHints(sysHints);
+    }
+
     @Override
     protected void updateDamage(javax.swing.event.DocumentEvent changes,
             Shape a,
@@ -153,21 +154,20 @@ public class SyntaxView extends PlainView {
         java.awt.Component host = getContainer();
         host.repaint();
     }
-
     /**
      * The values for the string key for Text Anti-Aliasing
      */
-    private static Map<String, Object> TEXT_AA_HINT_NAMES =
-            new HashMap<String, Object>();
+    private static RenderingHints sysHints;
 
     static {
-        TEXT_AA_HINT_NAMES.put("DEFAULT", RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT);
-        TEXT_AA_HINT_NAMES.put("GASP", RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
-        TEXT_AA_HINT_NAMES.put("HBGR", RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR);
-        TEXT_AA_HINT_NAMES.put("HRGB", RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-        TEXT_AA_HINT_NAMES.put("VBGR", RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR);
-        TEXT_AA_HINT_NAMES.put("VRGB", RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR);
-        TEXT_AA_HINT_NAMES.put("OFF", RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-        TEXT_AA_HINT_NAMES.put("ON", RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        sysHints = null;
+        try {
+            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            @SuppressWarnings("unchecked")
+            Map<RenderingHints.Key,?> map = (Map<RenderingHints.Key,?>)
+                    toolkit.getDesktopProperty("awt.font.desktophints");
+            sysHints = new RenderingHints(map);
+        } catch (Throwable t) {
+        }
     }
 }

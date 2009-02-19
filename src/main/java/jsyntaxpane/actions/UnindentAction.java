@@ -15,48 +15,37 @@ package jsyntaxpane.actions;
 
 import java.awt.event.ActionEvent;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.PlainDocument;
-import javax.swing.text.TextAction;
-import jsyntaxpane.util.Configuration;
+import jsyntaxpane.SyntaxDocument;
 
 /**
  * This is usually mapped to Shift-TAB to unindent the selection.  The
  * current line, or the selected lines are un-indented by the tabstop of the
  * document.
  */
-public class UnindentAction extends TextAction implements SyntaxAction {
+public class UnindentAction extends DefaultSyntaxAction {
 
     public UnindentAction() {
         super("UNINDENT");
     }
 
-    public void actionPerformed(ActionEvent e) {
-        JTextComponent target = getTextComponent(e);
-        Integer tabStop = (Integer) target.getDocument().getProperty(PlainDocument.tabSizeAttribute);
-        String indent = ActionUtils.SPACES.substring(0, tabStop);
-        if (target != null) {
-            String[] lines = ActionUtils.getSelectedLines(target);
-            int start = target.getSelectionStart();
-            StringBuilder sb = new StringBuilder();
-            for (String line : lines) {
-                if (line.startsWith(indent)) {
-                    sb.append(line.substring(indent.length()));
-                } else if (line.startsWith("\t")) {
-                    sb.append(line.substring(1));
-                } else {
-                    sb.append(line);
-                }
-                sb.append('\n');
+    @Override
+    public void actionPerformed(JTextComponent target, SyntaxDocument sDoc,
+            int dot, ActionEvent e) {
+        String indent = ActionUtils.getTab(target);
+        String[] lines = ActionUtils.getSelectedLines(target);
+        int start = target.getSelectionStart();
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            if (line.startsWith(indent)) {
+                sb.append(line.substring(indent.length()));
+            } else if (line.startsWith("\t")) {
+                sb.append(line.substring(1));
+            } else {
+                sb.append(line);
             }
-            target.replaceSelection(sb.toString());
-            target.select(start, start + sb.length());
+            sb.append('\n');
         }
-    }
-
-    public void config(Configuration config, String prefix, String name) {
-    }
-
-    public TextAction getAction(String key) {
-        return this;
+        target.replaceSelection(sb.toString());
+        target.select(start, start + sb.length());
     }
 }

@@ -1,8 +1,22 @@
+Version 0.9.5 - Java Reflection Completions additions
+    * Configuration class overhaul.  Each kit now has its own COnfiguration file
+      which merges the superclass(es) Configurations.
+    * Usable Reflect Completions Dialog (Java with F1 or Menu)
+    * Java ENTER key responds properly to multi line comments
+    * Font can be changed for each Kit
+    * Kits for XHTML and Xpath added.  XHTML has a simple Preview Action.
+    * Added Execute Script to JacaScript (can also be used for Groovy if Groovy
+      Scripting support is installed properly).
 Version 0.9.4 - IntelliSense additions
     * Adding IntelliSense to Java with simple List of selectable keywords
     * Added Toggle Comment Actions using Control SLASH
     * Fixed Issue 47.
     * Added Clojure, Scala, DOS Batch and 'nix bash support
+    * Added Configurable Popup menus with default Tango Desktop icons
+    * Added configurable format for the CaretMonitor class
+    * Toggle Comments Action selects the lines affected after being performed
+    * Added multi-line support in ActionUtils.insertMagicSTring method.
+    * GotoLine dialog responds to ESC key
 Version 0.9.3 - Start of scripts for the document:
     * Added new methods getLine() to SyntaxDocument
     * SyntaxDocument getIndexOf methods deprecated, use getMatchers instead

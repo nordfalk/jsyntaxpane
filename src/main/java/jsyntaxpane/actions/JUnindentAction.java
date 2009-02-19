@@ -21,7 +21,7 @@ import jsyntaxpane.SyntaxDocument;
 import jsyntaxpane.Token;
 import jsyntaxpane.util.Configuration;
 
-public class JUnindentAction extends TextAction implements SyntaxAction {
+public class JUnindentAction extends DefaultSyntaxAction {
 
     /**
      * creates new JUnindentAction.
@@ -35,35 +35,25 @@ public class JUnindentAction extends TextAction implements SyntaxAction {
      * {@inheritDoc}
      */
     @Override
-    public void actionPerformed(ActionEvent e) {
-        JTextComponent target = getTextComponent(e);
-        if (target != null) {
-            SyntaxDocument sDoc = ActionUtils.getSyntaxDocument(target);
-            int pos = target.getCaretPosition();
-            int start = sDoc.getParagraphElement(pos).getStartOffset();
-            String line = ActionUtils.getLine(target);
-            if (ActionUtils.isEmptyOrBlanks(line)) {
-                try {
-                    sDoc.insertString(pos, "}", null);
-                    Token t = sDoc.getPairFor(sDoc.getTokenAt(pos));
-                    if (null != t) {
-                        String pairLine = ActionUtils.getLineAt(target, t.start);
-                        String indent = ActionUtils.getIndent(pairLine);
-                        sDoc.replace(start, line.length() + 1, indent + "}", null);
-                    }
-                } catch (BadLocationException ble) {
-                    target.replaceSelection("}");
+    public void actionPerformed(JTextComponent target, SyntaxDocument sDoc,
+            int dot, ActionEvent e) {
+        int pos = target.getCaretPosition();
+        int start = sDoc.getParagraphElement(pos).getStartOffset();
+        String line = ActionUtils.getLine(target);
+        if (ActionUtils.isEmptyOrBlanks(line)) {
+            try {
+                sDoc.insertString(pos, "}", null);
+                Token t = sDoc.getPairFor(sDoc.getTokenAt(pos));
+                if (null != t) {
+                    String pairLine = ActionUtils.getLineAt(target, t.start);
+                    String indent = ActionUtils.getIndent(pairLine);
+                    sDoc.replace(start, line.length() + 1, indent + "}", null);
                 }
-            } else {
+            } catch (BadLocationException ble) {
                 target.replaceSelection("}");
             }
+        } else {
+            target.replaceSelection("}");
         }
-    }
-
-    public void config(Configuration config, String prefix, String name) {
-    }
-
-    public TextAction getAction(String key) {
-        return this;
     }
 }

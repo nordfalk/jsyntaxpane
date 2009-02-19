@@ -28,9 +28,8 @@ public interface SyntaxComponent {
      * Configure the component using the given properties.  The keys
      * needed for configuration will be prefixed by the given prefix
      * @param config configuration data
-     * @param prefix prefix for keys
      */
-    public void config(Configuration config, String prefix);
+    public void config(Configuration config);
 
     /**
      * Called to install the component on an editor
@@ -43,4 +42,14 @@ public interface SyntaxComponent {
      * @param editor
      */
     public void deinstall(JEditorPane editor);
+
+    /**
+     * The status is used to have proper propertyCHange support.  We need to know if we are INSTALLING
+     * the component or DE-INSTALLING it
+     */
+    static enum Status {
+
+        INSTALLING,
+        DEINSTALLING
+    }
 }

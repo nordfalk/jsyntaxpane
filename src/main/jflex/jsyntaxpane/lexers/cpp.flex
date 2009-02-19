@@ -21,7 +21,7 @@
  */
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 
@@ -29,7 +29,7 @@ import jsyntaxpane.TokenType;
 
 %public
 %class CppLexer
-%extends DefaultLexer
+%extends DefaultJFlexLexer
 %final
 %unicode
 %char
@@ -42,22 +42,14 @@ import jsyntaxpane.TokenType;
         super();
     }
 
-	private Token token(TokenType type) {
-        return new Token(type, yychar, yylength());
-    }
-    
-    private Token token(TokenType type, int pairValue) {
-        return new Token(type, yychar, yylength(), (byte)pairValue);
+    @Override
+    public int yychar() {
+        return yychar;
     }
 
     private static final byte PARAN     = 1;
     private static final byte BRACKET   = 2;
     private static final byte CURLY     = 3;
-
-    // These will be used to store Token Start positions and length for Complex 
-    // Tokens that need deifferent Lexer States, like STRING
-    int tokenStart;
-    int tokenLength;
 
 %}
 

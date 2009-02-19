@@ -14,12 +14,9 @@
 package jsyntaxpane.actions;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.security.KeyStore;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.TextAction;
 import jsyntaxpane.SyntaxDocument;
 import jsyntaxpane.util.Configuration;
 
@@ -28,7 +25,7 @@ import jsyntaxpane.util.Configuration;
  * 
  * @author Ayman Al-Sairafi
  */
-public class ToggleCommentsAction extends TextAction implements SyntaxAction {
+public class ToggleCommentsAction extends DefaultSyntaxAction {
 
     protected String lineCommentStart = "// ";
     protected Pattern lineCommentPattern = null;
@@ -46,33 +43,29 @@ public class ToggleCommentsAction extends TextAction implements SyntaxAction {
      * @param e 
      */
     @Override
-    public void actionPerformed(ActionEvent e) {
-        JTextComponent target = getTextComponent(e);
-        if (target != null && target.getDocument() instanceof SyntaxDocument) {
-            String[] lines = ActionUtils.getSelectedLines(target);
-            StringBuffer toggled = new StringBuffer();
-            for (int i = 0; i < lines.length; i++) {
-                Matcher m = lineCommentPattern.matcher(lines[i]);
-                if (m.find()) {
-                    toggled.append(m.replaceFirst("$2"));
-                } else {
-                    toggled.append(lineCommentStart);
-                    toggled.append(lines[i]);
-                }
-                toggled.append('\n');
+    public void actionPerformed(JTextComponent target, SyntaxDocument sDoc,
+            int dot, ActionEvent e) {
+        String[] lines = ActionUtils.getSelectedLines(target);
+        int start = target.getSelectionStart();
+        StringBuffer toggled = new StringBuffer();
+        for (int i = 0; i < lines.length; i++) {
+            Matcher m = lineCommentPattern.matcher(lines[i]);
+            if (m.find()) {
+                toggled.append(m.replaceFirst("$2"));
+            } else {
+                toggled.append(lineCommentStart);
+                toggled.append(lines[i]);
             }
-            target.replaceSelection(toggled.toString());
+            toggled.append('\n');
         }
+        target.replaceSelection(toggled.toString());
+        target.select(start, start + toggled.length());
     }
 
-    public void config(Configuration config, String prefix, String name) {
+    @Override
+    public void config(Configuration config, String name) {
         // we need to escape the chars
-        lineCommentStart = config.getPrefixProperty(prefix,
-                name + ".LineComments", "// ").replace("\"", "");
+        lineCommentStart = config.getString(name + ".LineComments", "// ").replace("\"", "");
         lineCommentPattern = Pattern.compile("(^" + lineCommentStart + ")(.*)");
-    }
-
-    public TextAction getAction(String key) {
-        return this;
     }
 }

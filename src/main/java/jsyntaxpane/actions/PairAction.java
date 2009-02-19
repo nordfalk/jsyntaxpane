@@ -17,8 +17,7 @@ import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.TextAction;
-import jsyntaxpane.util.Configuration;
+import jsyntaxpane.SyntaxDocument;
 
 /**
  * A Pair action inserts a pair of characters (left and right) around the
@@ -26,35 +25,27 @@ import jsyntaxpane.util.Configuration;
  *
  * The pairs are hard-coded here.
  */
-public class PairAction extends TextAction implements SyntaxAction {
+public class PairAction extends DefaultSyntaxAction {
 
     public PairAction() {
         super("PAIR_ACTION");
     }
 
-    public void actionPerformed(ActionEvent e) {
-        JTextComponent target = getTextComponent(e);
-        if (target != null) {
-            String left = e.getActionCommand();
-            String right = PAIRS.get(left);
-            String selected = target.getSelectedText();
-            if (selected != null) {
-                target.replaceSelection(left + selected + right);
-            } else {
-                target.replaceSelection(left + right);
-            }
-            target.setCaretPosition(target.getCaretPosition() - 1);
+    @Override
+    public void actionPerformed(JTextComponent target, SyntaxDocument sDoc,
+            int dot, ActionEvent e) {
+        String left = e.getActionCommand();
+        String right = PAIRS.get(left);
+        String selected = target.getSelectedText();
+        if (selected != null) {
+            target.replaceSelection(left + selected + right);
+        } else {
+            target.replaceSelection(left + right);
+            target.setCaretPosition(target.getCaretPosition() - right.length());
         }
     }
-
-    public void config(Configuration config, String prefix, String name) {
-    }
-
-    public TextAction getAction(String key) {
-        return this;
-    }
-
     private static Map<String, String> PAIRS = new HashMap<String, String>(4);
+
 
     static {
         PAIRS.put("(", ")");

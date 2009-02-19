@@ -2,9 +2,6 @@
 <actions>
         <action>
             <actionName>run</actionName>
-            <packagings>
-                <packaging>jar</packaging>
-            </packagings>
             <goals>
                 <goal>process-classes</goal>
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.1:exec</goal>
@@ -16,9 +13,6 @@
         </action>
         <action>
             <actionName>debug</actionName>
-            <packagings>
-                <packaging>jar</packaging>
-            </packagings>
             <goals>
                 <goal>process-classes</goal>
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.1:exec</goal>
@@ -30,15 +24,18 @@
             </properties>
         </action>
         <action>
-            <actionName>build</actionName>
+            <actionName>profile</actionName>
             <packagings>
-                <packaging>*</packaging>
+                <packaging>jar</packaging>
             </packagings>
             <goals>
-                <goal>install</goal>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.1:exec</goal>
             </goals>
             <properties>
-                <maven.test.skip>true</maven.test.skip>
+                <exec.args>${profiler.args} -classpath %classpath jsyntaxpane.SyntaxTester</exec.args>
+                <profiler.action>profile</profiler.action>
+                <exec.executable>${profiler.java}</exec.executable>
             </properties>
         </action>
     </actions>

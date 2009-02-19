@@ -13,7 +13,7 @@
  */
 package jsyntaxpane.actions;
 
-import javax.swing.text.TextAction;
+import javax.swing.Action;
 import jsyntaxpane.util.Configuration;
 
 /**
@@ -30,22 +30,15 @@ import jsyntaxpane.util.Configuration;
  *
  * @author Ayman Al-Sairafi
  */
-public interface SyntaxAction {
+public interface SyntaxAction extends Action {
 
     /**
      * Configure the actions in this class
      * @param config
-     * @param prefix
-     * @param name: name of the action, will be obtained from the property Key
-     * as the text following the Action.
+     * @param name Name of the action, (prefixed by Action.)
+     * will be obtained from the property Key as the
+     * text following the Action.
      */
-    public void config(Configuration config, String prefix, String name);
+    public void config(Configuration config, String name);
 
-    /**
-     * A class may contain several related actions, this will return the action
-     * with given name.
-     * @param name
-     * @return
-     */
-    public TextAction getAction(String name);
 }

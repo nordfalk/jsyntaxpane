@@ -13,7 +13,7 @@
  */
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 
@@ -21,7 +21,7 @@ import jsyntaxpane.TokenType;
 
 %public
 %class SqlLexer
-%extends DefaultLexer
+%extends DefaultJFlexLexer
 %final
 %unicode
 %char
@@ -37,11 +37,9 @@ import jsyntaxpane.TokenType;
         super();
     }
 
-    /**
-     * Helper method to create and return a new Token from of TokenType
-     */
-    private Token token(TokenType type) {
-        return new Token(type, yychar, yylength());
+    @Override
+    public int yychar() {
+        return yychar;
     }
 
 %}
@@ -53,8 +51,11 @@ InputCharacter = [^\r\n]
 WhiteSpace = {LineTerminator} | [ \t\f]
 
 /* comments */
-Comment = {EndOfLineComment}
+Comment = {TraditionalComment} | {EndOfLineComment} | {DocumentationComment}
 
+TraditionalComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
+DocumentationComment = "/**" {CommentContent} "*"+ "/"
+CommentContent       = ( [^*] | \*+ [^/*] )*
 EndOfLineComment = "--" {InputCharacter}* {LineTerminator}?
 
 /* identifiers */
@@ -62,34 +63,39 @@ Identifier = [:jletter:][:jletterdigit:]*
 
 /* integer literals */
 DecIntegerLiteral = 0 | [1-9][0-9]*
-    
-/* floating point literals */        
+
+/* floating point literals */
 FloatLiteral  = ({FLit1}|{FLit2}|{FLit3}) {Exponent}? [fF]
 
-FLit1    = [0-9]+ \. [0-9]* 
-FLit2    = \. [0-9]+ 
-FLit3    = [0-9]+ 
+FLit1    = [0-9]+ \. [0-9]*
+FLit2    = \. [0-9]+
+FLit3    = [0-9]+
 Exponent = [eE] [+-]? [0-9]+
 
 /* string and character literals */
 StringCharacter = [^\r\n\"\\]
 SingleCharacter = [^\r\n\'\\]
 
-Reserved = 
+Reserved =
    "ADD"                 |
    "ALL"                 |
+   "ALLOW REVERSE SCANS" |
    "ALTER"               |
    "ANALYZE"             |
    "AND"                 |
    "AS"                  |
    "ASC"                 |
+   "AUTOMATIC"           |
+   "BEGIN"		 |
    "BEFORE"              |
    "BETWEEN"             |
    "BIGINT"              |
    "BINARY"              |
    "BLOB"                |
    "BOTH"                |
+   "BUFFERPOOL"		 |
    "BY"                  |
+   "CACHE"		 |
    "CALL"                |
    "CASCADE"             |
    "CASE"                |
@@ -99,17 +105,21 @@ Reserved =
    "CHECK"               |
    "COLLATE"             |
    "COLUMN"              |
+   "COMMIT"		 |
    "CONDITION"           |
+   "CONSTANT"		 |
    "CONSTRAINT"          |
    "CONTINUE"            |
    "CONVERT"             |
    "CREATE"              |
    "CROSS"               |
    "CURSOR"              |
+   "DATE"		 |
    "DATABASE"            |
    "DATABASES"           |
    "DEC"                 |
    "DECIMAL"             |
+   "DECODE"		 |
    "DECLARE"             |
    "DEFAULT"             |
    "DELAYED"             |
@@ -127,7 +137,9 @@ Reserved =
    "ELSE"                |
    "ELSEIF"              |
    "ENCLOSED"            |
+   "END"		 |
    "ESCAPED"             |
+   "EXCEPTION" 		 |
    "EXISTS"              |
    "EXIT"                |
    "EXPLAIN"             |
@@ -140,7 +152,9 @@ Reserved =
    "FORCE"               |
    "FOREIGN"             |
    "FROM"                |
+   "FUNCTION"		 |
    "FULLTEXT"            |
+   "GLOBAL TEMPORARY"	 |
    "GRANT"               |
    "GROUP"               |
    "HAVING"              |
@@ -158,6 +172,7 @@ Reserved =
    "INTERVAL"            |
    "INTO"                |
    "IS"                  |
+   "IS REF CURSOR"	 |
    "ITERATE"             |
    "JOIN"                |
    "KEY"                 |
@@ -175,25 +190,38 @@ Reserved =
    "LOOP"                |
    "MATCH"               |
    "MERGE"               |
+   "MINVALUE"		 |
+   "MAXVALUE"		 |
    "MOD"                 |
    "MODIFIES"            |
    "NATURAL"             |
+   "NOCYCLE"		 |
+   "NOORDER"		 |
    "NOT"                 |
    "NULL"                |
    "NUMERIC"             |
+   "NUMBER"              |
    "ON"                  |
+   "OPEN"		 |
    "OPTIMIZE"            |
    "OPTION"              |
    "OPTIONALLY"          |
    "OR"                  |
    "ORDER"               |
+   "OTHERS"		 |
    "OUT"                 |
    "OUTER"               |
    "OUTFILE"             |
+   "PACKAGE"		 |
+   "PACKAGE BODY"	 |
+   "PAGESIZE"		 |
+   "PLS_INTEGER"	 |
+   "PRAGMA"		 |
    "PRECISION"           |
    "PRIMARY"             |
    "PROCEDURE"           |
    "PURGE"               |
+   "RAISE"		 |
    "READ"                |
    "READS"               |
    "REAL"                |
@@ -209,11 +237,16 @@ Reserved =
    "REVOKE"              |
    "RIGHT"               |
    "RLIKE"               |
+   "ROLLBACK"		 |
+   "ROWCOUNT"		 |
+   "ROWTYPE"		 |
+   "SIZE"		 |
    "SCHEMA"              |
    "SCHEMAS"             |
    "SELECT"              |
    "SENSITIVE"           |
    "SEPARATOR"           |
+   "SEQUENCE"		 |
    "SET"                 |
    "SHOW"                |
    "SMALLINT"            |
@@ -225,14 +258,19 @@ Reserved =
    "SQLSTATE"            |
    "SQLWARNING"          |
    "STARTING"            |
+   "SYSDATE"		 |
    "TABLE"               |
+   "TABLESPACE"		 |
    "TERMINATED"          |
    "THEN"                |
    "TO"                  |
+   "TO_CHAR"		 |
+   "TO_DATE"		 |
    "TRAILING"            |
    "TRIGGER"             |
    "TRUE"                |
    "TRUNCATE"            |
+   "TYPE"		 |
    "UNDO"                |
    "UNION"               |
    "UNIQUE"              |
@@ -241,10 +279,12 @@ Reserved =
    "UPDATE"              |
    "USAGE"               |
    "USE"                 |
+   "USER"		 |
    "USING"               |
    "VALUES"              |
    "VARBINARY"           |
    "VARCHAR"             |
+   "VARCHAR2"            |
    "VARCHARACTER"        |
    "VARYING"             |
    "WHEN"                |
@@ -260,45 +300,45 @@ Reserved =
 
   /* keywords */
   {Reserved}                     { return token(TokenType.KEYWORD); }
-  
+
   /* operators */
 
   "("                            |
   ")"                            |
-  "{"                            | 
-  "}"                            | 
-  "["                            | 
-  "]"                            | 
-  ";"                            | 
-  ","                            | 
-  "."                            | 
-  "@"                            | 
-  "="                            | 
-  ">"                            | 
+  "{"                            |
+  "}"                            |
+  "["                            |
+  "]"                            |
+  ";"                            |
+  ","                            |
+  "."                            |
+  "@"                            |
+  "="                            |
+  ">"                            |
   "<"                            |
-  "!"                            | 
-  "~"                            | 
-  "?"                            | 
-  ":"                            { return token(TokenType.OPERATOR); } 
+  "!"                            |
+  "~"                            |
+  "?"                            |
+  ":"                            { return token(TokenType.OPERATOR); }
 
   /* string literal */
-  \"{StringCharacter}+\"         | 
+  \"{StringCharacter}+\"         |
 
-  \'{SingleCharacter}+\          { return token(TokenType.STRING); } 
+  \'{SingleCharacter}+\          { return token(TokenType.STRING); }
 
   /* numeric literals */
 
   {DecIntegerLiteral}            |
- 
+
   {FloatLiteral}                 { return token(TokenType.NUMBER); }
-  
+
   /* comments */
   {Comment}                      { return token(TokenType.COMMENT); }
 
   /* whitespace */
   {WhiteSpace}+                  { /* skip */ }
 
-  /* identifiers */ 
+  /* identifiers */
   {Identifier}                   { return token(TokenType.IDENTIFIER); }
 
 }

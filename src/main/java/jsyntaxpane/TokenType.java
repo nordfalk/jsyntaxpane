@@ -20,9 +20,10 @@ package jsyntaxpane;
  */
 public enum TokenType {
 
-    OPERATOR,   // Language operators
-    KEYWORD,    // language reserved keywords
-    KEYWORD2,   // Other language reserved keywords, like C #defines
+    OPERATOR, // Language operators
+    DELIMITER, // Delimiters.  Constructs that are not necessarily operators for a language
+    KEYWORD, // language reserved keywords
+    KEYWORD2, // Other language reserved keywords, like C #defines
     IDENTIFIER, // identifiers, variable names, class names
     NUMBER,     // numbers in various formats
     STRING,     // String
@@ -36,5 +37,45 @@ public enum TokenType {
     TYPE3,      // Types for users
     DEFAULT,    // any other text
     WARNING,    // Text that should be highlighted as a warning
-    ERROR       // Text that signals an error 
+    ERROR;      // Text that signals an error
+
+    /**
+     * Tests if the given token is a Comment Token.
+     * @param t
+     * @return
+     */
+    public static boolean isComment(Token t) {
+        if (t != null && (t.type == COMMENT || t.type == COMMENT2)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Tests if the given token is a Keyword Token.
+     * @param t
+     * @return
+     */
+    public static boolean isKeyword(Token t) {
+        if (t != null && (t.type == KEYWORD || t.type == KEYWORD2)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    /**
+     * Tests if the given token is a String Token.
+     * @param t
+     * @return
+     */
+    public static boolean isString(Token t) {
+        if (t != null && (t.type == STRING || t.type == STRING2)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

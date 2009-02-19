@@ -14,7 +14,7 @@
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 
@@ -22,7 +22,7 @@ import jsyntaxpane.TokenType;
 
 %public
 %class BashLexer
-%extends DefaultLexer
+%extends DefaultJFlexLexer
 %final
 %unicode
 %char
@@ -37,14 +37,6 @@ import jsyntaxpane.TokenType;
         super();
     }
 
-    private Token token(TokenType type) {
-        return new Token(type, yychar, yylength());
-    }
-
-    private Token token(TokenType type, int pairValue) {
-        return new Token(type, yychar, yylength(), (byte)pairValue);
-    }
-
     private static final byte PARAN     = 1;
     private static final byte BRACKET   = 2;
     private static final byte CURLY     = 3;
@@ -52,6 +44,11 @@ import jsyntaxpane.TokenType;
     private static final byte CASE      = 5;
     private static final byte IF        = 5;
     private static final byte INT_EXPR  = 6;
+
+    @Override
+    public int yychar() {
+        return yychar;
+    }
 
 %}
 

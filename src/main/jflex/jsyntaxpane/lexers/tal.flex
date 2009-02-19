@@ -13,7 +13,7 @@
  */
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 
@@ -21,7 +21,7 @@ import jsyntaxpane.TokenType;
 
 %public
 %class TALLexer
-%extends DefaultLexer
+%extends DefaultJFlexLexer
 %final
 %unicode
 %char
@@ -38,8 +38,9 @@ import jsyntaxpane.TokenType;
         super();
     }
 
-    private Token token(TokenType type) {
-        return new Token(type, yychar, yylength());
+    @Override
+    public int yychar() {
+        return yychar;
     }
 %}
 

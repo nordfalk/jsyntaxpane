@@ -13,7 +13,8 @@
  */
 package jsyntaxpane;
 
-import java.io.Reader;
+import java.util.List;
+import javax.swing.text.Segment;
 
 /**
  * Lexers must implement these methods.  These are used in the Tokenizer 
@@ -23,41 +24,14 @@ import java.io.Reader;
  * @author Ayman Al-Sairafi
  */
 public interface Lexer {
-
     /**
-     * This will be called to reset the the lexer, generally whenever a
-     * document is changed
-     * @param reader
+     * This is the only method a Lexer needs to implement.  It will be passed
+     * a Reader, and it should return non-overlapping Tokens for each recognized token
+     * in the stream.
+     * @param segment Text to parse.
+     * @param ofst offset to add to start of each token (useful for nesting)
+     * @param tokens List of Tokens to be added.  This is done so that the caller creates the
+     * appropriate List implementation and size.  The parse method just adds to the list
      */
-    public void yyreset(Reader reader);
-
-    /**
-     * This is called to return the next Token from the Input Reader
-     * @return next token, or null if no more tokens.
-     * @throws java.io.IOException
-     */
-    public Token yylex() throws java.io.IOException;
-
-    /**
-     * Returns the character at position <tt>pos</tt> from the
-     * matched text.
-     *
-     * It is equivalent to yytext().charAt(pos), but faster
-     *
-     * @param pos the position of the character to fetch.
-     *            A value from 0 to yylength()-1.
-     *
-     * @return the character at position pos
-     */
-    public char yycharat(int pos);
-
-    /**
-     * Returns the length of the matched text region.
-     */
-    public int yylength();
-
-    /**
-     * Returns the text matched by the current regular expression.
-     */
-    public String yytext();
+    public void parse(Segment segment, int ofst, List<Token> tokens);
 }

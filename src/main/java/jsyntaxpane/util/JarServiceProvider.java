@@ -34,6 +34,7 @@ import java.util.logging.Logger;
  */
 public class JarServiceProvider {
 
+    public static final String SERVICES_ROOT = "META-INF/services/";
     private static final Logger LOG = Logger.getLogger(JarServiceProvider.class.getName());
 
     /**
@@ -53,38 +54,36 @@ public class JarServiceProvider {
         ArrayList<Object> l = new ArrayList<Object>();
         ClassLoader cl = JarServiceProvider.class.getClassLoader();
         cl = cl == null ? ClassLoader.getSystemClassLoader() : cl;
-        if (cl != null) {
-            String serviceFile = "META-INF/services/" + cls.getName();
-            Enumeration<URL> e = cl.getResources(serviceFile);
-            while (e.hasMoreElements()) {
-                URL u = e.nextElement();
-                InputStream is = u.openStream();
-                BufferedReader br = null;
-                try {
-                    br = new BufferedReader(
-                            new InputStreamReader(is, Charset.forName("UTF-8")));
-                    String str = null;
-                    while ((str = br.readLine()) != null) {
-                        int commentStartIdx = str.indexOf("#");
-                        if (commentStartIdx != -1) {
-                            str = str.substring(0, commentStartIdx);
-                        }
-                        str = str.trim();
-                        if (str.length() == 0) {
-                            continue;
-                        }
-                        try {
-                            Object obj = cl.loadClass(str).newInstance();
-                            l.add(obj);
-                        } catch (Exception ex) {
-                            LOG.warning("Could not load: " + str);
-                            LOG.warning(ex.getMessage());
-                        }
+        String serviceFile = SERVICES_ROOT + cls.getName();
+        Enumeration<URL> e = cl.getResources(serviceFile);
+        while (e.hasMoreElements()) {
+            URL u = e.nextElement();
+            InputStream is = u.openStream();
+            BufferedReader br = null;
+            try {
+                br = new BufferedReader(
+                        new InputStreamReader(is, Charset.forName("UTF-8")));
+                String str = null;
+                while ((str = br.readLine()) != null) {
+                    int commentStartIdx = str.indexOf("#");
+                    if (commentStartIdx != -1) {
+                        str = str.substring(0, commentStartIdx);
                     }
-                } finally {
-                    if (br != null) {
-                        br.close();
+                    str = str.trim();
+                    if (str.length() == 0) {
+                        continue;
                     }
+                    try {
+                        Object obj = cl.loadClass(str).newInstance();
+                        l.add(obj);
+                    } catch (Exception ex) {
+                        LOG.warning("Could not load: " + str);
+                        LOG.warning(ex.getMessage());
+                    }
+                }
+            } finally {
+                if (br != null) {
+                    br.close();
                 }
             }
         }
@@ -116,7 +115,7 @@ public class JarServiceProvider {
         if (cl != null) {
             InputStream is = null;
             try {
-                String serviceFile = "META-INF/services/" +
+                String serviceFile = SERVICES_ROOT +
                         name.toLowerCase() + ".properties";
                 URL loc = cl.getResource(serviceFile);
                 if (loc != null) {
@@ -155,5 +154,45 @@ public class JarServiceProvider {
             }
         }
         return map;
+    }
+
+    /**
+     * Read the given URL and returns a List of Strings for each input line
+     * Each line will not have the line terminator.
+     *
+     * @param url location of file to read, relative to /META-INF/services
+     * @return List of Strings for each line read.
+     * @throws IllegalArgumentException if URL is invalid
+     */
+    public static List<String> readLines(String url) {
+        InputStream is = null;
+        List<String> lines = new ArrayList<String>();
+        ClassLoader cl = JarServiceProvider.class.getClassLoader();
+        cl = cl == null ? ClassLoader.getSystemClassLoader() : cl;
+        URL loc = cl.getResource(SERVICES_ROOT + url);
+        if (loc == null) {
+            throw new IllegalArgumentException("Invalid url: " + url);
+        }
+        try {
+            is = loc.openStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            for (String line = br.readLine(); line != null; line = br.readLine()) {
+                // Trim and unescape some control chars
+                line = line.trim().replace("\\n", "\n").replace("\\t", "\t");
+                lines.add(line);
+            }
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            }
+            return lines;
+        }
+
     }
 }

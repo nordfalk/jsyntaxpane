@@ -16,7 +16,9 @@ package jsyntaxpane.actions;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,76 +28,85 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
 import jsyntaxpane.SyntaxDocument;
 import jsyntaxpane.Token;
+import jsyntaxpane.actions.gui.ComboCompletionDialog;
 import jsyntaxpane.util.Configuration;
+import jsyntaxpane.util.JarServiceProvider;
 
 /**
  * ComboBox like Completion Action:
- * This will display a list of items to choose from, its can be used similar to
- * IntelliSense
+ * This will display a list of items to choose from, it can be used similar to
+ * IntelliSense.  The List is obtained from a plain text file, each line being
+ * an item in the list.
  * 
  * @author Ayman Al-Sairafi
  */
-public class ComboCompletionAction extends TextAction implements SyntaxAction {
+public class ComboCompletionAction extends DefaultSyntaxAction {
 
     Map<String, String> completions;
     ComboCompletionDialog dlg;
-    private String[] items;
+    private List<String> items;
 
     public ComboCompletionAction() {
         super("COMBO_COMPLETION");
     }
 
-    public void actionPerformed(ActionEvent e) {
-        JTextComponent target = getTextComponent(e);
-        if (target != null && target.getDocument() instanceof SyntaxDocument) {
-            SyntaxDocument sDoc = (SyntaxDocument) target.getDocument();
-            int dot = target.getCaretPosition();
-            Token token = sDoc.getTokenAt(dot);
-            String abbrev = "";
-            try {
-                if (token != null) {
-                    abbrev = token.getText(sDoc);
-                    sDoc.remove(token.start, token.length);
-                    dot = token.start;
-                }
-                Frame frame = ActionUtils.getFrameFor(target);
-                if (dlg == null) {
-                    dlg = new ComboCompletionDialog(frame, true, items);
-                }
-                dlg.setLocationRelativeTo(frame);
-                Point p = frame.getLocation();
-                // Get location of Dot in rt
-                Rectangle rt = target.modelToView(dot);
-                Point loc = new Point(rt.x, rt.y);
-                // convert the location from Text Componet coordinates to
-                // Frame coordinates...
-                loc = SwingUtilities.convertPoint(target, loc, frame);
-                // and then to Screen coordinates
-                SwingUtilities.convertPointToScreen(loc, frame);
-                dlg.setLocation(loc);
-                dlg.setFonts(target.getFont());
-                dlg.setText(abbrev);
-                dlg.setVisible(true);
-                String res = dlg.getResult();
-                ActionUtils.insertMagicString(target, dot, res);
-            } catch (BadLocationException ex) {
-                Logger.getLogger(ComboCompletionAction.class.getName()).log(Level.SEVERE, null, ex);
+    @Override
+    public void actionPerformed(JTextComponent target, SyntaxDocument sdoc,
+            int dot, ActionEvent e) {
+        if (sdoc == null) {
+            return;
+        }
+        Token token = sdoc.getTokenAt(dot);
+        String abbrev = "";
+        try {
+            if (token != null) {
+                abbrev = token.getText(sdoc).toString();
+                sdoc.remove(token.start, token.length);
+                dot = token.start;
             }
+            Window window = SwingUtilities.getWindowAncestor(target);
+            if (dlg == null) {
+                if (window instanceof Frame) {
+                    Frame frame = (Frame) window;
+                    dlg = new ComboCompletionDialog(frame, true, items);
+                } else {
+                    dlg = new ComboCompletionDialog(null, true, items);
+                }
+            }
+            dlg.setLocationRelativeTo(window);
+            Point p = window.getLocation();
+            // Get location of Dot in rt
+            Rectangle rt = target.modelToView(dot);
+            Point loc = new Point(rt.x, rt.y);
+            // convert the location from Text Componet coordinates to
+            // Frame coordinates...
+            loc = SwingUtilities.convertPoint(target, loc, window);
+            // and then to Screen coordinates
+            SwingUtilities.convertPointToScreen(loc, window);
+            dlg.setLocation(loc);
+            dlg.setFonts(target.getFont());
+            dlg.setText(abbrev);
+            dlg.setVisible(true);
+            String res = dlg.getResult();
+            ActionUtils.insertMagicString(target, dot, res);
+        } catch (BadLocationException ex) {
+            Logger.getLogger(ComboCompletionAction.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     /**
      * The completions will for now reside on another properties style file
      * referenced by prefix.Completions.File
-     * 
+     *
      * @param config
-     * @param prefix
      * @param name
      */
-    public void config(Configuration config, String prefix, String name) {
+    @Override
+    public void config(Configuration config, String name) {
         // for now we will use just one list for anything.  This can be modified
         // by having a map from TokenType to String[] or something....
-        items = config.getPrefixPropertyList(prefix, name + ".Items");
+        String itemsUrl = config.getString(name + ".Items.URL");
+        items = JarServiceProvider.readLines(itemsUrl);
     }
 
     public TextAction getAction(String key) {

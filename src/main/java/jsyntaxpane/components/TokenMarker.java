@@ -13,8 +13,10 @@
  */
 package jsyntaxpane.components;
 
+import java.beans.PropertyChangeEvent;
 import jsyntaxpane.actions.*;
 import java.awt.Color;
+import java.beans.PropertyChangeListener;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -33,15 +35,16 @@ import jsyntaxpane.util.Configuration;
  * 
  * @author Ayman Al-Sairafi
  */
-public class TokenMarker implements SyntaxComponent, CaretListener {
+public class TokenMarker implements SyntaxComponent, CaretListener, PropertyChangeListener {
 
     public static final String DEFAULT_TOKENTYPES = "IDENTIFIER, TYPE, TYPE2, TYPE3";
     public static final String PROPERTY_COLOR = "TokenMarker.Color";
     public static final String PROPERTY_TOKENTYPES = "TokenMarker.TokenTypes";
-    private static final int DEFAULT_COLOR = 16772710;
+    private static final Color DEFAULT_COLOR = new Color(0xFFEE66);
     private JEditorPane pane;
     private Set<TokenType> tokenTypes = new HashSet<TokenType>();
     private Markers.SimpleMarker marker;
+    private Status status;
 
     /**
      * Constructs a new Token highlighter
@@ -51,12 +54,17 @@ public class TokenMarker implements SyntaxComponent, CaretListener {
 
     @Override
     public void caretUpdate(CaretEvent e) {
-        int pos = e.getDot();
+        markTokenAt(e.getDot());
+    }
+
+    public void markTokenAt(int pos) {
         SyntaxDocument doc = ActionUtils.getSyntaxDocument(pane);
-        Token token = doc.getTokenAt(pos);
-        removeMarkers();
-        if (token != null && tokenTypes.contains(token.type)) {
-            addMarkers(token);
+        if (doc != null) {
+            Token token = doc.getTokenAt(pos);
+            removeMarkers();
+            if (token != null && tokenTypes.contains(token.type)) {
+                addMarkers(token);
+            }
         }
     }
 
@@ -74,23 +82,27 @@ public class TokenMarker implements SyntaxComponent, CaretListener {
     void addMarkers(Token tok) {
         SyntaxDocument sDoc = (SyntaxDocument) pane.getDocument();
         sDoc.readLock();
-        String text = tok.getText(sDoc);
+        // we need to create a STring, because the CharSequence does not have an
+        // equals method and Object.equals is called.  It will not match
+        String text = tok.getText(sDoc).toString();
         Iterator<Token> it = sDoc.getTokens(0, sDoc.getLength());
         while (it.hasNext()) {
             Token nextToken = it.next();
-            if (nextToken.length == tok.length && text.equals(nextToken.getText(sDoc))) {
+            String nextText = nextToken.getText(sDoc).toString();
+            if (text.equals(nextText)) {
                 Markers.markToken(pane, nextToken, marker);
             }
+
         }
         sDoc.readUnlock();
     }
 
     @Override
-    public void config(Configuration config, String prefix) {
-        Color markerColor = new Color(config.getPrefixInteger(prefix, 
-                PROPERTY_COLOR, DEFAULT_COLOR));
+    public void config(Configuration config) {
+        Color markerColor = config.getColor(
+                PROPERTY_COLOR, DEFAULT_COLOR);
         this.marker = new Markers.SimpleMarker(markerColor);
-        String types = config.getPrefixProperty(prefix,
+        String types = config.getString(
                 PROPERTY_TOKENTYPES, DEFAULT_TOKENTYPES);
 
         for (String type : types.split("\\s*,\\s*")) {
@@ -98,9 +110,10 @@ public class TokenMarker implements SyntaxComponent, CaretListener {
                 TokenType tt = TokenType.valueOf(type);
                 tokenTypes.add(tt);
             } catch (IllegalArgumentException e) {
-                LOG.warning("Error in setting up TokenMarker for " + prefix +
+                LOG.warning("Error in setting up TokenMarker " +
                         " - Invalid TokenType: " + type);
             }
+
         }
     }
 
@@ -108,12 +121,26 @@ public class TokenMarker implements SyntaxComponent, CaretListener {
     public void install(JEditorPane editor) {
         this.pane = editor;
         pane.addCaretListener(this);
+        markTokenAt(editor.getCaretPosition());
+        status = Status.INSTALLING;
     }
 
     @Override
     public void deinstall(JEditorPane editor) {
+        status = Status.DEINSTALLING;
         removeMarkers();
         pane.removeCaretListener(this);
     }
     private static final Logger LOG = Logger.getLogger(TokenMarker.class.getName());
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals("document")) {
+                pane.removeCaretListener(this);
+            if (status.equals(Status.INSTALLING)) {
+                pane.addCaretListener(this);
+                removeMarkers();
+            }
+        }
+    }
 }

@@ -22,26 +22,15 @@ import jsyntaxpane.util.Configuration;
 /**
  * Undo action
  */
-public class UndoAction extends TextAction implements SyntaxAction {
+public class UndoAction extends DefaultSyntaxAction {
 
     public UndoAction() {
         super("UNDO");
     }
 
-    public void actionPerformed(ActionEvent e) {
-        JTextComponent target = getTextComponent(e);
-        if (target != null) {
-            if (target.getDocument() instanceof SyntaxDocument) {
-                SyntaxDocument sDoc = (SyntaxDocument) target.getDocument();
-                sDoc.doUndo();
-            }
-        }
-    }
-
-    public void config(Configuration config, String prefix, String name) {
-    }
-
-    public TextAction getAction(String key) {
-        return this;
+    @Override
+    public void actionPerformed(JTextComponent target, SyntaxDocument sDoc,
+            int dot, ActionEvent e) {
+        sDoc.doUndo();
     }
 }

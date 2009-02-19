@@ -21,6 +21,12 @@ import javax.swing.text.Segment;
 import javax.swing.text.TabExpander;
 import javax.swing.text.Utilities;
 
+/**
+ * This class represents the Style for a TokenType.  This class is responsible
+ * for actually drawing a Token on the View.
+ * 
+ * @author Ayman Al-Sairafi
+ */
 public final class SyntaxStyle {
 
     private Color color;
@@ -43,7 +49,7 @@ public final class SyntaxStyle {
         this.fontStyle = fontStyle;
     }
 
-    SyntaxStyle(String str) {
+    public SyntaxStyle(String str) {
         String[] parts = str.split("\\s*,\\s*");
         if (parts.length != 2) {
             throw new IllegalArgumentException("style not correct format: " + str);

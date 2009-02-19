@@ -14,7 +14,7 @@
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 
@@ -22,13 +22,13 @@ import jsyntaxpane.TokenType;
 
 %public
 %class DOSBatchLexer
-%extends DefaultLexer
+%extends DefaultJFlexLexer
 %final
 %unicode
 %char
 %type Token
 %ignorecase
-
+%state ECHO_TEXT
 
 %{
     /**
@@ -39,26 +39,23 @@ import jsyntaxpane.TokenType;
         super();
     }
 
-    private Token token(TokenType type) {
-        return new Token(type, yychar, yylength());
+    @Override
+    public int yychar() {
+        return yychar;
     }
 %}
 
-StartComment = rem
-WhiteSpace = [ \t]
+StartComment = "rem"
 LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
-KeyCharacter = [a-zA-Z0-9._ ]
 
-Comment = "rem" {InputCharacter}* {LineTerminator}?
+Comment = {StartComment} {InputCharacter}* {LineTerminator}?
 
 %%
 
-<YYINITIAL> 
-{
+<YYINITIAL> {
   /* DOS keywords */
   "@"                           |
-  "echo"                        |
   "goto"                        |
   "call"                        |
   "exit"                        |
@@ -71,6 +68,15 @@ Comment = "rem" {InputCharacter}* {LineTerminator}?
   "cd"                          |
   "set"                         |
   "errorlevel"                  { return token(TokenType.KEYWORD); }
+
+  "%" [:jletter:] [:jletterdigit:]* "%"           {  return token(TokenType.STRING2); }
+
+  "%" [:digit:]+                {  return token(TokenType.KEYWORD2); }
+
+  "echo"       {
+                 yybegin(ECHO_TEXT);
+                 return token(TokenType.KEYWORD);
+               }
 
   /* DOS commands */
   "append"     |
@@ -97,7 +103,7 @@ Comment = "rem" {InputCharacter}* {LineTerminator}?
   "diskcomp"   |
   "diskcopy"   |
   "doskey"     |
-  "echo"       |
+  "exist"      |
   "endlocal"   |
   "erase"      |
   "fc"         |
@@ -143,13 +149,22 @@ Comment = "rem" {InputCharacter}* {LineTerminator}?
   "vol"        |
   "xcopy"      { return token(TokenType.KEYWORD); }
 
+  [:jletterdigit:]+ { return token(TokenType.IDENTIFIER);  }
 
   /* labels */
-  ":" [a-zA-Z][a-zA-Z0-9_]*     { return token(TokenType.TYPE); }
+  ":" [a-zA-Z][a-zA-Z0-9_]*     { return token(TokenType.TYPE3); }
 
   /* comments */
   {Comment}                      { return token(TokenType.COMMENT); }
   . | {LineTerminator}           { /* skip */ }
 }
 
+<ECHO_TEXT> {
+  "%" [:jletter:] [:jletterdigit:]* "%"           {  return token(TokenType.STRING2); }
+
+  "%" [:digit:]+                {  return token(TokenType.KEYWORD2); }
+
+  . *                    { return token(TokenType.STRING); }
+  {LineTerminator}       { yybegin(YYINITIAL) ; }
+}
 <<EOF>>                          { return null; }

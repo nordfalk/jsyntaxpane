@@ -18,7 +18,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.Segment;
 
+/**
+ * A Token in a Document.  Tokens do NOT store a reference to the
+ * underlying SyntaxDocument, and must generally be obtained from
+ * the SyntaxDocument methods.  The reason for not storing the
+ * SyntaxDocument is simply for memory, as the number of Tokens
+ * per document can be large, you may end up with twice the memory
+ * in a SyntaxDocument with Tokens than a simple PlainDocument.
+ *
+ * @author Ayman Al-Sairafi
+ */
 public class Token implements Serializable, Comparable {
 
     public final TokenType type;
@@ -34,6 +45,13 @@ public class Token implements Serializable, Comparable {
      *        for ] pairValue = -1
      */
     public final byte pairValue;
+    /**
+     * The kind of the Document.  This is only needed if proper Parsing
+     * of a document is needed and it makes certain operations faster.
+     * You can use any of the supplied Generic Values, or create your
+     * language specific uses by using USER_FIRST + x;
+     */
+    public final short kind = 0;
 
     /**
      * Constructs a new token
@@ -81,15 +99,19 @@ public class Token implements Serializable, Comparable {
 
     @Override
     public String toString() {
-        return String.format("%s (%d, %d) (%d)", type, start, length, pairValue);
+        if (pairValue == 0) {
+            return String.format("%s (%d, %d)", type, start, length);
+        } else {
+            return String.format("%s (%d, %d) (%d)", type, start, length, pairValue);
+        }
     }
 
     @Override
     public int compareTo(Object o) {
         Token t = (Token) o;
-        if (this.start !=  t.start) {
+        if (this.start != t.start) {
             return (this.start - t.start);
-        } else if(this.length != t.length) {
+        } else if (this.length != t.length) {
             return (this.length - t.length);
         } else {
             return this.type.compareTo(t.type);
@@ -103,19 +125,133 @@ public class Token implements Serializable, Comparable {
     public int end() {
         return start + length;
     }
-    
+
     /**
      * Get the text of the token from this document
      * @param doc
      * @return
      */
-    public String getText(Document doc) {
-        String text = null;
+    public CharSequence getText(Document doc) {
+        Segment text = new Segment();
         try {
-            text = doc.getText(start, length);
+            doc.getText(start, length, text);
         } catch (BadLocationException ex) {
             Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            return text;
         }
-        return text;
     }
+
+    public String getString(Document doc) {
+        String result = "";
+        try {
+            result = doc.getText(start, length);
+        } catch (BadLocationException ex) {
+            Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            return result;
+        }
+    }
+    /**
+     * Token Kinds
+     */
+    // Operators and separators - Suitable for Java Type Languages
+    public static final short EQ = 1;           // =
+    public static final short GT = 2;           // >
+    public static final short LT = 3;           // <
+    public static final short NOT = 4;          // !
+    public static final short COMP = 5;         // ~
+    public static final short QUESTION = 6;     // ?
+    public static final short COLON = 7;        // :
+    public static final short EQEQ = 8;         // ==
+    public static final short LTEQ = 9;         // <=
+    public static final short GTEQ = 10;        // >=
+    public static final short NOTEQ = 11;       // !=
+    public static final short ANDAND = 12;      // &&
+    public static final short OROR = 13;        // ||
+    public static final short PLUSPLUS = 14;    // ++
+    public static final short MINUSMINUS = 15;  // --
+    public static final short PLUS = 16;        // +
+    public static final short MINUS = 17;       // -
+    public static final short MULT = 18;        // *
+    public static final short DIV = 19;         // /
+    public static final short AND = 20;         // &
+    public static final short OR = 21;          // |
+    public static final short XOR = 22;         // ^
+    public static final short MOD = 23;         // %
+    public static final short LSHIFT = 24;      // <<
+    public static final short RSHIFT = 25;      // >>
+    public static final short URSHIFT = 26;     // >>>
+    public static final short PLUSEQ = 27;      // +=
+    public static final short MINUSEQ = 28;     // -=
+    public static final short MULTEQ = 29;      // *=
+    public static final short DIVEQ = 30;       // /=
+    public static final short ANDEQ = 31;       // &=
+    public static final short OREQ = 32;        // |=
+    public static final short XOREQ = 33;       // ^=
+    public static final short MODEQ = 34;       // %=
+    public static final short LSHIFTEQ = 35;    // <<=
+    public static final short RSHIFTEQ = 36;    // >>=
+    public static final short URSHIFTEQ = 37;   // >>>=
+    public static final short LPAREN = 38;      // (
+    public static final short RPAREN = 39;      // )
+    public static final short LBRACE = 40;      // {
+    public static final short RBRACE = 41;      // }
+    public static final short LBRACK = 42;      // [
+    public static final short RBRACK = 43;      // ]
+    public static final short SEMICOLON = 44;   // ;
+    public static final short COMMA = 46;       // ,
+    public static final short DOT = 47;         // .
+
+    // Keywords for Java Type Languages
+    public static final short KW_START = 255;
+    public static final short KW_abstract = KW_START + 0;
+    public static final short KW_assert = KW_START + 1;
+    public static final short KW_boolean = KW_START + 2;
+    public static final short KW_break = KW_START + 3;
+    public static final short KW_byte = KW_START + 4;
+    public static final short KW_case = KW_START + 5;
+    public static final short KW_catch = KW_START + 6;
+    public static final short KW_char = KW_START + 7;
+    public static final short KW_class = KW_START + 8;
+    public static final short KW_const = KW_START + 9;
+    public static final short KW_continue = KW_START + 10;
+    public static final short KW_do = KW_START + 11;
+    public static final short KW_double = KW_START + 12;
+    public static final short KW_else = KW_START + 13;
+    public static final short KW_extends = KW_START + 14;
+    public static final short KW_final = KW_START + 15;
+    public static final short KW_finally = KW_START + 16;
+    public static final short KW_float = KW_START + 17;
+    public static final short KW_for = KW_START + 18;
+    public static final short KW_default = KW_START + 19;
+    public static final short KW_implements = KW_START + 20;
+    public static final short KW_import = KW_START + 21;
+    public static final short KW_instanceof = KW_START + 22;
+    public static final short KW_int = KW_START + 23;
+    public static final short KW_interface = KW_START + 24;
+    public static final short KW_long = KW_START + 25;
+    public static final short KW_native = KW_START + 26;
+    public static final short KW_new = KW_START + 27;
+    public static final short KW_goto = KW_START + 28;
+    public static final short KW_if = KW_START + 29;
+    public static final short KW_public = KW_START + 30;
+    public static final short KW_short = KW_START + 31;
+    public static final short KW_super = KW_START + 32;
+    public static final short KW_switch = KW_START + 33;
+    public static final short KW_synchronized = KW_START + 34;
+    public static final short KW_package = KW_START + 35;
+    public static final short KW_private = KW_START + 36;
+    public static final short KW_protected = KW_START + 37;
+    public static final short KW_transient = KW_START + 38;
+    public static final short KW_return = KW_START + 39;
+    public static final short KW_void = KW_START + 40;
+    public static final short KW_static = KW_START + 41;
+    public static final short KW_while = KW_START + 42;
+    public static final short KW_this = KW_START + 43;
+    public static final short KW_throw = KW_START + 44;
+    public static final short KW_throws = KW_START + 45;
+    public static final short KW_try = KW_START + 46;
+    public static final short KW_volatile = KW_START + 47;
+    public static final short KW_strictfp = KW_START + 48;
 }

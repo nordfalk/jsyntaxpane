@@ -14,7 +14,7 @@
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 
@@ -22,7 +22,7 @@ import jsyntaxpane.TokenType;
 
 %public
 %class RubyLexer
-%extends DefaultLexer
+%extends DefaultJFlexLexer
 %final
 %unicode
 %char
@@ -38,12 +38,9 @@ import jsyntaxpane.TokenType;
         super();
     }
 
-    private Token token(TokenType type) {
-        return new Token(type, yychar, yylength());
-    }
-
-    private Token token(TokenType type, int pairValue) {
-        return new Token(type, yychar, yylength(), (byte)pairValue);
+    @Override
+    public int yychar() {
+        return yychar;
     }
 
     private static final byte PARAN     = 1;
@@ -242,7 +239,7 @@ StringCharacter = [^\r\n\"\\]
   \"                             { 
                                      yybegin(YYINITIAL); 
                                      // length also includes the trailing quote
-                                     return new Token(TokenType.STRING, tokenStart, tokenLength + 1);
+                                     return token(TokenType.STRING, tokenStart, tokenLength + 1);
                                  }
   
   {StringCharacter}+             { tokenLength += yylength(); }
@@ -259,7 +256,7 @@ StringCharacter = [^\r\n\"\\]
   \"{3}                          {
                                      yybegin(YYINITIAL);
                                      // length also includes the trailing quote
-                                     return new Token(TokenType.STRING, tokenStart, tokenLength + 3);
+                                     return token(TokenType.STRING, tokenStart, tokenLength + 3);
                                  }
 
   {StringCharacter}+             { tokenLength += yylength(); }

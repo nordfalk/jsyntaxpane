@@ -14,15 +14,15 @@
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.DefaultLexer;
+
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 
 %%
 
-%public
+%public 
 %class XmlLexer
-%extends DefaultLexer
+%extends DefaultJFlexLexer
 %final
 %unicode
 %char
@@ -37,12 +37,9 @@ import jsyntaxpane.TokenType;
         super();
     }
 
-    private Token token(TokenType type) {
-        return new Token(type, yychar, yylength());
-    }
-
-    private Token token(TokenType type, int pairValue) {
-        return new Token(type, yychar, yylength(), (byte)pairValue);
+    @Override
+    public int yychar() {
+        return yychar;
     }
 
     private static final byte TAG_OPEN      =  1;
