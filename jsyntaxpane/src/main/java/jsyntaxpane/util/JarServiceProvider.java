@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -124,7 +125,7 @@ public class JarServiceProvider {
 		InputStream is = findResource(serviceFile);
 		if (is != null) {
 			try {
-				props.load(is);
+				props.load(new InputStreamReader(is, "UTF-8"));
 			} catch (IOException ex) {
 				Logger.getLogger(JarServiceProvider.class.getName()).log(Level.SEVERE, null, ex);
 			}
@@ -132,6 +133,56 @@ public class JarServiceProvider {
 		return props;
 	}
 
+    /**
+     * Read language specific files in the META-INF/services named name appended 
+     * with ".properties". The contents of the files are merged as follows:
+     * <ul>
+     *   <li>First the default language file (&lt;name&gt;.properties) is read</li>
+     *   <li>Then the general language variant of the file 
+     *      (&lt;name&gt;_&lt;lang&gt;.properties) is read and its
+     *      entries are added to/overwrite the entries of the default life</li>
+     *   <li>Last the country specific language variant of the file 
+     *      (&lt;name&gt;_&lt;lang&gt;_&lt;country&gt;.properties) is read and its
+     *      entries are added to/overwrite the existing entries</li>
+     * </ul>
+     * Example: You have three files: 
+     * <ul>
+     *   <li>config.properties which contains the complete configuration
+     *     (most likely with English menus, tooltips)</li>
+     *   <li>config_de.properties which only contains menu names and tooltips
+     *     in German language</li>    
+     *   <li>config_de_CH which might just contain entries for specific
+     *     Swiss spelling variant of some words in a tooltip</li>
+     * <ul>     
+     *
+     * If no filesis found, then a an empty Property instance will be returned
+     * @param name name of file (use dots to separate subfolders).
+     * @param locale The locale for which to read the files
+     * @return Property file read.
+     */
+    public static Properties readProperties(String name, Locale locale) {
+        // If name already ends in ".properties", then cut this off
+        name = name.toLowerCase();
+        int idx = name.lastIndexOf(".properties");
+        if (idx > 0) {
+            name = name.substring(0, idx);
+        }
+        // 1. Read properties of default langauge
+        Properties props = readProperties(name);
+        // 2. Read properties of general language variant
+        if (locale != null && locale.getLanguage() != null) {
+            name += "_"+locale.getLanguage();
+            Properties langProps = readProperties(name);
+            props.putAll(langProps);
+        }
+        // 3. Read properties of country specific language variant
+        if (locale != null && locale.getCountry() != null) {
+            name += "_"+locale.getCountry();
+            Properties countryProps = readProperties(name);
+            props.putAll(countryProps);
+        }
+        return props;
+    }
 	/**
 	 * Read a file in the META-INF/services named name appended with
 	 * ".properties", and returns it as a <code>Map<String, String></code>
@@ -169,7 +220,7 @@ public class JarServiceProvider {
 		}
 		List<String> lines = new ArrayList<String>();
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
 				// Trim and unescape some control chars
 				line = line.trim().replace("\\n", "\n").replace("\\t", "\t");

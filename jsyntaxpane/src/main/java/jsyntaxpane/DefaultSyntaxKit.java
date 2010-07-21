@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -656,7 +657,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 
 	private static void loadConfig(Configuration conf, Class<? extends EditorKit> kit) {
 		String url = kit.getName().replace(".", "/") + "/config";
-		Properties p = JarServiceProvider.readProperties(url);
+		Properties p = JarServiceProvider.readProperties(url, Locale.getDefault());
 		if (p.size() == 0) {
 			LOG.info("unable to load configuration for: " + kit + " from: " + url + ".properties");
 		} else {
