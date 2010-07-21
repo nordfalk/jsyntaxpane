@@ -54,13 +54,14 @@ public class SyntaxTester extends javax.swing.JFrame {
         jToolBar1 = new javax.swing.JToolBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("JSyntaxPane Tester");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("jsyntaxpane/Bundle"); // NOI18N
+        setTitle(bundle.getString("SyntaxTester.title")); // NOI18N
 
         lblCaretPos.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        lblCaretPos.setText("Caret Position");
+        lblCaretPos.setText(bundle.getString("SyntaxTester.lblCaretPos.text")); // NOI18N
 
-        jEdtTest.setContentType("");
-        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
+        jEdtTest.setContentType(bundle.getString("SyntaxTester.jEdtTest.contentType")); // NOI18N
+        jEdtTest.setFont(new java.awt.Font("Monospaced", 0, 13));
         jEdtTest.setCaretColor(new java.awt.Color(153, 204, 255));
         jEdtTest.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
@@ -70,7 +71,7 @@ public class SyntaxTester extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jEdtTest);
 
         lblToken.setFont(new java.awt.Font("Courier New", 0, 12));
-        lblToken.setText("Token under cursor");
+        lblToken.setText(bundle.getString("SyntaxTester.lblToken.text")); // NOI18N
 
         jCmbLangs.setMaximumRowCount(20);
         jCmbLangs.setFocusable(false);
@@ -130,7 +131,7 @@ public class SyntaxTester extends javax.swing.JFrame {
 				lblToken.setText(t.toString() + ": " + tData);
 			} else {
 				// null token, remove the status
-				lblToken.setText("NO Token at cursor");
+				lblToken.setText(java.util.ResourceBundle.getBundle("jsyntaxpane/Bundle").getString("NO_TOKEN_AT_CURSOR"));
 			}
 		}
 
