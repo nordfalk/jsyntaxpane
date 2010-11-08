@@ -17,6 +17,7 @@ import jsyntaxpane.actions.*;
 import jsyntaxpane.components.Markers;
 import java.awt.Color;
 import java.awt.HeadlessException;
+import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.JOptionPane;
 import javax.swing.event.CaretEvent;
@@ -253,6 +254,9 @@ public class ReplaceDialog extends javax.swing.JDialog
 		try {
 			updateFinder();
 			String replacement = (String) jCmbReplace.getSelectedItem();
+			if(!jChkRegex.isSelected()) {
+				replacement = Matcher.quoteReplacement(replacement);
+			}
 			ActionUtils.insertIntoCombo(jCmbReplace, replacement);
 			jTglHighlight.setSelected(false);
 			dsd.doReplaceAll(textComponent, replacement);

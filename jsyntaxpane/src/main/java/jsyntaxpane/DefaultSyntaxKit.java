@@ -659,7 +659,8 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 		String url = kit.getName().replace(".", "/") + "/config";
 		Properties p = JarServiceProvider.readProperties(url, Locale.getDefault());
 		if (p.size() == 0) {
-			LOG.info("unable to load configuration for: " + kit + " from: " + url + ".properties");
+			LOG.log(Level.INFO, "unable to load configuration for: {0} from: {1}.properties",
+				new Object[]{kit, url});
 		} else {
 			conf.putAll(p);
 		}
