@@ -20,6 +20,7 @@ import java.awt.HeadlessException;
 import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.JTextComponent;
@@ -46,7 +47,7 @@ public class ReplaceDialog extends javax.swing.JDialog
 	 */
 	public ReplaceDialog(JTextComponent text,
 		DocumentSearchData dsd) {
-		super(ActionUtils.getFrameFor(text), false);
+		super(SwingUtilities.getWindowAncestor(text), ModalityType.MODELESS.MODELESS);
 		initComponents();
 		textComponent = text;
 		this.dsd = dsd;

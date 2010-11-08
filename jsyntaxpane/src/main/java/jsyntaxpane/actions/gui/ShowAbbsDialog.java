@@ -17,7 +17,7 @@ package jsyntaxpane.actions.gui;
 import java.util.Arrays;
 import java.util.Map;
 import javax.swing.JEditorPane;
-import jsyntaxpane.actions.ActionUtils;
+import javax.swing.SwingUtilities;
 import jsyntaxpane.util.SwingUtils;
 
 /**
@@ -34,7 +34,7 @@ public class ShowAbbsDialog
 	 * @param abbs
 	 */
 	public ShowAbbsDialog(JEditorPane parent, Map<String, String> abbs) {
-		super(ActionUtils.getFrameFor(parent), true);
+		super(SwingUtilities.getWindowAncestor(parent), ModalityType.APPLICATION_MODAL);
 		initComponents();
 		Object[] abbsList = abbs.keySet().toArray();
 		Arrays.sort(abbsList);

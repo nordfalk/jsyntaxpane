@@ -54,7 +54,7 @@ public class ComboCompletionDialog
      * @param target
      */
     public ComboCompletionDialog(JTextComponent target) {
-        super(ActionUtils.getFrameFor(target), true);
+		super(SwingUtilities.getWindowAncestor(target), ModalityType.APPLICATION_MODAL);
         initComponents();
         jTxtItem.getDocument().addDocumentListener(new DocumentListener() {
 

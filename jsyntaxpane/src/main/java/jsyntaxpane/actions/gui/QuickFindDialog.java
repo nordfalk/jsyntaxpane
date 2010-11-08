@@ -63,7 +63,7 @@ public class QuickFindDialog extends javax.swing.JDialog
 	 * @param data search data
 	 */
 	public QuickFindDialog(final JTextComponent target, DocumentSearchData data) {
-		super(ActionUtils.getFrameFor(target), false);
+		super(SwingUtilities.getWindowAncestor(target), ModalityType.MODELESS.MODELESS);
 		initComponents();
 		SwingUtils.addEscapeListener(this);
 		dsd = new WeakReference<DocumentSearchData>(data);

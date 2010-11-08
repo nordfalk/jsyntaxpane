@@ -16,6 +16,7 @@ package jsyntaxpane.actions.gui;
 import java.lang.ref.WeakReference;
 import jsyntaxpane.actions.*;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import jsyntaxpane.util.SwingUtils;
 
@@ -34,7 +35,7 @@ public class GotoLineDialog
      * @param text
      */
     private GotoLineDialog(JTextComponent text) {
-        super(ActionUtils.getFrameFor(text), false);
+		super(SwingUtilities.getWindowAncestor(text), ModalityType.APPLICATION_MODAL);
         initComponents();
         this.text = new WeakReference<JTextComponent>(text);
         setLocationRelativeTo(text.getRootPane());
