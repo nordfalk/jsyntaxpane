@@ -71,7 +71,7 @@ public class LineNumbersRuler extends JPanel
 	public static final int DEFAULT_R_MARGIN = 5;
 	public static final int DEFAULT_L_MARGIN = 5;
 	private Status status;
-	private final static int HEIGHT = Integer.MAX_VALUE - 1000000;
+	private final static int MAX_HEIGHT = Integer.MAX_VALUE - 1000000;
 	//  Text component this TextTextLineNumber component is in sync with
 	private JEditorPane editor;
 	private int minimumDisplayDigits = 2;
@@ -192,7 +192,7 @@ public class LineNumbersRuler extends JPanel
 			int preferredWidth = insets.left + insets.right + width;
 
 			Dimension d = getPreferredSize();
-			d.setSize(preferredWidth, HEIGHT);
+			d.setSize(preferredWidth, MAX_HEIGHT);
 			setPreferredSize(d);
 			setSize(d);
 
@@ -221,7 +221,10 @@ public class LineNumbersRuler extends JPanel
 		int maxLines = ActionUtils.getLineCount(editor);
 		SyntaxView.setRenderingHits((Graphics2D) g);
 
-		for (int line = 1; line <= maxLines; line++) {
+		int topLine = (int) (g.getClip().getBounds().getY() / lh) + 1;
+		int bottomLine = (int) (g.getClip().getBounds().getHeight()) + topLine;
+		
+		for (int line = topLine; line <= bottomLine; line++) {
 			String lineNumber = String.format(numbersFormat, line);
 			int y = line * lh;
 			if (line == currentLine) {
