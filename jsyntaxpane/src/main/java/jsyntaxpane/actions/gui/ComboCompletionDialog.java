@@ -226,13 +226,16 @@ public class ComboCompletionDialog
         }
     }//GEN-LAST:event_jTxtItemKeyPressed
 
-	private void jLstItemsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLstItemsMouseClicked
-		if(evt.getClickCount() == 2) {
-			String selected = jLstItems.getSelectedValue().toString();
-			target.replaceSelection(selected);
-			setVisible(false);
-		}
-	}//GEN-LAST:event_jLstItemsMouseClicked
+    private void jLstItemsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLstItemsMouseClicked
+        if(evt.getClickCount() == 2) {
+            Object selectedValue = jLstItems.getSelectedValue();
+            if(selectedValue != null){
+                String selected = selectedValue.toString();
+                target.replaceSelection(selected);
+            }
+            setVisible(false);
+        }
+    }//GEN-LAST:event_jLstItemsMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList jLstItems;
