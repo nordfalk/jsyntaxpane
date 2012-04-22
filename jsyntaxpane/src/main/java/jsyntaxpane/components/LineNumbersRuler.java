@@ -137,6 +137,7 @@ public class LineNumbersRuler extends JPanel
 		};
 		addMouseListener(mouseListener);
 		status = Status.INSTALLING;
+        documentChanged();
 	}
 
 	@Override
