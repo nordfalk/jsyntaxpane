@@ -45,7 +45,6 @@ public class SyntaxStyles {
      * You can call the mergeStyles method with a Properties file to customize
      * the existing styles.  Any existing styles will be overwritten by the
      * styles you provide.
-     * @param styles
      */
     public void mergeStyles(Properties styles) {
         for (Map.Entry e : styles.entrySet()) {
@@ -65,12 +64,10 @@ public class SyntaxStyles {
     private static final Logger LOG = Logger.getLogger(SyntaxStyles.class.getName());
     private static SyntaxStyle DEFAULT_STYLE = new SyntaxStyle(Color.BLACK, Font.PLAIN);
 
-    private SyntaxStyles() {
-    }
+    private SyntaxStyles() {}
 
     /**
-     * Create default styles
-     * @return
+     * Creates default styles
      */
     private static SyntaxStyles createInstance() {
         SyntaxStyles syntaxstyles = new SyntaxStyles();
@@ -80,8 +77,7 @@ public class SyntaxStyles {
     }
 
     /**
-     * Returns the Default Singleton
-     * @return
+     * Returns the default singleton
      */
     public static SyntaxStyles getInstance() {
         return instance;
@@ -111,9 +107,7 @@ public class SyntaxStyles {
     }
 
     /**
-     * Return the style for the given TokenType
-     * @param type
-     * @return
+     * Returns the style for the given TokenType
      */
     public SyntaxStyle getStyle(TokenType type) {
         if (styles != null && styles.containsKey(type)) {
@@ -124,16 +118,9 @@ public class SyntaxStyles {
     }
 
     /**
-     * Draw the given Token.  This will simply find the proper SyntaxStyle for
+     * Draws the given Token.  This will simply find the proper SyntaxStyle for
      * the TokenType and then asks the proper Style to draw the text of the
      * Token.
-     * @param segment
-     * @param x
-     * @param y
-     * @param graphics
-     * @param e
-     * @param token
-     * @return
      */
     public int drawText(Segment segment, int x, int y,
             Graphics graphics, TabExpander e, Token token) {

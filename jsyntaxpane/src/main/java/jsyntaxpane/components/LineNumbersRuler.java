@@ -1,5 +1,6 @@
 /*
  * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
+ * Copyright 2013-2014 Hanns Holger Rutz.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +14,7 @@
  */
 package jsyntaxpane.components;
 
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -57,7 +51,7 @@ import jsyntaxpane.util.Configuration;
  *
  * Revised for jsyntaxpane
  * 
- * @author Ayman Al-Sairafi
+ * @author Ayman Al-Sairafi, Hanns Holger Rutz
  */
 public class LineNumbersRuler extends JPanel
 	implements CaretListener, DocumentListener, PropertyChangeListener, SyntaxComponent {
@@ -87,10 +81,8 @@ public class LineNumbersRuler extends JPanel
 	private Color currentLineColor;
 
 	/**
-	 * Get the JscrollPane that contains this EditorPane, or null if no
+	 * Returns the JScrollPane that contains this EditorPane, or null if no
 	 * JScrollPane is the parent of this editor
-	 * @param editorPane
-	 * @return
 	 */
 	public JScrollPane getScrollPane(JTextComponent editorPane) {
 		Container p = editorPane.getParent();
@@ -106,7 +98,7 @@ public class LineNumbersRuler extends JPanel
 	@Override
 	public void config(Configuration config) {
 		int right = config.getInteger(PROPERTY_RIGHT_MARGIN, DEFAULT_R_MARGIN);
-		int left = config.getInteger(PROPERTY_LEFT_MARGIN, DEFAULT_L_MARGIN);
+		int left  = config.getInteger(PROPERTY_LEFT_MARGIN , DEFAULT_L_MARGIN);
 		Color foreground = config.getColor(PROPERTY_FOREGROUND, Color.BLACK);
 		setForeground(foreground);
 		Color back = config.getColor(PROPERTY_BACKGROUND, Color.WHITE);
@@ -122,34 +114,37 @@ public class LineNumbersRuler extends JPanel
 		setFont(editor.getFont());
 
 		// setMinimumDisplayDigits(3);
+        Insets ein = editor.getInsets();
+        if (ein.top != 0 || ein.bottom != 0) {
+            Insets curr = getInsets();
+            setBorder(BorderFactory.createEmptyBorder(ein.top, curr.left, ein.bottom, curr.right));
+        }
 
 		editor.getDocument().addDocumentListener(this);
 		editor.addCaretListener(this);
 		editor.addPropertyChangeListener(this);
 		JScrollPane sp = getScrollPane(editor);
-		sp.setRowHeaderView(this);
+		if (sp != null) sp.setRowHeaderView(this);
 		mouseListener = new MouseAdapter() {
-
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				GotoLineDialog.showForEditor(editor);
 			}
 		};
 		addMouseListener(mouseListener);
+        setPreferredWidth(false);    // required for toggle-lines to correctly repaint
 		status = Status.INSTALLING;
-        documentChanged();
 	}
 
 	@Override
 	public void deinstall(JEditorPane editor) {
 		removeMouseListener(mouseListener);
 		status = Status.DEINSTALLING;
-		this.editor.getDocument().removeDocumentListener(this);
+		editor.getDocument().removeDocumentListener(this);
 		editor.removeCaretListener(this);
 		editor.removePropertyChangeListener(this);
 		JScrollPane sp = getScrollPane(editor);
 		if (sp != null) {
-			editor.getDocument().removeDocumentListener(this);
 			sp.setRowHeaderView(null);
 		}
 	}
@@ -172,19 +167,19 @@ public class LineNumbersRuler extends JPanel
 	 */
 	public void setMinimumDisplayDigits(int minimumDisplayDigits) {
 		this.minimumDisplayDigits = minimumDisplayDigits;
-		setPreferredWidth();
+		setPreferredWidth(false);
 	}
 
 	/**
 	 *  Calculate the width needed to display the maximum line number
 	 */
-	private void setPreferredWidth() {
-		int lines = ActionUtils.getLineCount(editor);
+	private void setPreferredWidth(boolean force) {
+		int lines  = ActionUtils.getLineCount(editor);
 		int digits = Math.max(String.valueOf(lines).length(), minimumDisplayDigits);
 
 		//  Update sizes when number of digits in the line number changes
 
-		if (lastDigits != digits) {
+		if (force || lastDigits != digits) {
 			lastDigits = digits;
 			numbersFormat = "%" + digits + "d";
 			FontMetrics fontMetrics = getFontMetrics(getFont());
@@ -196,7 +191,6 @@ public class LineNumbersRuler extends JPanel
 			d.setSize(preferredWidth, MAX_HEIGHT);
 			setPreferredSize(d);
 			setSize(d);
-
 		}
 	}
 
@@ -207,14 +201,13 @@ public class LineNumbersRuler extends JPanel
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
-		FontMetrics fontMetrics = editor.getFontMetrics(editor.getFont());
+		FontMetrics fontMetrics = getFontMetrics(getFont());
 		Insets insets = getInsets();
 		int currentLine = -1;
 		try {
-			// get current line, and add one as we start from 1 for the display
-			currentLine = ActionUtils.getLineNumber(editor, editor.getCaretPosition()) + 1;
+			currentLine = ActionUtils.getLineNumber(editor, editor.getCaretPosition());
 		} catch (BadLocationException ex) {
-			// this wont happen, even if it does, we can ignore it and we will not have
+			// this won't happen, even if it does, we can ignore it and we will not have
 			// a current line to worry about...
 		}
 
@@ -222,19 +215,21 @@ public class LineNumbersRuler extends JPanel
 		int maxLines = ActionUtils.getLineCount(editor);
 		SyntaxView.setRenderingHits((Graphics2D) g);
 
-		int topLine = (int) (g.getClip().getBounds().getY() / lh) + 1;
-		int bottomLine = (int) (g.getClip().getBounds().getHeight()) + topLine;
+        Rectangle clip = g.getClip().getBounds();
+		int topLine    = (int) (clip.getY() / lh);
+		int bottomLine = Math.min(maxLines, (int) (clip.getHeight() + lh - 1) / lh + topLine + 1);
 		
-		for (int line = topLine; line <= bottomLine; line++) {
-			String lineNumber = String.format(numbersFormat, line);
-			int y = line * lh;
+		for (int line = topLine; line < bottomLine; line++) {
+			String lineNumber = String.format(numbersFormat, line + 1);
+			int y  = line * lh + insets.top;
+            int yt = y + fontMetrics.getAscent();
 			if (line == currentLine) {
 				g.setColor(currentLineColor);
-				g.fillRect(0, y - lh + fontMetrics.getDescent() - 1, getWidth(), lh);
+				g.fillRect(0, y /* - lh + fontMetrics.getDescent() - 1 */, getWidth(), lh);
 				g.setColor(getForeground());
-				g.drawString(lineNumber, insets.left, y);
+				g.drawString(lineNumber, insets.left, yt);
 			} else {
-				g.drawString(lineNumber, insets.left, y);
+				g.drawString(lineNumber, insets.left, yt);
 			}
 		}
 	}
@@ -294,7 +289,7 @@ public class LineNumbersRuler extends JPanel
 				//  Repaint to reflect the new line numbers
 
 				if (lastHeight != preferredHeight) {
-					setPreferredWidth();
+					setPreferredWidth(false);
 					repaint();
 					lastHeight = preferredHeight;
 				}
@@ -307,7 +302,8 @@ public class LineNumbersRuler extends JPanel
 	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals("document")) {
+        String prop = evt.getPropertyName();
+		if (prop.equals("document")) {
 			if (evt.getOldValue() instanceof SyntaxDocument) {
 				SyntaxDocument syntaxDocument = (SyntaxDocument) evt.getOldValue();
 				syntaxDocument.removeDocumentListener(this);
@@ -315,12 +311,13 @@ public class LineNumbersRuler extends JPanel
 			if (evt.getNewValue() instanceof SyntaxDocument && status.equals(Status.INSTALLING)) {
 				SyntaxDocument syntaxDocument = (SyntaxDocument) evt.getNewValue();
 				syntaxDocument.addDocumentListener(this);
-				setPreferredWidth();
+				setPreferredWidth(false);
 				repaint();
 			}
-		} else if (evt.getNewValue() instanceof Font) {
-			setPreferredWidth();
-			repaint();
+		} else if (prop.equals("font") && evt.getNewValue() instanceof Font) {
+            setFont((Font) evt.getNewValue());
+			setPreferredWidth(true);
 		}
+        // TODO - theoretically also track "insets"
 	}
 }

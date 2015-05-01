@@ -31,7 +31,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author subwiz
  * @author Ayman Al-Sairafi
  */
@@ -41,11 +40,10 @@ public class JarServiceProvider {
 	private static final Logger LOG = Logger.getLogger(JarServiceProvider.class.getName());
 
 	/**
-	 * Prevent anyone from instantiating this class.
+	 * Prevents anyone from instantiating this class.
 	 * Just use the static method
 	 */
-	private JarServiceProvider() {
-	}
+	private JarServiceProvider() {}
 
 	private static ClassLoader getClassLoader() {
 		ClassLoader cl = JarServiceProvider.class.getClassLoader();
@@ -53,9 +51,8 @@ public class JarServiceProvider {
 	}
 
 	/**
-	 * Return an Object array from the file in META-INF/resources/{classname}
-	 * @param cls
-	 * @return
+	 * Returns an Object array from the file in META-INF/resources/{classname}
+     *
 	 * @throws java.io.IOException
 	 */
 	public static List<Object> getServiceProviders(Class cls) throws IOException {
@@ -98,10 +95,10 @@ public class JarServiceProvider {
 	}
 
 	/**
-	 * Read a file in the META-INF/services location.  File name will be
+	 * Reads a file in the META-INF/services location.  File name will be
 	 * fully qualified classname, in all lower-case, appended with ".properties"
 	 * If no file is found, then a an empty Property instance will be returned
-	 * @param clazz
+     *
 	 * @return Property file read.
 	 */
 	public static Properties readProperties(Class clazz) {
@@ -109,10 +106,11 @@ public class JarServiceProvider {
 	}
 
 	/**
-	 * Read a file in the META-INF/services named name appended with
+	 * Reads a file in the META-INF/services named name appended with
 	 * ".properties"
 	 *
 	 * If no file is found, then a an empty Property instance will be returned
+     *
 	 * @param name name of file (use dots to separate subfolders).
 	 * @return Property file read.
 	 */
@@ -134,7 +132,7 @@ public class JarServiceProvider {
 	}
 
     /**
-     * Read language specific files in the META-INF/services named name appended 
+     * Reads language specific files in the META-INF/services named name appended
      * with ".properties". The contents of the files are merged as follows:
      * <ul>
      *   <li>First the default language file (&lt;name&gt;.properties) is read</li>
@@ -156,6 +154,7 @@ public class JarServiceProvider {
      * <ul>     
      *
      * If no filesis found, then a an empty Property instance will be returned
+     *
      * @param name name of file (use dots to separate subfolders).
      * @param locale The locale for which to read the files
      * @return Property file read.
@@ -240,24 +239,23 @@ public class JarServiceProvider {
 	}
 
 	/**
-	 * Attempt to find a location url.  The following locations are searched in
+	 * Attempts to find a location url.  The following locations are searched in
 	 * sequence:
 	 * url,
 	 * SERVICES_ROOT/url
 	 * all classpath/url
-	 * @param url
-	 * @param cl classloader
-	 * @return InputSTream at that location, or null if not found
+     *
+	 * @return InputStream at that location, or null if not found
 	 * @see JarServiceProvider#findResource(java.lang.String)
 	 */
 	public static InputStream findResource(String url, ClassLoader cl) {
 		InputStream is = null;
 
 		URL loc = cl.getResource(url);
-		if (loc == null) {
-			loc = cl.getResource(url);
-		}
-		if (loc == null) {
+        //		if (loc == null) {
+        //			loc = cl.getResource(url);
+        //		}
+        if (loc == null) {
 			loc = cl.getResource(SERVICES_ROOT + url);
 		}
 		if (loc == null) {
@@ -273,13 +271,13 @@ public class JarServiceProvider {
 	}
 
 	/**
-	 * Attempt to find a location url.  The following locations are searched in
+	 * Attempts to find a location url.  The following locations are searched in
 	 * sequence:
 	 * url,
 	 * SERVICES_ROOT/url
 	 * all classpath/url
 	 * The System ClassLoader is used.
-	 * @param url
+     *
 	 * @return InputSTream at that location, or null if not found
 	 * @see JarServiceProvider#findResource(java.lang.String, java.lang.ClassLoader)
 	 */

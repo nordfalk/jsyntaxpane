@@ -1,5 +1,6 @@
 /*
  * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
+ * Copyright 2013-2014 Hanns Holger Rutz.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +17,24 @@ package jsyntaxpane;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AbstractDocument.DefaultDocumentEvent;
-import javax.swing.undo.CannotUndoException;
-import javax.swing.undo.CompoundEdit;
-import javax.swing.undo.UndoManager;
-import javax.swing.undo.UndoableEdit;
+import javax.swing.undo.*;
 
 /**
  * A revised UndoManager that groups undos based on positions.  If the change is relatively next to the
  * previous change, like when continuous typing, then the undoes are grouped together.
  *
- * This is cutomized from the
+ * This is customized from the
  *
- * http://www.camick.com/java/source/CompoundUndoMan.java
+ * http://www.camick.com/java/source/CompoundUndoManager.java
  *
  * from the blog:
  *
  * http://tips4java.wordpress.com/2008/10/27/compound-undo-manager/
  *
- * @author Ayman Al-Sairafi
+ * @author Ayman Al-Sairafi, Hanns Holger Rutz
  */
-public class CompoundUndoMan extends UndoManager {
+public class CompoundUndoManager extends UndoManager {
+    private final SyntaxDocument doc;
 
 	private CompoundEdit compoundEdit;
 	// This allows us to start combining operations.
@@ -45,7 +44,8 @@ public class CompoundUndoMan extends UndoManager {
 	// lines, then they will not be combined.
 	private int	lastLine = -1;
 
-	public CompoundUndoMan(SyntaxDocument doc) {
+	public CompoundUndoManager(SyntaxDocument doc) {
+        this.doc = doc;
 		doc.addUndoableEditListener(this);
 		lastLine = doc.getStartPosition().getOffset();
 	}
@@ -63,6 +63,7 @@ public class CompoundUndoMan extends UndoManager {
 		if (compoundEdit == null) {
 			compoundEdit = startCompoundEdit(e.getEdit());
 			startCombine = false;
+            updateDirty();
 			return;
 		}
 
@@ -74,6 +75,7 @@ public class CompoundUndoMan extends UndoManager {
 		if ((startCombine || Math.abs(docEvt.getLength()) == 1) && editLine == lastLine) {
 			compoundEdit.addEdit(e.getEdit());
 			startCombine = false;
+            updateDirty();
 			return;
 		}
 
@@ -82,15 +84,52 @@ public class CompoundUndoMan extends UndoManager {
 
 		compoundEdit.end();
 		compoundEdit = startCompoundEdit(e.getEdit());
+
+        updateDirty();
 	}
 
-	/*
-	 **  Each CompoundEdit will store a group of related incremental edits
-	 **  (ie. each character typed or backspaced is an incremental edit)
-	 */
+    private void updateDirty() {
+        doc.setCanUndo(canUndo());
+        doc.setCanRedo(canRedo());
+    }
+
+    @Override
+    protected void undoTo(UndoableEdit edit) throws CannotUndoException {
+        super.undoTo(edit);
+        updateDirty();
+    }
+
+    @Override
+    public synchronized void undo() throws CannotUndoException {
+        super.undo();
+        updateDirty();
+    }
+
+    @Override
+    protected void redoTo(UndoableEdit edit) throws CannotRedoException {
+        super.redoTo(edit);
+        updateDirty();
+    }
+
+    @Override
+    public synchronized void redo() throws CannotRedoException {
+        super.redo();
+        updateDirty();
+    }
+
+    @Override
+    public synchronized void discardAllEdits() {
+        super.discardAllEdits();
+        updateDirty();
+    }
+
+    /*
+                         **  Each CompoundEdit will store a group of related incremental edits
+                         **  (ie. each character typed or backspaced is an incremental edit)
+                         */
 	private CompoundEdit startCompoundEdit(UndoableEdit anEdit) {
 		//  Track Caret and Document information of this compound edit
-		AbstractDocument.DefaultDocumentEvent docEvt = (DefaultDocumentEvent) anEdit;
+		// AbstractDocument.DefaultDocumentEvent docEvt = (DefaultDocumentEvent) anEdit;
 
 		//  The compound edit is used to store incremental edits
 

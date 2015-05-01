@@ -25,7 +25,7 @@ import jsyntaxpane.util.Configuration;
 public interface SyntaxComponent {
 
     /**
-     * Configure the component using the given properties.  The keys
+     * Configure the component using the given properties. The keys
      * needed for configuration will be prefixed by the given prefix
      * @param config configuration data
      */
@@ -33,22 +33,19 @@ public interface SyntaxComponent {
 
     /**
      * Called to install the component on an editor
-     * @param editor
      */
     public void install(JEditorPane editor);
 
     /**
      * Called when the component is to be removed from the editor
-     * @param editor
      */
     public void deinstall(JEditorPane editor);
 
     /**
-     * The status is used to have proper propertyCHange support.  We need to know if we are INSTALLING
+     * The status is used to have proper propertyChange support.  We need to know if we are INSTALLING
      * the component or DE-INSTALLING it
      */
     static enum Status {
-
         INSTALLING,
         DEINSTALLING
     }

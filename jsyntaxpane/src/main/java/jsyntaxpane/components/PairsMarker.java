@@ -13,10 +13,10 @@
  */
 package jsyntaxpane.components;
 
+import jsyntaxpane.actions.ActionUtils;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import jsyntaxpane.actions.*;
 import javax.swing.JEditorPane;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
@@ -58,7 +58,7 @@ public class PairsMarker implements CaretListener, SyntaxComponent, PropertyChan
 
     /**
      * Remove all the highlights from the editor pane.  This should be called
-     * when the editorkit is removed.
+     * when the editor-kit is removed.
      */
     public void removeMarkers() {
         Markers.removeMarkers(pane, marker);

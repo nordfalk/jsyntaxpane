@@ -13,7 +13,8 @@
  */
 package jsyntaxpane.actions;
 
-import javax.swing.Action;
+import javax.swing.*;
+
 import jsyntaxpane.util.Configuration;
 
 /**
@@ -24,7 +25,7 @@ import jsyntaxpane.util.Configuration;
  * that is installed will have only one instance of each class, even if more
  * than one action is specified.
  *
- * The key value pairs in the COnfiguration are of the form:
+ * The key value pairs in the Configuration are of the form:
  *
  * [EditorKit.]Action.NAME = class, keyboard key
  *
@@ -34,11 +35,11 @@ public interface SyntaxAction extends Action {
 
     /**
      * Configure the actions in this class
-     * @param config
-     * @param name Name of the action, (prefixed by Action.)
-     * will be obtained from the property Key as the
-     * text following the Action.
+     * @param config    the properties from which the action was constructed
+     * @param name      name of the action, (prefixed by Action.) will be obtained from the property Key as the
+     *                  text following the Action.
      */
-    public void config(Configuration config, String name);
+    public void install(JEditorPane editor, Configuration config, String name);
 
+    public void deinstall(JEditorPane editor);
 }

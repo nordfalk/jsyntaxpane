@@ -13,8 +13,10 @@
  */
 package jsyntaxpane.lexers;
 
+import jsyntaxpane.Lexer;
+import jsyntaxpane.Token;
+import jsyntaxpane.TokenType;
 import java.io.CharArrayReader;
-import jsyntaxpane.*;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
@@ -23,7 +25,7 @@ import java.util.logging.Logger;
 import javax.swing.text.Segment;
 
 /**
- * This is a default, and abstract implemenatation of a Lexer using JFLex 
+ * This is a default, and abstract implementation of a Lexer using JFLex
  * with some utility methods that Lexers can implement.
  *
  * @author Ayman Al-Sairafi
@@ -38,12 +40,6 @@ public abstract class DefaultJFlexLexer implements Lexer {
      * Helper method to create and return a new Token from of TokenType
      * tokenStart and tokenLength will be modified to the newStart and
      * newLength params
-     * @param type
-     * @param tStart
-     * @param tLength
-     * @param newStart
-     * @param newLength
-     * @return
      */
     protected Token token(TokenType type, int tStart, int tLength,
             int newStart, int newLength) {
@@ -55,22 +51,15 @@ public abstract class DefaultJFlexLexer implements Lexer {
     /**
      * Create and return a Token of given type from start with length
      * offset is added to start
-     * @param type
-     * @param start
-     * @param length
-     * @return
      */
     protected Token token(TokenType type, int start, int length) {
         return new Token(type, start + offset, length);
     }
 
     /**
-     * Create and return a Token of given type.  start is obtained from {@link yychar()}
-     * and length from {@link yylength()}
+     * Create and return a Token of given type.  start is obtained from {@link DefaultJFlexLexer#yychar()}
+     * and length from {@link DefaultJFlexLexer#yylength()}
      * offset is added to start
-
-     * @param type
-     * @return
      */
     protected Token token(TokenType type) {
         return new Token(type, yychar() + offset, yylength());
@@ -78,20 +67,16 @@ public abstract class DefaultJFlexLexer implements Lexer {
 
     /**
      * Create and return a Token of given type and pairValue.
-     * start is obtained from {@link yychar()}
-     * and length from {@link yylength()}
+     * start is obtained from {@link DefaultJFlexLexer#yychar()}
+     * and length from {@link DefaultJFlexLexer#yylength()}
      * offset is added to start
-     *
-     * @param type
-     * @param pairValue
-     * @return
      */
     protected Token token(TokenType type, int pairValue) {
         return new Token(type, yychar() + offset, yylength(), (byte) pairValue);
     }
 
     /**
-     * The DefaultJFlexLexer simply calls the yylex method of a JFLex compatible
+     * The DefaultJFlexLexer simply calls the yylex method of a JFlex compatible
      * Lexer and adds the tokens obtained to an ArrayList.
      */
     @Override
@@ -111,7 +96,6 @@ public abstract class DefaultJFlexLexer implements Lexer {
     /**
      * This will be called to reset the the lexer.
      * This is created automatically by JFlex.
-     * @param reader
      */
     public abstract void yyreset(Reader reader);
 
@@ -138,22 +122,19 @@ public abstract class DefaultJFlexLexer implements Lexer {
     /**
      * Returns the length of the matched text region.
      * This method is automatically implemented by JFlex lexers
-     * @return
      */
     public abstract int yylength();
 
     /**
      * Returns the text matched by the current regular expression.
      * This method is automatically implemented by JFlex lexers
-     * @return
      */
     public abstract String yytext();
 
     /**
      * Return the char number from beginning of input stream.
-     * This is NOT implemented by JFLex, so the code must be
+     * This is NOT implemented by JFlex, so the code must be
      * added to create this and return the private yychar field
-     * @return 
      */
     public abstract int yychar();
 }

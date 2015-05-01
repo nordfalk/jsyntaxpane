@@ -16,7 +16,7 @@ package jsyntaxpane.actions;
 import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.regex.Pattern;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
 import jsyntaxpane.SyntaxDocument;
@@ -37,7 +37,7 @@ abstract public class DefaultSyntaxAction extends TextAction implements SyntaxAc
 	}
 
 	@Override
-	public void config(Configuration config, String name) {
+	public void install(JEditorPane editor, Configuration config, String name) {
 		// find setter methods for each property key:
 		String actionName = name.substring(ACTION_PREFIX.length());
 		for (Configuration.StringKeyMatcher m : config.getKeys(
@@ -56,7 +56,12 @@ abstract public class DefaultSyntaxAction extends TextAction implements SyntaxAc
 		}
 	}
 
-	@Override
+    @Override
+    public void deinstall(JEditorPane editor) {
+        // nothing
+    }
+
+    @Override
 	public void actionPerformed(ActionEvent e) {
 		JTextComponent text = getTextComponent(e);
 		SyntaxDocument sdoc = ActionUtils.getSyntaxDocument(text);
@@ -110,7 +115,7 @@ abstract public class DefaultSyntaxAction extends TextAction implements SyntaxAc
 	 * @param url
 	 */
 	public final void setLargeIcon(String url) {
-		URL loc = this.getClass().getResource(LARGE_ICONS_LOC_PREFIX + url);
+		URL loc = this.getClass().getClassLoader().getResource(LARGE_ICONS_LOC_PREFIX + url);
 		if (loc != null) {
 			ImageIcon i = new ImageIcon(loc);
 			putValue(LARGE_ICON_KEY, i);
@@ -122,13 +127,13 @@ abstract public class DefaultSyntaxAction extends TextAction implements SyntaxAc
 	 * @param url
 	 */
 	public final void setSmallIcon(String url) {
-		URL loc = this.getClass().getResource(SMALL_ICONS_LOC_PREFIX + url);
+		URL loc = this.getClass().getClassLoader().getResource(SMALL_ICONS_LOC_PREFIX + url);
 		if (loc != null) {
 			ImageIcon i = new ImageIcon(loc);
 			putValue(SMALL_ICON, i);
 		}
 	}
 	public static final String ACTION_PREFIX = "Action.";
-	public static final String SMALL_ICONS_LOC_PREFIX = "/META-INF/images/small-icons/";
-	public static final String LARGE_ICONS_LOC_PREFIX = "/META-INF/images/large-icons/";
+	public static final String SMALL_ICONS_LOC_PREFIX = "jsyntaxpane/images/small-icons/";
+	public static final String LARGE_ICONS_LOC_PREFIX = "jsyntaxpane/images/large-icons/";
 }

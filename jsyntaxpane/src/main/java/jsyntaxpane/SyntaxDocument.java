@@ -1,6 +1,7 @@
 /*
  * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
- * 
+ * Copyright 2013-2014 Hanns Holger Rutz.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License 
@@ -13,6 +14,8 @@
  */
 package jsyntaxpane;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -34,26 +37,33 @@ import javax.swing.text.Segment;
  * internal List of all the Tokens.  The Tokens are updated using
  * a Lexer, passed to it during construction.
  * 
- * @author Ayman Al-Sairafi
+ * @author Ayman Al-Sairafi, Hanns Holger Rutz
  */
 public class SyntaxDocument extends PlainDocument {
+    public static final String CAN_UNDO = "can-undo";
+    public static final String CAN_REDO = "can-redo";
 
 	Lexer lexer;
 	List<Token> tokens;
-	CompoundUndoMan undo;
+	CompoundUndoManager undo;
+
+    private final PropertyChangeSupport propSupport;
+    private boolean canUndoState = false;
+    private boolean canRedoState = false;
 
 	public SyntaxDocument(Lexer lexer) {
 		super();
 		putProperty(PlainDocument.tabSizeAttribute, 4);
-		this.lexer = lexer;
-		// Listen for undo and redo events
-		undo = new CompoundUndoMan(this);
+		this.lexer  = lexer;
+		undo        = new CompoundUndoManager(this);    // Listen for undo and redo events
+        propSupport = new PropertyChangeSupport(this);
 	}
 
-	/**
+	/*
 	 * Parse the entire document and return list of tokens that do not already
 	 * exist in the tokens list.  There may be overlaps, and replacements,
 	 * which we will cleanup later.
+	 *
 	 * @return list of tokens that do not exist in the tokens field
 	 */
 	private void parse() {
@@ -99,9 +109,7 @@ public class SyntaxDocument extends PlainDocument {
 	}
 
 	/**
-	 * Replace the token with the replacement string
-	 * @param token
-	 * @param replacement
+	 * Replaces the token with the replacement string
 	 */
 	public void replaceToken(Token token, String replacement) {
 		try {
@@ -113,7 +121,6 @@ public class SyntaxDocument extends PlainDocument {
 
 	/**
 	 * This class is used to iterate over tokens between two positions
-	 *
 	 */
 	class TokenIterator implements ListIterator<Token> {
 
@@ -152,11 +159,8 @@ public class SyntaxDocument extends PlainDocument {
 				return false;
 			}
 			Token t = tokens.get(ndx);
-			if (t.start >= end) {
-				return false;
-			}
-			return true;
-		}
+            return t.start < end;
+        }
 
 		@Override
 		public Token next() {
@@ -177,11 +181,8 @@ public class SyntaxDocument extends PlainDocument {
 				return false;
 			}
 			Token t = tokens.get(ndx);
-			if (t.end() <= start) {
-				return false;
-			}
-			return true;
-		}
+            return t.end() > start;
+        }
 
 		@Override
 		public Token previous() {
@@ -210,20 +211,18 @@ public class SyntaxDocument extends PlainDocument {
 	}
 
 	/**
-	 * Return an iterator of tokens between p0 and p1.
+	 * Returns an iterator of tokens between p0 and p1.
 	 * @param start start position for getting tokens
 	 * @param end position for last token
-	 * @return Iterator for tokens that overal with range from start to end
+	 * @return Iterator for tokens that overall with range from start to end
 	 */
 	public Iterator<Token> getTokens(int start, int end) {
 		return new TokenIterator(start, end);
 	}
 
 	/**
-	 * Find the token at a given position.  May return null if no token is
+	 * Finds the token at a given position.  May return null if no token is
 	 * found (whitespace skipped) or if the position is out of range:
-	 * @param pos
-	 * @return
 	 */
 	public Token getTokenAt(int pos) {
 		if (tokens == null || tokens.isEmpty() || pos > getLength()) {
@@ -252,7 +251,7 @@ public class SyntaxDocument extends PlainDocument {
 		try {
 			Element line = getParagraphElement(offs);
 			if (line == null) {
-				return word;
+				return null;
 			}
 			int lineStart = line.getStartOffset();
 			int lineEnd = Math.min(line.getEndOffset(), getLength());
@@ -271,16 +270,13 @@ public class SyntaxDocument extends PlainDocument {
 			}
 		} catch (BadLocationException ex) {
 			Logger.getLogger(SyntaxDocument.class.getName()).log(Level.SEVERE, null, ex);
-		} finally {
-			return word;
 		}
+        return word;
 	}
 
 	/**
-	 * Return the token following the current token, or null
+	 * Returns the token following the current token, or null
 	 * <b>This is an expensive operation, so do not use it to update the gui</b>
-	 * @param tok
-	 * @return
 	 */
 	public Token getNextToken(Token tok) {
 		int n = tokens.indexOf(tok);
@@ -292,10 +288,8 @@ public class SyntaxDocument extends PlainDocument {
 	}
 
 	/**
-	 * Return the token prior to the given token, or null
+	 * Returns the token prior to the given token, or null
 	 * <b>This is an expensive operation, so do not use it to update the gui</b>
-	 * @param tok
-	 * @return
 	 */
 	public Token getPrevToken(Token tok) {
 		int n = tokens.indexOf(tok);
@@ -312,8 +306,8 @@ public class SyntaxDocument extends PlainDocument {
 	 * have the negative of t.pairValue.
 	 * This method properly handles nestings of same pairValues, but overlaps
 	 * are not checked.
-	 * if The document does not contain a paired token, then null is returned.
-	 * @param t
+	 * if the document does not contain a paired token, then null is returned.
+     *
 	 * @return the other pair's token, or null if nothing is found.
 	 */
 	public Token getPairFor(Token t) {
@@ -346,8 +340,36 @@ public class SyntaxDocument extends PlainDocument {
 		return p;
 	}
 
+    // public boolean isDirty() { return dirty; }
+
+    public void setCanUndo(boolean value) {
+        if (canUndoState != value) {
+            // System.out.println("canUndo = " + value);
+            canUndoState = value;
+            propSupport.firePropertyChange(CAN_UNDO, !value, value);
+        }
+    }
+
+    public void setCanRedo(boolean value) {
+        if (canRedoState != value) {
+            // System.out.println("canRedo = " + value);
+            canRedoState = value;
+            propSupport.firePropertyChange(CAN_REDO, !value, value);
+        }
+    }
+
+    public void addPropertyChangeListener(String property, PropertyChangeListener listener) {
+        // System.out.println("ADD " + property + " " + listener.hashCode() + " / " + this.hashCode());
+        propSupport.addPropertyChangeListener(property, listener);
+    }
+
+    public void removePropertyChangeListener(String property, PropertyChangeListener listener) {
+        // System.out.println("REM " + property + " " + listener.hashCode() + " / " + this.hashCode());
+        propSupport.removePropertyChangeListener(property, listener);
+    }
+
 	/**
-	 * Perform an undo action, if possible
+	 * Performs an undo action, if possible
 	 */
 	public void doUndo() {
 		if (undo.canUndo()) {
@@ -356,8 +378,12 @@ public class SyntaxDocument extends PlainDocument {
 		}
 	}
 
+    public boolean canUndo() {
+        return canUndoState; // undo.canUndo();
+    }
+
 	/**
-	 * Perform a redo action, if possible.
+	 * Performs a redo action, if possible.
 	 */
 	public void doRedo() {
 		if (undo.canRedo()) {
@@ -366,9 +392,20 @@ public class SyntaxDocument extends PlainDocument {
 		}
 	}
 
-	/**
-	 * Return a matcher that matches the given pattern on the entire document
-	 * @param pattern
+    public boolean canRedo() {
+        return canRedoState; // undo.canRedo();
+    }
+
+    /**
+     * Discards all undoable edits
+     */
+    public void clearUndos() {
+        undo.discardAllEdits();
+    }
+
+    /**
+	 * Returns a matcher that matches the given pattern on the entire document
+     *
 	 * @return matcher object
 	 */
 	public Matcher getMatcher(Pattern pattern) {
@@ -376,30 +413,24 @@ public class SyntaxDocument extends PlainDocument {
 	}
 
 	/**
-	 * Return a matcher that matches the given pattern in the part of the
+	 * Returns a matcher that matches the given pattern in the part of the
 	 * document starting at offset start.  Note that the matcher will have
 	 * offset starting from <code>start</code>
 	 *
-	 * @param pattern
-	 * @param start
-	 * @return matcher that <b>MUST</b> be offset by start to get the proper
-	 * location within the document
+	 * @return  matcher that <b>MUST</b> be offset by start to get the proper
+	 *          location within the document
 	 */
 	public Matcher getMatcher(Pattern pattern, int start) {
 		return getMatcher(pattern, start, getLength() - start);
 	}
 
 	/**
-	 * Return a matcher that matches the given pattern in the part of the
+	 * Returns a matcher that matches the given pattern in the part of the
 	 * document starting at offset start and ending at start + length.
 	 * Note that the matcher will have
 	 * offset starting from <code>start</code>
 	 *
-	 * @param pattern
-	 * @param start
-	 * @param length
-	 * @return matcher that <b>MUST</b> be offset by start to get the proper
-	 * location within the document
+	 * @return matcher that <b>MUST</b> be offset by start to get the proper location within the document
 	 */
 	public Matcher getMatcher(Pattern pattern, int start, int length) {
 		Matcher matcher = null;
@@ -426,13 +457,6 @@ public class SyntaxDocument extends PlainDocument {
 	}
 
 	/**
-	 * This will discard all undoable edits
-	 */
-	public void clearUndos() {
-		undo.discardAllEdits();
-	}
-
-	/**
 	 * Gets the line at given position.  The line returned will NOT include
 	 * the line terminator '\n'
 	 * @param pos Position (usually from text.getCaretPosition()
@@ -452,7 +476,7 @@ public class SyntaxDocument extends PlainDocument {
 
 	/**
 	 * Deletes the line at given position
-	 * @param pos
+     *
 	 * @throws javax.swing.text.BadLocationException
 	 */
 	public void removeLineAt(int pos)
@@ -462,10 +486,9 @@ public class SyntaxDocument extends PlainDocument {
 	}
 
 	/**
-	 * Replace the line at given position with the given string, which can span
+	 * Replaces the line at given position with the given string, which can span
 	 * multiple lines
-	 * @param pos
-	 * @param newLines
+     *
 	 * @throws javax.swing.text.BadLocationException
 	 */
 	public void replaceLineAt(int pos, String newLines)
@@ -474,11 +497,9 @@ public class SyntaxDocument extends PlainDocument {
 		replace(e.getStartOffset(), getElementLength(e), newLines, null);
 	}
 
-	/**
+	/*
 	 * Helper method to get the length of an element and avoid getting
 	 * a too long element at the end of the document
-	 * @param e
-	 * @return
 	 */
 	private int getElementLength(Element e) {
 		int end = e.getEndOffset();
@@ -511,7 +532,7 @@ public class SyntaxDocument extends PlainDocument {
 
 	/**
 	 * Returns the starting position of the line at pos
-	 * @param pos
+     *
 	 * @return starting position of the line
 	 */
 	public int getLineStartOffset(int pos) {
@@ -522,8 +543,6 @@ public class SyntaxDocument extends PlainDocument {
 	 * Returns the end position of the line at pos.
 	 * Does a bounds check to ensure the returned value does not exceed
 	 * document length
-	 * @param pos
-	 * @return
 	 */
 	public int getLineEndOffset(int pos) {
 		int end = 0;
@@ -535,23 +554,18 @@ public class SyntaxDocument extends PlainDocument {
 	}
 
 	/**
-	 * Return the number of lines in this document
-	 * @return
+	 * Returns the number of lines in this document
 	 */
 	public int getLineCount() {
 		Element e = getDefaultRootElement();
-		int cnt = e.getElementCount();
-		return cnt;
+        return e.getElementCount();
 	}
 
 	/**
-	 * Return the line number at given position.  The line numbers are zero based
-	 * @param pos
-	 * @return
+	 * Returns the line number at given position.  The line numbers are zero based
 	 */
 	public int getLineNumberAt(int pos) {
-		int lineNr = getDefaultRootElement().getElementIndex(pos);
-		return lineNr;
+        return getDefaultRootElement().getElementIndex(pos);
 	}
 
 	@Override
@@ -563,10 +577,7 @@ public class SyntaxDocument extends PlainDocument {
 	/**
 	 * We override this here so that the replace is treated as one operation
 	 * by the undomanager
-	 * @param offset
-	 * @param length
-	 * @param text
-	 * @param attrs
+     *
 	 * @throws BadLocationException
 	 */
 	@Override
@@ -577,8 +588,8 @@ public class SyntaxDocument extends PlainDocument {
 	}
 
 	/**
-	 * Append the given string to the text of this document.
-	 * @param str
+	 * Appends the given string to the text of this document.
+     *
 	 * @return this document
 	 */
 	public SyntaxDocument append(String str) {
@@ -590,6 +601,6 @@ public class SyntaxDocument extends PlainDocument {
 		return this;
 	}
 
-// our logger instance...
+    // our logger instance...
 	private static final Logger log = Logger.getLogger(SyntaxDocument.class.getName());
 }

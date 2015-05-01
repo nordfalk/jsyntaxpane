@@ -13,8 +13,8 @@
  */
 package jsyntaxpane.components;
 
+import jsyntaxpane.actions.ActionUtils;
 import java.beans.PropertyChangeEvent;
-import jsyntaxpane.actions.*;
 import java.awt.Color;
 import java.beans.PropertyChangeListener;
 import java.util.HashSet;

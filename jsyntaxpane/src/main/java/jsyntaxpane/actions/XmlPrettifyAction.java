@@ -81,7 +81,7 @@ public class XmlPrettifyAction extends DefaultSyntaxAction {
 
     private static void showErrorMessage(JTextComponent text, String msg) {
         Component parent = SwingUtilities.getWindowAncestor(text);
-        JOptionPane.showMessageDialog(parent, msg, "JsyntaxPAne XML", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(parent, msg, "SyntaxPane XML", JOptionPane.ERROR_MESSAGE);
     }
 
     public static Transformer getTransformer() {

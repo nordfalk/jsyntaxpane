@@ -53,7 +53,6 @@ public class ActionUtils {
 
 	/**
 	 * Get the Singleton instance.  Will be created lazily.
-	 * @return
 	 */
 	public static synchronized ActionUtils getInstance() {
 		if(instance == null) {
@@ -88,7 +87,7 @@ public class ActionUtils {
 	 * you can always iterate over the returned array without a null check
 	 *
 	 * The text component will then have the full lines set as selection
-	 * @param target
+     *
 	 * @return String[] of lines spanning selection / or line containing dot
 	 */
 	public static String[] getSelectedLines(JTextComponent target) {
@@ -116,8 +115,6 @@ public class ActionUtils {
 
 	/**
 	 * Return the line of text at the TextComponent's current position
-	 * @param target
-	 * @return
 	 */
 	public static String getLine(JTextComponent target) {
 		return getLineAt(target, target.getCaretPosition());
@@ -128,7 +125,6 @@ public class ActionUtils {
 	 * be null.  It will not contain the trailing new-line character.
 	 * @param target the text component
 	 * @param pos char position
-	 * @return
 	 */
 	public static String getLineAt(JTextComponent target, int pos) {
 		String line = null;
@@ -152,23 +148,17 @@ public class ActionUtils {
 	/**
 	 * Returns the Frame that contains this component or null if the component
 	 * is not within a Window or the containing window is not a frame
-	 * @param comp
-	 * @return
 	 */
 	public static Frame getFrameFor(Component comp) {
 		Window w = SwingUtilities.getWindowAncestor(comp);
 		if (w != null && w instanceof Frame) {
-			Frame frame = (Frame) w;
-			return frame;
+            return (Frame) w;
 		}
 		return null;
 	}
 
 	/**
 	 * Returns the the Token at pos as a String
-	 * @param doc
-	 * @param pos
-	 * @return
 	 */
 	public static String getTokenStringAt(
 		SyntaxDocument doc, int pos) {
@@ -188,8 +178,6 @@ public class ActionUtils {
 	 * A helper function that will return the SyntaxDocument attached to the
 	 * given text component.  Return null if the document is not a
 	 * SyntaxDocument, or if the text component is null
-	 * @param component
-	 * @return
 	 */
 	public static SyntaxDocument getSyntaxDocument(JTextComponent component) {
 		if (component == null) {
@@ -206,8 +194,7 @@ public class ActionUtils {
 	/**
 	 * Gets the Line Number at the give position of the editor component.
 	 * The first line number is ZERO
-	 * @param editor
-	 * @param pos
+     *
 	 * @return line number
 	 * @throws javax.swing.text.BadLocationException
 	 */
@@ -225,8 +212,7 @@ public class ActionUtils {
 	/**
 	 * Gets the column number at given position of editor.  The first column is
 	 * ZERO
-	 * @param editor
-	 * @param pos
+     *
 	 * @return the 0 based column number
 	 * @throws javax.swing.text.BadLocationException
 	 */
@@ -245,10 +231,10 @@ public class ActionUtils {
 	/**
 	 * Get the closest position within the document of the component that
 	 * has given line and column.
-	 * @param editor
+     *
 	 * @param line the first being 1
 	 * @param column the first being 1
-	 * @return the closest positon for the text component at given line and
+	 * @return the closest position for the text component at given line and
 	 * column
 	 */
 	public static int getDocumentPosition(JTextComponent editor, int line,
@@ -283,7 +269,7 @@ public class ActionUtils {
 	 * Insert the given item into the combo box, and set it as first selected
 	 * item.  If the item already exists, it is removed, so there are no
 	 * duplicates.
-	 * @param combo
+     *
 	 * @param item the item to insert. if it's null, then nothing is inserted
 	 */
 	public static void insertIntoCombo(JComboBox combo, Object item) {
@@ -317,8 +303,7 @@ public class ActionUtils {
 	 * Repeat the string source repeat times.
 	 * If repeats == 0 then empty String is returned
 	 * if source is null, then empty string is returned
-	 * @param source
-	 * @param repeat
+     *
 	 * @return source String repeated repeat times.
 	 */
 	public static String repeatString(String source, int repeat) {
@@ -337,7 +322,7 @@ public class ActionUtils {
 
 	/**
 	 * Checks if the given string is null, empty or contains whitespace only
-	 * @param string
+     *
 	 * @return true if string is null, empty or contains whitespace only, false
 	 * otherwise.
 	 */
@@ -357,8 +342,6 @@ public class ActionUtils {
 	/**
 	 * Return the TabStop property for the given text component, or 0 if not
 	 * used
-	 * @param text
-	 * @return
 	 */
 	public static int getTabSize(JTextComponent text) {
 		Integer tabs = (Integer) text.getDocument().getProperty(PlainDocument.tabSizeAttribute);
@@ -366,16 +349,14 @@ public class ActionUtils {
 	}
 
 	/**
-	 * Insert the given String into the textcomponent.  If the string contains
+	 * Insert the given String into the text component.  If the string contains
 	 * the | vertical BAr char, then it will not be inserted, and the cursor will
 	 * be set to its location.
 	 * If there are TWO vertical bars, then the text between them will be selected
 	 * If the toInsert String is multiLine, then indentation of all following lines
 	 * will be the same as the first line.  TAB characters will be replaced by
 	 * the number of spaces in the document's TAB property.
-	 * @param target
-	 * @param dot
-	 * @param toInsert
+     *
 	 * @throws javax.swing.text.BadLocationException
 	 */
 	public static void insertMagicString(JTextComponent target, int dot, String toInsert)
@@ -436,8 +417,6 @@ public class ActionUtils {
 	 *
 	 * @param target JEditorCOmponent to be affected
 	 * @param templateLines template split as a String array of lines.
-	 *
-	 * @see insertLinesTemplate
 	 */
 	public static void insertLinesTemplate(JTextComponent target, String[] templateLines) {
 		// get some stuff we'll need:
@@ -488,9 +467,6 @@ public class ActionUtils {
 	 *
 	 * This methood does NOT perform any indentation and the template should
 	 * generally span one line only
-	 *
-	 * @param target
-	 * @param template
 	 */
 	public static void insertSimpleTemplate(JTextComponent target, String template) {
 		String selected = target.getSelectedText();
@@ -521,7 +497,7 @@ public class ActionUtils {
 	/**
 	 * If the selection is multi lined, then the full lines are selected,
 	 * otherwise, nothing is done.
-	 * @param target
+     *
 	 * @return true if the selection is multi-line, or a whole line
 	 */
 	public static boolean selectLines(JTextComponent target) {
@@ -544,7 +520,7 @@ public class ActionUtils {
 
 	/**
 	 * Sets the caret position of the given target to the given line and column
-	 * @param target
+     *
 	 * @param line the first being 1
 	 * @param column the first being 1
 	 */
@@ -555,8 +531,6 @@ public class ActionUtils {
 
 	/**
 	 * Return a string with number of spaces equal to the tab-stop of the TextComponent
-	 * @param target
-	 * @return
 	 */
 	public static String getTab(JTextComponent target) {
 		return SPACES.substring(0, getTabSize(target));
@@ -565,9 +539,7 @@ public class ActionUtils {
 	/**
 	 * Searches all actions of a JTextComponent for ab action of the given class and returns
 	 * the first one that matches that class, or null if no Action is found
-	 * @param <T>
-	 * @param target
-	 * @param aClass
+     *
 	 * @return Action object of that class or null
 	 */
 	public static <T extends Action> T getAction(JTextComponent target, Class<T> aClass) {
@@ -585,7 +557,7 @@ public class ActionUtils {
 	/**
 	 * Return the DefaultSyntaxKit of this target, or null if the target does not
 	 * have a DefaultSyntaxKit
-	 * @param target
+     *
 	 * @return kit or null
 	 */
 	public static DefaultSyntaxKit getSyntaxKit(JTextComponent target) {

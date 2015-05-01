@@ -14,7 +14,7 @@
 package jsyntaxpane;
 
 /**
- * These are the various token types supported by JSyntaxPane.
+ * These are the various token types supported by SyntaxPane.
  * 
  * @author ayman
  */

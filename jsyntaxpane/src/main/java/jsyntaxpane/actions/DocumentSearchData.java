@@ -150,7 +150,7 @@ public class DocumentSearchData {
 	public void doReplace(JTextComponent target, String replacement) {
 		if (target.getSelectedText() != null) {
 			target.replaceSelection(replacement == null ? "" : replacement);
-			doFindNext(target);
+			doFindNext(target,true);
 		}
 	}
 
@@ -198,42 +198,46 @@ public class DocumentSearchData {
 	 * @return true if pattern is found, false otherwise
 	 */
 	public boolean doFindNext(JTextComponent target) {
-		if (getPattern() == null) {
-			return false;
-		}
-		SyntaxDocument sDoc = ActionUtils.getSyntaxDocument(target);
-		if (sDoc == null) {
-			return false;
-		}
-		int start = target.getSelectionEnd();
-		if (target.getSelectionEnd() == target.getSelectionStart()) {
-			// we must advance the position by one, otherwise we will find
-			// the same text again
-			start++;
-		}
-		if (start >= sDoc.getLength()) {
-			start = sDoc.getLength();
-		}
-		Matcher matcher = sDoc.getMatcher(getPattern(), start);
-		if (matcher != null && matcher.find()) {
-			// since we used an offset in the matcher, the matcher location
-			// MUST be offset by that location
-			target.select(matcher.start() + start, matcher.end() + start);
-			return true;
-		} else {
-			if (isWrap()) {
-				matcher = sDoc.getMatcher(getPattern());
-				if (matcher != null && matcher.find()) {
-					target.select(matcher.start(), matcher.end());
-					return true;
-				} else {
-					return false;
-				}
-			} else {
-				return false;
-			}
-		}
+	    return doFindNext(target, false);
 	}
+	
+	public boolean doFindNext(JTextComponent target, boolean isReplace) {
+            if (getPattern() == null) {
+                    return false;
+            }
+            SyntaxDocument sDoc = ActionUtils.getSyntaxDocument(target);
+            if (sDoc == null) {
+                    return false;
+            }
+            int start = target.getSelectionEnd();
+            if (target.getSelectionEnd() == target.getSelectionStart() && !isReplace) {
+                    // we must advance the position by one, otherwise we will find
+                    // the same text again
+                    start++;
+            }
+            if (start >= sDoc.getLength()) {
+                    start = sDoc.getLength();
+            }
+            Matcher matcher = sDoc.getMatcher(getPattern(), start);
+            if (matcher != null && matcher.find()) {
+                    // since we used an offset in the matcher, the matcher location
+                    // MUST be offset by that location
+                    target.select(matcher.start() + start, matcher.end() + start);
+                    return true;
+            } else {
+                    if (isWrap()) {
+                            matcher = sDoc.getMatcher(getPattern());
+                            if (matcher != null && matcher.find()) {
+                                    target.select(matcher.start(), matcher.end());
+                                    return true;
+                            } else {
+                                    return false;
+                            }
+                    } else {
+                            return false;
+                    }
+            }
+    }
 
 	/**
 	 * Display an OptionPane dialog that the search string is not found
@@ -241,8 +245,10 @@ public class DocumentSearchData {
 	 */
 	public void msgNotFound(Component target) {
 		JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(target),
-			MessageFormat.format(java.util.ResourceBundle.getBundle("jsyntaxpane/Bundle").getString("DocumentSearchData.SearchStringNotFound"), getPattern()),
-			java.util.ResourceBundle.getBundle("jsyntaxpane/Bundle").getString("DocumentSearchData.Find"), JOptionPane.INFORMATION_MESSAGE);
+			MessageFormat.format(java.util.ResourceBundle.getBundle("jsyntaxpane/Bundle")
+                    .getString("DocumentSearchData.SearchStringNotFound"), getPattern()),
+			java.util.ResourceBundle.getBundle("jsyntaxpane/Bundle")
+                    .getString("DocumentSearchData.Find"), JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	/**

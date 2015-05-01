@@ -30,9 +30,9 @@ import jsyntaxpane.TokenType;
 
 /**
  * This is a "dynamic" Lexer that will use Regex patterns to parse any document,
- * It is NOT as fast as other JFLex generated lexers.
+ * It is NOT as fast as other JFlex generated lexers.
  *
- * The current implementation is about 20x slower than a JFLex lexer
+ * The current implementation is about 20x slower than a JFlex lexer
  * (5000 lines in 100ms, vs 5ms for JFlex lexer)
  *
  * This is still usable for a few 100 lines.  500 lines parse in about 10ms.

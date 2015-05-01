@@ -28,9 +28,8 @@ import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.ImageIcon;
-import javax.swing.JList;
-import javax.swing.JPanel;
+import javax.swing.*;
+
 import jsyntaxpane.SyntaxView;
 import jsyntaxpane.actions.ActionUtils;
 import jsyntaxpane.util.ReflectUtils;
@@ -65,8 +64,9 @@ abstract class MemberCell extends JPanel {
         g.setColor(isSelected ? list.getSelectionBackground() : backColor);
         g.fillRect(0, 0, getWidth(), getHeight());
         g.setColor(isSelected ? list.getSelectionForeground() : list.getForeground());
-        g.drawImage(getIcon(), 2, 0, null);
-        int x = 6 + getIcon().getWidth(this);
+        Image icn = getIcon();
+        g.drawImage(icn, 2, 0, null);
+        int x = 6 + (icn == null ? 0 : icn.getWidth(this));
         int y = fm.getHeight();
         if (member.getDeclaringClass().equals(theClass)) {
             Font bold = list.getFont().deriveFont(Font.BOLD);
@@ -120,12 +120,11 @@ abstract class MemberCell extends JPanel {
 
     private Image readImage(String iconLoc, String kind) {
         String fullPath = iconLoc + kind + ".png";
-        URL loc = this.getClass().getResource(fullPath);
+        URL loc = this.getClass().getClassLoader().getResource(fullPath);
         if (loc == null) {
             return null;
         } else {
-            Image i = new ImageIcon(loc).getImage();
-            return i;
+            return new ImageIcon(loc).getImage();
         }
     }
 
@@ -172,7 +171,7 @@ class MethodCell extends MemberCell {
         return icons.get(type);
     }
     private static Map<Integer, Image> icons = null;
-    public static final String METHOD_ICON_LOC = "/META-INF/images/completions/method";
+    public static final String METHOD_ICON_LOC = "jsyntaxpane/images/completions/method";
 }
 
 /**
@@ -210,7 +209,7 @@ class FieldCell extends MemberCell {
         return icons.get(type);
     }
     private static Map<Integer, Image> icons = null;
-    public static final String FIELD_ICON_LOC = "/META-INF/images/completions/field";
+    public static final String FIELD_ICON_LOC = "jsyntaxpane/images/completions/field";
 }
 
 /**
@@ -254,5 +253,5 @@ class ConstructorCell extends MemberCell {
     }
 
     private static Map<Integer, Image> icons = null;
-    public static final String FIELD_ICON_LOC = "/META-INF/images/completions/constructor";
+    public static final String FIELD_ICON_LOC = "jsyntaxpane/images/completions/constructor";
 }

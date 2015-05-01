@@ -14,7 +14,8 @@
 
 package jsyntaxpane.lexers;
 
-import jsyntaxpane.*;
+import jsyntaxpane.Lexer;
+import jsyntaxpane.Token;
 import java.util.List;
 import javax.swing.text.Segment;
 

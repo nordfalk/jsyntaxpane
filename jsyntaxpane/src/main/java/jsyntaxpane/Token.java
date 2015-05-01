@@ -38,7 +38,7 @@ public class Token implements Serializable, Comparable {
     /**
      * the pair value to use if this token is one of a pair:
      * This is how it is used:
-     * The openning part will have a positive number X
+     * The opening part will have a positive number X
      * The closing part will have a negative number X
      * X should be unique for a pair:
      *   e.g. for [ pairValue = +1
@@ -55,9 +55,6 @@ public class Token implements Serializable, Comparable {
 
     /**
      * Constructs a new token
-     * @param type
-     * @param start
-     * @param length
      */
     public Token(TokenType type, int start, int length) {
         this.type = type;
@@ -68,10 +65,6 @@ public class Token implements Serializable, Comparable {
 
     /**
      * Construct a new part of pair token
-     * @param type
-     * @param start
-     * @param length
-     * @param pairValue
      */
     public Token(TokenType type, int start, int length, byte pairValue) {
         this.type = type;
@@ -128,8 +121,6 @@ public class Token implements Serializable, Comparable {
 
     /**
      * Get the text of the token from this document
-     * @param doc
-     * @return
      */
     public CharSequence getText(Document doc) {
         Segment text = new Segment();

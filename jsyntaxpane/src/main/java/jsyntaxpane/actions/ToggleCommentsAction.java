@@ -1,5 +1,6 @@
 /*
  * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
+ * Copyright 2013-2014 Hanns Holger Rutz.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +23,12 @@ import jsyntaxpane.SyntaxDocument;
 /**
  * This action will toggle comments on or off on selected whole lines.
  * 
- * @author Ayman Al-Sairafi
+ * @author Ayman Al-Sairafi, Hanns Holger Rutz
  */
 public class ToggleCommentsAction extends DefaultSyntaxAction {
 
-    protected String lineCommentStart = "// ";
-    protected Pattern lineCommentPattern = null;
+    protected String  lineCommentStart    = "//";
+    protected Pattern lineCommentPattern  = null;
 
     /**
      * creates new JIndentAction.
@@ -39,23 +40,32 @@ public class ToggleCommentsAction extends DefaultSyntaxAction {
 
     /**
      * {@inheritDoc}
-     * @param e 
      */
     @Override
     public void actionPerformed(JTextComponent target, SyntaxDocument sDoc,
             int dot, ActionEvent e) {
         if (lineCommentPattern == null) {
-            lineCommentPattern = Pattern.compile("(^" + lineCommentStart + ")(.*)");
+            lineCommentPattern  = Pattern.compile("(^\\s*)(" + lineCommentStart + "\\s?)(.*)");
         }
         String[] lines = ActionUtils.getSelectedLines(target);
         int start = target.getSelectionStart();
-        StringBuffer toggled = new StringBuffer();
+        StringBuilder toggled = new StringBuilder();
+        boolean allComments = true;
         for (int i = 0; i < lines.length; i++) {
-            Matcher m = lineCommentPattern.matcher(lines[i]);
-            if (m.find()) {
-                toggled.append(m.replaceFirst("$2"));
+            Matcher m1 = lineCommentPattern.matcher(lines[i]);
+            if (!m1.find()) {
+                allComments = false;
+                break;
+            }
+        }
+        for (int i = 0; i < lines.length; i++) {
+            if (allComments) {
+                Matcher m1 = lineCommentPattern.matcher(lines[i]);
+                m1.find();
+                toggled.append(m1.replaceFirst("$1$3"));
             } else {
                 toggled.append(lineCommentStart);
+                toggled.append(' ');
                 toggled.append(lines[i]);
             }
             toggled.append('\n');
@@ -65,6 +75,8 @@ public class ToggleCommentsAction extends DefaultSyntaxAction {
     }
 
     public void setLineComments(String value) {
-        lineCommentStart = value.replace("\"", "");
+        String v1 = value.replace("\"", "");
+        lineCommentStart   = v1.charAt(v1.length() - 1) == ' ' ? v1.substring(0, v1.length() - 1) : v1;
+        lineCommentPattern = null;
     }
 }

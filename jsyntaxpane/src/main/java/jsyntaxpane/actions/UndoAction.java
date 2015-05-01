@@ -13,26 +13,26 @@
  */
 package jsyntaxpane.actions;
 
-import java.awt.event.ActionEvent;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.TextAction;
 import jsyntaxpane.SyntaxDocument;
-import jsyntaxpane.util.Configuration;
+
+import javax.swing.text.JTextComponent;
+import java.awt.event.ActionEvent;
 
 /**
  * Undo action
  */
-public class UndoAction extends DefaultSyntaxAction {
+public class UndoAction extends AbstractUndoRedoAction {
+    public UndoAction() {
+        super(SyntaxDocument.CAN_UNDO, "UNDO");
+    }
 
-	public UndoAction() {
-		super("UNDO");
-	}
+    @Override
+    protected boolean updateState() {
+        return doc.canUndo();
+    }
 
-	@Override
-	public void actionPerformed(JTextComponent target, SyntaxDocument sDoc,
-		int dot, ActionEvent e) {
-		if (sDoc != null) {
-			sDoc.doUndo();
-		}
-	}
+    @Override
+    public void actionPerformed(JTextComponent target, SyntaxDocument sDoc, int dot, ActionEvent e) {
+        if (sDoc != null) sDoc.doUndo();
+    }
 }

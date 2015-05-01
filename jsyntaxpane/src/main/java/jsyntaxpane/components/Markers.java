@@ -13,7 +13,7 @@
  */
 package jsyntaxpane.components;
 
-import jsyntaxpane.actions.*;
+import jsyntaxpane.actions.ActionUtils;
 import java.awt.Color;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,10 +27,10 @@ import jsyntaxpane.SyntaxDocument;
 import jsyntaxpane.Token;
 
 /**
- * This class contains static utility methods to make highliting in text 
+ * This class contains static utility methods to make highlighting in text
  * components easier.
  * 
- * @author Ayman Al-Sairafi
+ * @author Ayman Al-Sairafi, Hanns Holger Rutz
  */
 public class Markers {
 
@@ -65,29 +65,21 @@ public class Markers {
     }
 
     /**
-     * Remove all the markers from an JEditorPane
-     * @param editorPane
+     * Removes all the markers from an JEditorPane
      */
     public static void removeMarkers(JTextComponent editorPane) {
         removeMarkers(editorPane, null);
     }
 
     /**
-     * add highlights for the given Token on the given pane
-     * @param pane
-     * @param token
-     * @param marker
+     * Adds highlights for the given Token on the given pane
      */
     public static void markToken(JTextComponent pane, Token token, SimpleMarker marker) {
         markText(pane, token.start, token.end(), marker);
     }
 
     /**
-     * add highlights for the given region on the given pane
-     * @param pane
-     * @param start
-     * @param end
-     * @param marker
+     * Adds highlights for the given region on the given pane
      */
     public static void markText(JTextComponent pane, int start, int end, SimpleMarker marker) {
         try {
@@ -99,7 +91,7 @@ public class Markers {
                 hiliter.addHighlight(start, end, marker);
                 return;
             }
-            // selection starts within the highlight, highlight before slection
+            // selection starts within the highlight, highlight before selection
             if(selStart > start && selStart < end ) {
                 hiliter.addHighlight(start, selStart, marker);
             }
@@ -115,7 +107,7 @@ public class Markers {
     }
 
     /**
-     * Mark all text in the document that matches the given pattern
+     * Marks all text in the document that matches the given pattern
      * @param pane control to use
      * @param pattern pattern to match
      * @param marker marker to use for highlighting

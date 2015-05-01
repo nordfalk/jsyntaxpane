@@ -14,7 +14,6 @@
 package jsyntaxpane.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.Arrays;
 import javax.swing.text.JTextComponent;
 import jsyntaxpane.SyntaxDocument;
 import jsyntaxpane.Token;
