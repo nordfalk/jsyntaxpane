@@ -173,7 +173,7 @@ public class QuickFindDialog extends javax.swing.JDialog
     });
     jToolBar1.add(jBtnPrev);
 
-    jBtnNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/../../images/small-icons/go-down.png"))); // NOI18N
+    jBtnNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/jsyntaxpane/images/small-icons/go-down.png"))); // NOI18N
     jBtnNext.setFocusable(false);
     jBtnNext.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
     jBtnNext.setMargin(new java.awt.Insets(2, 2, 2, 2));

@@ -85,8 +85,8 @@ public class GotoLineDialog
         .addContainerGap()
         .addComponent(jCmbLineNumbers, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jBtnOk, javax.swing.GroupLayout.PREFERRED_SIZE, 47, Short.MAX_VALUE)
-        .addContainerGap())
+        .addComponent(jBtnOk)
+        .addContainerGap(28, Short.MAX_VALUE))
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
