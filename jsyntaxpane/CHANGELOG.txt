@@ -1,5 +1,5 @@
-Current version 
-    * Fix performance issue of loading/handling large documents
+Version 1.1.4
+    * Fix performance issue when loading/handling large documents
 
 Changelog from Hanns Holger Rutz:
 

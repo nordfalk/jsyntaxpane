@@ -15,13 +15,11 @@ package jsyntaxpane;
 
 import java.awt.event.ItemEvent;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import jsyntaxpane.actions.ActionUtils;
@@ -39,7 +37,12 @@ public class SyntaxTester extends javax.swing.JFrame {
 		// jEdtTest.setContentType(jCmbLangs.getItemAt(0).toString());
 		jCmbLangs.setSelectedItem("text/java");
 		new CaretMonitor(jEdtTest, lblCaretPos);
-		loadFile("./target/generated-sources/jflex/jsyntaxpane/lexers/ClojureLexer.java");
+		try {
+			// Try to load a relatively big Java file
+			loadFile("./target/generated-sources/jflex/jsyntaxpane/lexers/ClojureLexer.java");
+		} catch (IOException ex) {
+			// This happens when not building from source - ignore
+		}
 	}
 
 	/**
@@ -188,7 +191,7 @@ public class SyntaxTester extends javax.swing.JFrame {
 				doc.insertString(0, oldText, null);				
 				jEdtTest.setDocument(doc);
 			} catch (Exception ex) {
-				Logger.getLogger(SyntaxTester.class.getName()).log(Level.SEVERE, null, ex);
+				ex.printStackTrace();
 			}
 		}
 		jEdtTest.requestFocusInWindow();
@@ -197,29 +200,30 @@ public class SyntaxTester extends javax.swing.JFrame {
   private void jButtonLoadFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoadFileActionPerformed
 		final JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showOpenDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
+		if (returnVal == JFileChooser.APPROVE_OPTION) try {
 			loadFile(fc.getSelectedFile().getPath());
+		} catch (IOException ex) {
+				ex.printStackTrace();
 		}
   }//GEN-LAST:event_jButtonLoadFileActionPerformed
 
  	 /** Loads a file and shows in the editor */
-	private void loadFile(String filename) {
-		try {
-			// This will load a file:
-			// jEdtTest.read(new FileInputStream(filename), null);
+	private void loadFile(String filename) throws IOException {
+		// This will load a file:
+		// jEdtTest.read(new FileInputStream(filename), null);
 
-			// ... however, the default read() will trigger a call to insertString() for each line
-			// of the document which again will a call to parse(), making the UI freeze for large files.
-			// Therefore, for large texts, its best to create a new document and insert the data in
-			// a single operation:
-			Document doc = jEdtTest.getEditorKit().createDefaultDocument();
-			String str = new String(Files.readAllBytes(Paths.get(filename)));
+		// ... however, the default read() will trigger a call to insertString() for each line
+		// of the document which again will a call to parse(), making the UI freeze for large files.
+		// Therefore, for large texts, its best to create a new document and insert the data in
+		// a single operation:
+		Document doc = jEdtTest.getEditorKit().createDefaultDocument();
+		String str = new String(Files.readAllBytes(Paths.get(filename)));
+		try {
 			doc.insertString(0, str, null);
-			jEdtTest.setDocument(doc);
-			//jEdtTest.read(new FileInputStream("/home/j/esperanto/apertium/trunk/apertium-eo-en/apertium-eo-en.eo-en.dix"), null);
-		} catch (Exception ex) {
-			Logger.getLogger(SyntaxTester.class.getName()).log(Level.SEVERE, null, ex);
+		} catch (BadLocationException ex) {
+			throw new IOException(ex); // Should never happen
 		}
+		jEdtTest.setDocument(doc);
 	}
 	/**
 	 * @param args the command line arguments
