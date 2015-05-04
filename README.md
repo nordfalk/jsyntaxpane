@@ -1,4 +1,4 @@
-# jsyntaxpane
+# JSyntaxPane
 
 JSyntaxPane is a simple to use editorKit that adds syntax highlighting support to a standard JEditorPane.
 The languages currently supported are C, C++, Java, JavaScript, Groovy, SQL, Python, Ruby, Scala, Bash, XPath, Clojure, Lua, XHTML and XML - [full list here](https://github.com/nordfalk/jsyntaxpane/blob/master/jsyntaxpane/src/main/resources/META-INF/services/jsyntaxpane/kitsfortypes.properties)
