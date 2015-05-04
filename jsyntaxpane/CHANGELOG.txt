@@ -1,3 +1,22 @@
+Current version 
+    * Fix performance issue of loading/handling large documents
+
+Changelog from Hanns Holger Rutz:
+
+Version 1.1.3
+    * Fixes various issues with line-numbers-ruler
+    * Fixes some keyboard shortcuts on Mac and Linux
+    * Fixes a NPE when not using scroll-pane
+    * Fixes a bug with undo-buffer and copy/paste
+
+Version 1.1.0
+    * Enabling/disabling of Undo/Redo actions
+    * Fix multiple OS X shortcuts
+    * Fix some Scala related problems
+    * All tracking of document's dirty state
+
+Original JSyntaxPane Changelog:
+
 Version 0.9.5 - Java Reflection Completions additions
     * Configuration class overhaul.  Each kit now has its own COnfiguration file
       which merges the superclass(es) Configurations.
