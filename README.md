@@ -1,7 +1,12 @@
 # jsyntaxpane
-Export from code.google.com/p/jsyntaxpane of r096 branch
 
-A very simple to use and extend JEditorKit that supports few languages.  The main goal is to make it easy to have nice looking Java Swing Editors with support for Syntax Highlighting.
+JSyntaxPane is a simple to use editorKit that adds syntax highlighting support to a standard JEditorPane.
+The languages currently supported are C, C++, Java, JavaScript, Groovy, SQL, Python, Ruby, Scala, Bash, XPath, Clojure, Lua, XHTML and XML - [full list here](https://github.com/nordfalk/jsyntaxpane/blob/master/jsyntaxpane/src/main/resources/META-INF/services/jsyntaxpane/kitsfortypes.properties)
+
+The original project JSyntaxPane can be found [on google-code](http://code.google.com/p/jsyntaxpane/). This is a fork from the 0.9.6 branch with [Hanns Holger Rutz](https://github.com/Sciss/SyntaxPane)'s work applied.
+
+The original project is (C)opyright by Ayman Al-Sairafi and released under the [Apache License, Version 2.0](http://github.com/Sciss/JSyntaxPane/blob/master/licenses/JSyntaxPane-License.txt).
+
 
 # Introduction #
 
@@ -11,24 +16,25 @@ JSyntaxPane provides you with a very simple way of highlighting your code / snip
 
   1. Load the latest release.
 
-  1. You can build from source, or just take the JSyntaxPane.jar from the dist folder.  Add it to your classpath.
+  2. You can build from source, or just take the JSyntaxPane.jar from the dist folder.  Add it to your classpath.
 
-  1. JSyntaxPane needs a JEditorPane control.  Just set the control's editorKit property as follows:
+  3a. Create a standard JEditorPane control and use a JSyntaxPane editorKit property as follows:
 ```
-    jEdtTest.setEditorKit(new SyntaxKit("java"));
+    jEditorPane.setEditorKit(new JavaSyntaxKit());
+```
+  3b. You can also just set ContentType to one of the available editorkits.
+```
+    DefaultSyntaxKit.initKit();
+    jEditorPane.setContentType("text/java")
 ```
 
-The languages currently supported are Java, JavaScript, Groovy and XML.
+The languages currently supported are C, C++, Java, JavaScript, Groovy, SQL, Python, Ruby, Scala, Bash, XPath, Clojure, Lua, XHTML and XML - [see full list here](https://github.com/nordfalk/jsyntaxpane/blob/master/jsyntaxpane/src/main/resources/META-INF/services/jsyntaxpane/kitsfortypes.properties)
 
 To change the default colors, modify the SyntaxStyles class.
-
-That's it!
 
 #Building JSyntaxPane
 
 # Pre-requsites #
-
-Before building, you need to [checkout the source code](http://code.google.com/p/jsyntaxpane/source/checkout).
 
 For building, you need to install [Maven](http://maven.apache.org/).
 
@@ -43,18 +49,9 @@ mvn package
 
 The JFlex generated sources will be found in `target/generated-sources`. The binary jar will be built in the `target` folder.
 
-# IDE Configuration #
+## Netbeans 6.1+ ##
 
-## Netbeans 6.1 ##
-
-**Tools>Plugins>Available Plugins and choose and install Maven.** After installation, just use the IDE's Open Project option to open JSyntaxPane checkedout project (no need to configure dependencies, source directories, Java platform versions etc.)--Maven projects can be directly be opened in Netbeans.
-
-## Eclipse ##
-
-http://maven.apache.org/eclipse-plugin.html
-
-TODO -- Somebody write this!.
-
+Choose **Tools>Plugins>Available Plugins and choose and install Maven.** After installation, just use the IDE's Open Project option to open JSyntaxPane checkedout project (no need to configure dependencies, source directories, Java platform versions etc.)--Maven projects can be directly be opened in Netbeans.
 
 
 # Customizing
@@ -69,14 +66,5 @@ You also need to modify the `SyntaxKit class createDefaultDocument method` to us
 
 Once you are done, and built your lexer, you can change the `SyntaxTester` to test your lexer.  Modify the Tester class to use your lexer instead of the built in ones.  Whenever the caret is moved, the Token under the caret is displayed in the line below.  That makes testing very easy.
 
-_If you create Lexers, please consider contributing them here._
+_If you create Lexers, please consider contributing them._
 
-
-
-## Version 0.9.5 ##
-  * Reflection type completions for Java (F1)
-  * Added support for HTML and XPath
-  * Added pop-up menus to all kits (right-click).
-  * Overhauled the Configurations classes. much easier to use and maintain.
-  * b11 _Code templates for Java and others_
-  
