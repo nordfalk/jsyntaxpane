@@ -8,11 +8,7 @@ The original project JSyntaxPane can be found [on google-code](http://code.googl
 The original project is (C)opyright by Ayman Al-Sairafi and released under the [Apache License, Version 2.0](http://github.com/Sciss/JSyntaxPane/blob/master/licenses/JSyntaxPane-License.txt).
 
 
-# Introduction #
-
-JSyntaxPane provides you with a very simple way of highlighting your code / snippets in Java Swing.  Here is how to use it.
-
-# Details #
+# How to use #
 
   1. Load the latest release.
 
@@ -22,24 +18,19 @@ JSyntaxPane provides you with a very simple way of highlighting your code / snip
 ```
     jEditorPane.setEditorKit(new JavaSyntaxKit());
 ```
+
   3b. You can also just set ContentType to one of the available editorkits.
 ```
     DefaultSyntaxKit.initKit();
     jEditorPane.setContentType("text/java")
 ```
 
-The languages currently supported are C, C++, Java, JavaScript, Groovy, SQL, Python, Ruby, Scala, Bash, XPath, Clojure, Lua, XHTML and XML - [see full list here](https://github.com/nordfalk/jsyntaxpane/blob/master/jsyntaxpane/src/main/resources/META-INF/services/jsyntaxpane/kitsfortypes.properties)
 
 To change the default colors, modify the SyntaxStyles class.
 
 #Building JSyntaxPane
 
-# Pre-requsites #
-
 For building, you need to install [Maven](http://maven.apache.org/).
-
-
-# Details #
 
 To build from the command-line, just cd into the checked out folder and issue the command:
 
