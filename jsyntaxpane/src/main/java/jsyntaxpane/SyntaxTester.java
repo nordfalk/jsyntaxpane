@@ -54,17 +54,35 @@ public class SyntaxTester extends javax.swing.JFrame {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
+    jToolBar1 = new javax.swing.JToolBar();
+    jButtonLoadFile = new javax.swing.JButton();
+    jPanel1 = new javax.swing.JPanel();
     lblCaretPos = new javax.swing.JLabel();
     jScrollPane1 = new javax.swing.JScrollPane();
     jEdtTest = new javax.swing.JEditorPane();
     lblToken = new javax.swing.JLabel();
     jCmbLangs = new javax.swing.JComboBox();
-    jToolBar1 = new javax.swing.JToolBar();
-    jButtonLoadFile = new javax.swing.JButton();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("jsyntaxpane/Bundle"); // NOI18N
     setTitle(bundle.getString("SyntaxTester.title")); // NOI18N
+
+    jToolBar1.setRollover(true);
+    jToolBar1.setFocusable(false);
+
+    jButtonLoadFile.setMnemonic('L');
+    jButtonLoadFile.setText(bundle.getString("SyntaxTester.jButtonLoadFile.text")); // NOI18N
+    jButtonLoadFile.setFocusable(false);
+    jButtonLoadFile.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+    jButtonLoadFile.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+    jButtonLoadFile.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jButtonLoadFileActionPerformed(evt);
+      }
+    });
+    jToolBar1.add(jButtonLoadFile);
+
+    getContentPane().add(jToolBar1, java.awt.BorderLayout.NORTH);
 
     lblCaretPos.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
     lblCaretPos.setText(bundle.getString("SyntaxTester.lblCaretPos.text")); // NOI18N
@@ -90,53 +108,42 @@ public class SyntaxTester extends javax.swing.JFrame {
       }
     });
 
-    jToolBar1.setRollover(true);
-    jToolBar1.setFocusable(false);
-
-    jButtonLoadFile.setMnemonic('L');
-    jButtonLoadFile.setText(bundle.getString("SyntaxTester.jButtonLoadFile.text")); // NOI18N
-    jButtonLoadFile.setFocusable(false);
-    jButtonLoadFile.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-    jButtonLoadFile.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-    jButtonLoadFile.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        jButtonLoadFileActionPerformed(evt);
-      }
-    });
-    jToolBar1.add(jButtonLoadFile);
-
-    javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-    getContentPane().setLayout(layout);
-    layout.setHorizontalGroup(
-      layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 715, Short.MAX_VALUE)
-      .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 715, Short.MAX_VALUE)
-      .addGroup(layout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-            .addComponent(jCmbLangs, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 441, Short.MAX_VALUE)
-            .addComponent(lblCaretPos, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addContainerGap())
-          .addGroup(layout.createSequentialGroup()
-            .addComponent(lblToken, javax.swing.GroupLayout.DEFAULT_SIZE, 221, Short.MAX_VALUE)
-            .addGap(484, 484, 484))))
+    javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+    jPanel1.setLayout(jPanel1Layout);
+    jPanel1Layout.setHorizontalGroup(
+      jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 727, Short.MAX_VALUE)
+      .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(jPanel1Layout.createSequentialGroup()
+          .addGap(0, 0, 0)
+          .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 727, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+              .addComponent(jCmbLangs, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+              .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 473, Short.MAX_VALUE)
+              .addComponent(lblCaretPos, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+              .addComponent(lblToken, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
+              .addGap(484, 484, 484)))
+          .addGap(0, 0, 0)))
     );
-    layout.setVerticalGroup(
-      layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-        .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addGap(0, 0, 0)
-        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(lblToken, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(lblCaretPos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(jCmbLangs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addContainerGap())
+    jPanel1Layout.setVerticalGroup(
+      jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 449, Short.MAX_VALUE)
+      .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(jPanel1Layout.createSequentialGroup()
+          .addGap(0, 0, 0)
+          .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE)
+          .addGap(0, 0, 0)
+          .addComponent(lblToken, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addGap(0, 0, 0)
+          .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addComponent(lblCaretPos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jCmbLangs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addGap(0, 0, 0)))
     );
+
+    getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
@@ -249,6 +256,7 @@ public class SyntaxTester extends javax.swing.JFrame {
   private javax.swing.JButton jButtonLoadFile;
   private javax.swing.JComboBox jCmbLangs;
   private javax.swing.JEditorPane jEdtTest;
+  private javax.swing.JPanel jPanel1;
   private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JToolBar jToolBar1;
   private javax.swing.JLabel lblCaretPos;
