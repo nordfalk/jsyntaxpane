@@ -1,21 +1,22 @@
 /*
  * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License 
- *       at http://www.apache.org/licenses/LICENSE-2.0 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License.  
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License
+ *       at http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package jsyntaxpane;
 
 import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Segment;
@@ -75,7 +76,7 @@ public class Token implements Serializable, Comparable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Object) {
+		if (obj instanceof Token) {
             Token token = (Token) obj;
             return ((this.start == token.start) &&
                     (this.length == token.length) &&
@@ -128,19 +129,16 @@ public class Token implements Serializable, Comparable {
             doc.getText(start, length, text);
         } catch (BadLocationException ex) {
             Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            return text;
         }
+		return text;
     }
 
     public String getString(Document doc) {
-        String result = "";
         try {
-            result = doc.getText(start, length);
+			return doc.getText(start, length);
         } catch (BadLocationException ex) {
             Logger.getLogger(Token.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            return result;
+			return "";
         }
     }
 }

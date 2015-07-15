@@ -30,11 +30,13 @@ import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
+
 import jsyntaxpane.actions.ActionUtils;
 import jsyntaxpane.util.ReflectUtils;
 import jsyntaxpane.util.StringUtils;
@@ -50,7 +52,7 @@ public class ReflectCompletionDialog
 	/**
 	 * The class we are displaying its members:
 	 */
-	private Class theClass;
+	private Class<?> theClass;
 	/**
 	 * The current filter, to avoid refiltering the items
 	 */
@@ -276,7 +278,7 @@ public class ReflectCompletionDialog
 			items.clear();
 		}
 		// we must have the class in the Combo:
-		Class aClass = ReflectUtils.findClass(className, ReflectUtils.DEFAULT_PACKAGES);
+		Class<?> aClass = ReflectUtils.findClass(className, ReflectUtils.DEFAULT_PACKAGES);
 		if (aClass != null) {
 			// for now, add everything:
 			theClass = aClass;
@@ -289,7 +291,7 @@ public class ReflectCompletionDialog
 		refilterList();
 	}
 
-	public Class getTheClass() {
+	public Class<?> getTheClass() {
 		return theClass;
 	}
 

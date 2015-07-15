@@ -1,15 +1,15 @@
 /*
  * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License 
- *       at http://www.apache.org/licenses/LICENSE-2.0 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License.  
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License
+ *       at http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package jsyntaxpane.util;
 
@@ -55,7 +55,7 @@ public class JarServiceProvider {
      *
 	 * @throws java.io.IOException
 	 */
-	public static List<Object> getServiceProviders(Class cls) throws IOException {
+	public static List<Object> getServiceProviders(Class<?> cls) throws IOException {
 		ArrayList<Object> l = new ArrayList<Object>();
 		ClassLoader cl = getClassLoader();
 		String serviceFile = SERVICES_ROOT + cls.getName();
@@ -101,7 +101,7 @@ public class JarServiceProvider {
      *
 	 * @return Property file read.
 	 */
-	public static Properties readProperties(Class clazz) {
+	public static Properties readProperties(Class<?> clazz) {
 		return readProperties(clazz.getName());
 	}
 
@@ -136,22 +136,22 @@ public class JarServiceProvider {
      * with ".properties". The contents of the files are merged as follows:
      * <ul>
      *   <li>First the default language file (&lt;name&gt;.properties) is read</li>
-     *   <li>Then the general language variant of the file 
+     *   <li>Then the general language variant of the file
      *      (&lt;name&gt;_&lt;lang&gt;.properties) is read and its
      *      entries are added to/overwrite the entries of the default life</li>
-     *   <li>Last the country specific language variant of the file 
+     *   <li>Last the country specific language variant of the file
      *      (&lt;name&gt;_&lt;lang&gt;_&lt;country&gt;.properties) is read and its
      *      entries are added to/overwrite the existing entries</li>
      * </ul>
-     * Example: You have three files: 
+     * Example: You have three files:
      * <ul>
      *   <li>config.properties which contains the complete configuration
      *     (most likely with English menus, tooltips)</li>
      *   <li>config_de.properties which only contains menu names and tooltips
-     *     in German language</li>    
+     *     in German language</li>
      *   <li>config_de_CH which might just contain entries for specific
      *     Swiss spelling variant of some words in a tooltip</li>
-     * <ul>     
+     * <ul>
      *
      * If no filesis found, then a an empty Property instance will be returned
      *
@@ -193,7 +193,7 @@ public class JarServiceProvider {
 		Properties props = readProperties(name);
 		HashMap<String, String> map = new HashMap<String, String>();
 		if (props != null) {
-			for (Map.Entry e : props.entrySet()) {
+			for (Map.Entry<Object, Object> e : props.entrySet()) {
 				map.put(e.getKey().toString(), e.getValue().toString());
 			}
 		}
@@ -211,7 +211,6 @@ public class JarServiceProvider {
 	 * @param url location of file to read
 	 * @return List of Strings for each line read. or EMPTY_LIST if URL is not found
 	 */
-	@SuppressWarnings("unchecked")
 	public static List<String> readLines(String url) {
 		InputStream is = findResource(url);
 		if (is == null) {
@@ -233,9 +232,8 @@ public class JarServiceProvider {
 			} catch (IOException ex) {
 				LOG.log(Level.SEVERE, null, ex);
 			}
-			return lines;
 		}
-
+		return lines;
 	}
 
 	/**
