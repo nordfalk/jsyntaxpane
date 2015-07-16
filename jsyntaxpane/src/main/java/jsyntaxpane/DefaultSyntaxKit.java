@@ -1,28 +1,27 @@
 /*
  * Copyright 2008 Ayman Al-Sairafi ayman.alsairafi@gmail.com
  * Copyright 2013-2014 Hanns Holger Rutz.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License 
- *       at http://www.apache.org/licenses/LICENSE-2.0 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License.  
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License
+ *       at http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package jsyntaxpane;
 
 import java.awt.Color;
 import java.awt.Container;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.logging.Level;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +33,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
@@ -49,7 +50,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-import javax.swing.text.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.Document;
+import javax.swing.text.EditorKit;
+import javax.swing.text.Element;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
 
 import jsyntaxpane.actions.DefaultSyntaxAction;
 import jsyntaxpane.actions.SyntaxAction;
@@ -58,11 +66,11 @@ import jsyntaxpane.util.Configuration;
 import jsyntaxpane.util.JarServiceProvider;
 
 /**
- * The DefaultSyntaxKit is the main entry to SyntaxPane.  To use the package, just 
+ * The DefaultSyntaxKit is the main entry to SyntaxPane.  To use the package, just
  * set the EditorKit of the EditorPane to a new instance of this class.
- * 
+ *
  * You need to pass a proper lexer to the class.
- * 
+ *
  * @author ayman, Hanns Holger Rutz
  */
 public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
@@ -83,11 +91,11 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 	private static Boolean initialized = false;
 	private static Map<String, String> abbreviations;
 	private static String MENU_MASK_STRING = "control ";
-	private Lexer lexer;
+	private final Lexer lexer;
 	private static final Logger LOG = Logger.getLogger(DefaultSyntaxKit.class.getName());
-	private Map<JEditorPane, List<SyntaxComponent>> editorComponents =
+	private final Map<JEditorPane, List<SyntaxComponent>> editorComponents =
 		new WeakHashMap<JEditorPane, List<SyntaxComponent>>();
-	private Map<JEditorPane, JPopupMenu> popupMenu =
+	private final Map<JEditorPane, JPopupMenu> popupMenu =
 		new WeakHashMap<JEditorPane, JPopupMenu>();
 	/**
 	 * Main Configuration of SyntaxPane EditorKits
@@ -144,8 +152,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 	 */
 	public void installComponent(JEditorPane pane, String className) {
 		try {
-			@SuppressWarnings(value = "unchecked")
-			Class compClass = Class.forName(className);
+			Class<?> compClass = Class.forName(className);
 			SyntaxComponent comp = (SyntaxComponent) compClass.newInstance();
 			comp.config(getConfig());
 			comp.install(pane);
@@ -388,7 +395,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 				String ksString         = values[i].replace("menu ", MENU_MASK_STRING);
                 String keyStrokeString  = platformKey == null ? ksString : platformKey;
 				KeyStroke ks = KeyStroke.getKeyStroke(keyStrokeString);
-				// we may have more than onr value ( for key action ), but we will use the 
+				// we may have more than onr value ( for key action ), but we will use the
 				// last one in the single value here.  This will display the key in the
 				// popup menus.  Pretty neat.
 				if (ks == null) {
@@ -456,7 +463,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 	private SyntaxAction createAction(String actionClassName) {
 		SyntaxAction action;
 		try {
-			Class clazz = Class.forName(actionClassName);
+			Class<?> clazz = Class.forName(actionClassName);
 			action = (SyntaxAction) clazz.newInstance();
 		} catch (InstantiationException ex) {
 			throw new IllegalArgumentException("Cannot create action class: " +
@@ -513,7 +520,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 
 		// read the Default Kits and their associated types
 		Properties kitsForTypes = JarServiceProvider.readProperties("jsyntaxpane/kitsfortypes");
-		for (Map.Entry e : kitsForTypes.entrySet()) {
+		for (Map.Entry<Object, Object> e : kitsForTypes.entrySet()) {
 			String type = e.getKey().toString();
 			String className = e.getValue().toString();
 			registerContentType(type, className);
@@ -532,7 +539,7 @@ public class DefaultSyntaxKit extends DefaultEditorKit implements ViewFactory {
 			// ensure the class is available and that it does supply a no args
 			// constructor.  This saves debugging later if the class-name is incorrect
 			// or does not behave correctly:
-			Class c = Class.forName(className);
+			Class<?> c = Class.forName(className);
 			// attempt to create the class, if we cannot with an empty argument
 			// then the class is invalid
 			Object kit = c.newInstance();

@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  *
  * Except for the getXXXX methods, all other Map Interface methods operate on the
  * current (non-parent) collection and do NOT touch the parent.
- * 
+ *
  * @author Ayman Al-Sairafi
  */
 public class Configuration implements Map<String, String> {
@@ -158,12 +158,12 @@ public class Configuration implements Map<String, String> {
 
     /**
      * Returns a String[] of the comma separated items in the value.
-     * 
+     *
      * Does NOT return null.  If the key is not found,
      * then an empty string array is returned.  So the return of this method
      * can always be used directly in a foreach loop
      * @param key
-     * @return non-null String[] 
+     * @return non-null String[]
      */
     public String[] getPropertyList(String key) {
         String v = getString(key);
@@ -209,7 +209,7 @@ public class Configuration implements Map<String, String> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void putAll(Map config) {
+	public void putAll(Map config) {
         if (props == null) {
             props = new HashMap<String, String>();
         }
@@ -287,30 +287,27 @@ public class Configuration implements Map<String, String> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Set<String> keySet() {
         if (props == null) {
-            return Collections.EMPTY_SET;
+			return Collections.emptySet();
         } else {
             return props.keySet();
         }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Collection<String> values() {
         if (props == null) {
-            return Collections.EMPTY_SET;
+			return Collections.emptySet();
         } else {
             return props.values();
         }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Set<Entry<String, String>> entrySet() {
         if (props == null) {
-            return Collections.EMPTY_SET;
+			return Collections.emptySet();
         } else {
             return props.entrySet();
         }
