@@ -28,17 +28,21 @@ The original project is (C)opyright by Ayman Al-Sairafi and released under the [
 
 To change the default colors, modify the SyntaxStyles class.
 
-#Building JSyntaxPane
+# Downloading, building and test running JSyntaxPane
 
 For building, you need to install [Maven](http://maven.apache.org/).
 
-To build from the command-line, just cd into the checked out folder and issue the command:
+To build from the command-line, just cd into the checked out folder and issue `mvn package`.
+The binary jar will be built in the `target` folder. It contains a small SyntaxTester main class which you can use to try out the library:
 
 ```
+git clone 
+cd jsyntaxpane
 mvn package
+java -jar target/jsyntaxpane-1.1.4.jar
 ```
 
-The JFlex generated sources will be found in `target/generated-sources`. The binary jar will be built in the `target` folder.
+The JFlex generated sources will be found in `target/generated-sources`. 
 
 ## Netbeans 6.1+ ##
 
