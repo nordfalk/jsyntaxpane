@@ -8,7 +8,29 @@ The original project JSyntaxPane can be found [on google-code](http://code.googl
 The original project is (C)opyright by Ayman Al-Sairafi and released under the [Apache License, Version 2.0](http://github.com/Sciss/JSyntaxPane/blob/master/licenses/JSyntaxPane-License.txt).
 
 
-# How to use #
+# Downloading, building and test running JSyntaxPane
+
+For building, you need to install [Maven](http://maven.apache.org/).
+
+To build from the command-line, just cd into the checked out folder and issue `mvn package`.
+The binary jar will be built in the `target` folder. It contains a small SyntaxTester main class which you can use to try out the library:
+
+```
+git clone https://github.com/nordfalk/jsyntaxpane
+cd jsyntaxpane/jsyntaxpane
+mvn package
+java -jar target/jsyntaxpane-1.1.4.jar
+```
+
+The JFlex generated sources will be found in `target/generated-sources`. 
+
+## Netbeans 6.1+ ##
+
+Choose **Tools>Plugins>Available Plugins and choose and install Maven.** After installation, just use the IDE's Open Project option to open JSyntaxPane checkedout project (no need to configure dependencies, source directories, Java platform versions etc.)--Maven projects can be directly be opened in Netbeans.
+
+
+
+# How to use the library #
 
   1. Load the latest release.
 
@@ -27,26 +49,6 @@ The original project is (C)opyright by Ayman Al-Sairafi and released under the [
 
 
 To change the default colors, modify the SyntaxStyles class.
-
-# Downloading, building and test running JSyntaxPane
-
-For building, you need to install [Maven](http://maven.apache.org/).
-
-To build from the command-line, just cd into the checked out folder and issue `mvn package`.
-The binary jar will be built in the `target` folder. It contains a small SyntaxTester main class which you can use to try out the library:
-
-```
-git clone 
-cd jsyntaxpane
-mvn package
-java -jar target/jsyntaxpane-1.1.4.jar
-```
-
-The JFlex generated sources will be found in `target/generated-sources`. 
-
-## Netbeans 6.1+ ##
-
-Choose **Tools>Plugins>Available Plugins and choose and install Maven.** After installation, just use the IDE's Open Project option to open JSyntaxPane checkedout project (no need to configure dependencies, source directories, Java platform versions etc.)--Maven projects can be directly be opened in Netbeans.
 
 
 # Customizing
