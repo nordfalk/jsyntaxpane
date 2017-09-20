@@ -8,7 +8,7 @@ The original project JSyntaxPane can be found [on google-code](http://code.googl
 The original project is (C)opyright by Ayman Al-Sairafi and released under the [Apache License, Version 2.0](http://github.com/Sciss/JSyntaxPane/blob/master/licenses/JSyntaxPane-License.txt).
 
 
-# Downloading, building and test running JSyntaxPane
+# Downloading, building and test running #
 
 For building, you need to install [Maven](http://maven.apache.org/).
 
@@ -19,7 +19,7 @@ The binary jar will be built in the `target` folder. It contains a small SyntaxT
 git clone https://github.com/nordfalk/jsyntaxpane
 cd jsyntaxpane/jsyntaxpane
 mvn package
-java -jar target/jsyntaxpane-1.1.4.jar
+java -jar target/jsyntaxpane-1.1.5.jar
 ```
 
 The JFlex generated sources will be found in `target/generated-sources`. 
