@@ -58,29 +58,42 @@ public class CompoundUndoManager extends UndoManager {
 	public void undoableEditHappened(UndoableEditEvent e) {
 		//  Start a new compound edit
 
-		AbstractDocument.DefaultDocumentEvent docEvt = (DefaultDocumentEvent) e.getEdit();
-
 		if (compoundEdit == null) {
 			compoundEdit = startCompoundEdit(e.getEdit());
 			startCombine = false;
             updateDirty();
 			return;
 		}
+    if (e.getEdit() instanceof DefaultDocumentEvent) {
+      // Java 6 to 8
+      AbstractDocument.DefaultDocumentEvent docEvt = (DefaultDocumentEvent) e.getEdit();
 
-		int editLine = ((SyntaxDocument)docEvt.getDocument()).getLineNumberAt(docEvt.getOffset());
+      int editLine = doc.getLineNumberAt(docEvt.getOffset());
 
-		//  Check for an incremental edit or backspace.
-		//  The Change in Caret position and Document length should both be
-		//  either 1 or -1.
-		if ((startCombine || Math.abs(docEvt.getLength()) == 1) && editLine == lastLine) {
-			compoundEdit.addEdit(e.getEdit());
-			startCombine = false;
-            updateDirty();
-			return;
-		}
+      //  Check for an incremental edit or backspace.
+      //  The Change in Caret position and Document length should both be
+      //  either 1 or -1.
+      if ((startCombine || Math.abs(docEvt.getLength()) == 1) && editLine == lastLine) {
+        compoundEdit.addEdit(e.getEdit());
+        startCombine = false;
+              updateDirty();
+        return;
+      }
 
-		//  Not incremental edit, end previous edit and start a new one
-		lastLine = editLine;
+      //  Not incremental edit, end previous edit and start a new one
+      lastLine = editLine;
+
+    } else {
+      // Java 9: It seems that all the edits are wrapped and we cannot get line number!
+      // See https://github.com/netroby/jdk9-dev/blob/master/jdk/src/java.desktop/share/classes/javax/swing/text/AbstractDocument.java#L279
+      // AbstractDocument.DefaultDocumentEventUndoableWrapper docEvt = e.getEdit();
+      if (startCombine && !e.getEdit().isSignificant()) {
+        compoundEdit.addEdit(e.getEdit());
+        startCombine = false;
+              updateDirty();
+        return;
+      }
+    }
 
 		compoundEdit.end();
 		compoundEdit = startCompoundEdit(e.getEdit());
